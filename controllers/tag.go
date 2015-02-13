@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	e "pram-get/errors"
-	"pram-get/models"
+	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-get/models"
 )
 
 // TagController handles tag pages

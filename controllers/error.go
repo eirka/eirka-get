@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 
-	e "pram-get/errors"
+	e "github.com/techjanitor/pram-get/errors"
 )
 
 // Handles error messages for wrong routes

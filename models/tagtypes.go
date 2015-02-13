@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "pram-get/utils"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // TagTypesModel holds the parameters from the request and also the key for the cache

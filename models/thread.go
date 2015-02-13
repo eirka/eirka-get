@@ -3,9 +3,9 @@ package models
 import (
 	"database/sql"
 
-	"pram-get/config"
-	e "pram-get/errors"
-	u "pram-get/utils"
+	"github.com/techjanitor/pram-get/config"
+	e "github.com/techjanitor/pram-get/errors"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // ThreadModel holds the parameters from the request and also the key for the cache

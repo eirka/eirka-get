@@ -1,8 +1,8 @@
 package models
 
 import (
-	e "pram-get/errors"
-	u "pram-get/utils"
+	e "github.com/techjanitor/pram-get/errors"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // TagsModel holds the parameters from the request and also the key for the cache

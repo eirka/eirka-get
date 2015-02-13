@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"pram-get/config"
+	"github.com/techjanitor/pram-get/config"
 )
 
 var cookie = &http.Cookie{

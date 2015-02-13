@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strings"
 
-	u "pram-get/utils"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // Cache will check for the key in Redis and serve it. If not found, it will

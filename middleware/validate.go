@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 
-	"pram-get/config"
-	e "pram-get/errors"
+	"github.com/techjanitor/pram-get/config"
+	e "github.com/techjanitor/pram-get/errors"
 )
 
 // ValidateParams will loop through the route parameters to make sure theyre uint
