@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/garyburd/redigo/redis"
 	"time"
+
+	"github.com/techjanitor/pram-get/config"
 )
 
 // RedisStore holds a handle to the Redis pool
@@ -19,13 +21,13 @@ var (
 )
 
 // NewRedisCache creates a new pool
-func NewRedisCache(server, protocol string, maxidle, maxactive int) {
+func NewRedisCache() {
 	RedisCache.pool = &redis.Pool{
-		MaxIdle:     maxidle,
-		MaxActive:   maxactive,
+		MaxIdle:     config.Settings.Redis.MaxIdle,
+		MaxActive:   config.Settings.Redis.MaxActive,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial(protocol, server)
+			c, err := redis.Dial(config.Settings.Redis.Protocol, config.Settings.Redis.Address)
 			if err != nil {
 				return nil, err
 			}

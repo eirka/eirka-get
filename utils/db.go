@@ -4,15 +4,23 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/techjanitor/pram-get/config"
 )
 
 var db *sql.DB
 
 // NewDb initializes a connection to MySQL and tries to connect.
-func NewDb(dbuser, dbpassword, dbproto, dbhost, dbdatabase string, dbmaxidle, dbmaxconnections int) {
+func NewDb() {
 	var err error
 
-	db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", dbuser, dbpassword, dbproto, dbhost, dbdatabase))
+	db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s",
+		config.Settings.Database.User,
+		config.Settings.Database.Password,
+		config.Settings.Database.Proto,
+		config.Settings.Database.Host,
+		config.Settings.Database.Database,
+	))
 	if err != nil {
 		panic(err)
 	}
@@ -22,8 +30,8 @@ func NewDb(dbuser, dbpassword, dbproto, dbhost, dbdatabase string, dbmaxidle, db
 		panic(err)
 	}
 
-	db.SetMaxIdleConns(dbmaxidle)
-	db.SetMaxOpenConns(dbmaxconnections)
+	db.SetMaxIdleConns(config.Settings.Database.MaxIdle)
+	db.SetMaxOpenConns(config.Settings.Database.MaxConnections)
 }
 
 // GetDb returns a connection to MySQL

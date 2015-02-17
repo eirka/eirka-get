@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"runtime"
 
@@ -16,17 +17,11 @@ func init() {
 	// Get start time
 	u.InitTime()
 
-	conf := config.Settings
-
-	db := conf.Database
-
 	// Set up DB connection
-	u.NewDb(db.DbUser, db.DbPassword, db.DbProto, db.DbHost, db.DbDatabase, db.DbMaxIdle, db.DbMaxConnections)
-
-	redis := conf.Redis
+	u.NewDb()
 
 	// Set up Redis connection
-	u.NewRedisCache(redis.RedisAddress, redis.RedisProtocol, redis.RedisMaxIdle, redis.RedisMaxConnections)
+	u.NewRedisCache()
 
 }
 
@@ -55,6 +50,6 @@ func main() {
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
 
-	r.Run("127.0.0.1:5010")
+	r.Run(fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port))
 
 }

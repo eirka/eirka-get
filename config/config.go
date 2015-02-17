@@ -8,23 +8,29 @@ import (
 var Settings *Config
 
 type Config struct {
+	General struct {
+		// Settings for daemon
+		Address string
+		Port    uint
+	}
+
 	Database struct {
 		// Database connection settings
-		DbUser           string
-		DbPassword       string
-		DbProto          string
-		DbHost           string
-		DbDatabase       string
-		DbMaxIdle        int
-		DbMaxConnections int
+		User           string
+		Password       string
+		Proto          string
+		Host           string
+		Database       string
+		MaxIdle        int
+		MaxConnections int
 	}
 
 	Redis struct {
 		// Redis address and max pool connections
-		RedisProtocol       string
-		RedisAddress        string
-		RedisMaxIdle        int
-		RedisMaxConnections int
+		Protocol       string
+		Address        string
+		MaxIdle        int
+		MaxConnections int
 	}
 
 	Antispam struct {
