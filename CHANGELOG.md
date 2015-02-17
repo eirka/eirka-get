@@ -1,5 +1,10 @@
 #Pram-get Changelog
 
+### Feb 16, 2015
+
+- [FIX] General improvements to config
+- [ADD] Config options to set daemon bind address and port
+
 ### Feb 12, 2015
 
 - [ADD] Cache middleware
