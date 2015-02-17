@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -51,6 +52,18 @@ type Config struct {
 		// Max request parameter input size
 		ParamMaxSize uint
 	}
+}
+
+func Print() {
+
+	// Marshal the structs into JSON
+	output, err := json.MarshalIndent(Settings, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s", output)
+
 }
 
 func init() {

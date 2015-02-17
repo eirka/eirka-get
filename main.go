@@ -17,6 +17,8 @@ func init() {
 	// Get start time
 	u.InitTime()
 
+	config.Print()
+
 	// Set up DB connection
 	u.NewDb()
 
