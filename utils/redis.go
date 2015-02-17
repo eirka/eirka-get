@@ -6,7 +6,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"time"
 
-	"github.com/techjanitor/pram-post/config"
+	"github.com/techjanitor/pram-get/config"
 )
 
 // RedisStore holds a handle to the Redis pool
