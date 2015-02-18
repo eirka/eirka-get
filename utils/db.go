@@ -51,7 +51,6 @@ func GetTransaction() (*sql.Tx, error) {
 
 // Check a bool in the database
 func GetBool(column, table, row string, id uint) (boolean bool) {
-	var boolean bool
 
 	// Check if thread is closed and get the total amount of posts
 	err := db.QueryRow("SELECT ? FROM ? WHERE ? = ?", column, table, row, id).Scan(&boolean)
