@@ -65,13 +65,13 @@ func GetBool(column, table, row string, id uint) (boolean bool) {
 // Set a bool in the database
 func SetBool(table, column, row string, boolean bool, id uint) (err error) {
 
-	ps, err = db.Prepare("UPDATE ? SET ?=? WHERE ?=?")
+	ps, err := db.Prepare("UPDATE ? SET ?=? WHERE ?=?")
 	if err != nil {
 		return
 	}
 	defer ps.Close()
 
-	_, err = updatestatus.Exec(table, column, boolean, row, id)
+	_, err = ps.Exec(table, column, boolean, row, id)
 	if err != nil {
 		return
 	}
