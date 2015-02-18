@@ -48,3 +48,35 @@ func GetTransaction() (*sql.Tx, error) {
 
 	return tx, err
 }
+
+// Check a bool in the database
+func GetBool(column, table, row string, id uint) (boolean bool) {
+	var boolean bool
+
+	// Check if thread is closed and get the total amount of posts
+	err := db.QueryRow("SELECT ? FROM ? WHERE ? = ?", column, table, row, id).Scan(&boolean)
+	if err != nil {
+		return false
+	}
+
+	return
+
+}
+
+// Set a bool in the database
+func SetBool(table, column, row string, boolean bool, id uint) (err error) {
+
+	ps, err = db.Prepare("UPDATE ? SET ?=? WHERE ?=?")
+	if err != nil {
+		return
+	}
+	defer ps.Close()
+
+	_, err = updatestatus.Exec(table, column, boolean, row, id)
+	if err != nil {
+		return
+	}
+
+	return
+
+}
