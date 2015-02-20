@@ -30,7 +30,7 @@ func PramController(c *gin.Context) {
 	}
 
 	// Marshal the structs into JSON
-	output, err := json.Marshal(m.Result)
+	output, err := json.MarshalIndent(m.Result, "", "  ")
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
