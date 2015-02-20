@@ -27,7 +27,7 @@ type Imageboard struct {
 	Id          uint   `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Domain      string `json:"domain"`
+	Domain      string `json:"url"`
 	Threads     uint   `json:"threads"`
 	Posts       uint   `json:"posts"`
 	Images      uint   `json:"images"`
