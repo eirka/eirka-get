@@ -1,5 +1,10 @@
 #Pram-get Changelog
 
+### Feb 20, 2015
+
+- [ADD] Added pram directory with imageboard stats
+- [ADD] Added list of keys that should expire in cache middleware
+
 ### Feb 16, 2015
 
 - [FIX] General improvements to config
