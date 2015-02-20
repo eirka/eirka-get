@@ -48,6 +48,7 @@ func main() {
 	controllers.GET("/post/:thread/:id", c.PostController)
 	controllers.GET("/tags/:ib", c.TagsController)
 	controllers.GET("/tagtypes", c.TagTypesController)
+	controllers.GET("/pram", c.PramController)
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)

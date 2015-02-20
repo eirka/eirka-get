@@ -6,7 +6,10 @@ import (
 	"os"
 )
 
-var Settings *Config
+var (
+	PramVersion = "1.1.2"
+	Settings    *Config
+)
 
 type Config struct {
 	General struct {
