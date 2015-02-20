@@ -22,6 +22,7 @@ func Cache() gin.HandlerFunc {
 
 		// Make key from path
 		key := redisKey{}
+		key.expireKey(params[0])
 		key.generateKey(params...)
 
 		// Initialize cache handle
@@ -76,12 +77,26 @@ func Cache() gin.HandlerFunc {
 				// Get data from controller
 				data := c.MustGet("data").([]byte)
 
-				// Set output to cache
-				err = cache.Set(key.Key, data)
-				if err != nil {
-					c.Error(err, "Operation aborted")
-					c.Abort()
-					return
+				if key.Expire {
+
+					// Set output to cache
+					err = cache.SetEx(key.Key, 60, data)
+					if err != nil {
+						c.Error(err, "Operation aborted")
+						c.Abort()
+						return
+					}
+
+				} else {
+
+					// Set output to cache
+					err = cache.Set(key.Key, data)
+					if err != nil {
+						c.Error(err, "Operation aborted")
+						c.Abort()
+						return
+					}
+
 				}
 
 			}
@@ -102,9 +117,10 @@ func Cache() gin.HandlerFunc {
 }
 
 type redisKey struct {
-	Key   string
-	Field string
-	Hash  bool
+	Key    string
+	Field  string
+	Hash   bool
+	Expire bool
 }
 
 // Will take the params from the request and turn them into a key
@@ -126,6 +142,22 @@ func (r *redisKey) generateKey(params ...string) {
 
 	// Create redis key
 	r.Key = strings.Join(keys, ":")
+
+	return
+
+}
+
+// Check if key should be expired
+func (r *redisKey) expireKey(key string) {
+
+	keyList := map[string]bool{
+		"image": true,
+		"pram":  true,
+	}
+
+	if keyList[strings.ToLower(key)] {
+		r.Expire = true
+	}
 
 	return
 
