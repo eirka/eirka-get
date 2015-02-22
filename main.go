@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"runtime"
 
 	"github.com/techjanitor/pram-get/config"
