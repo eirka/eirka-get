@@ -1,5 +1,9 @@
 #Pram-get Changelog
 
+### Feb 22, 2015
+
+- [ADD] Added graceful shutdown/restart
+
 ### Feb 20, 2015
 
 - [ADD] Added pram directory with imageboard stats
