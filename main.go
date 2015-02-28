@@ -19,7 +19,10 @@ func init() {
 	// Get start time
 	u.InitTime()
 
-	config.Print()
+	// Print out config
+	if gin.IsDebugging() {
+		config.Print()
+	}
 
 	// Set up DB connection
 	u.NewDb()

@@ -8,15 +8,16 @@ import (
 	"github.com/techjanitor/pram-get/config"
 )
 
-var cookie = &http.Cookie{
-	Name:    config.Settings.Antispam.CookieName,
-	Value:   config.Settings.Antispam.CookieValue,
-	Expires: time.Now().Add(356 * 24 * time.Hour),
-	Path:    "/",
-}
-
+// Generates the antispam cookie for pram-post
 func AntiSpamCookie() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		var cookie = &http.Cookie{
+			Name:    config.Settings.Antispam.CookieName,
+			Value:   config.Settings.Antispam.CookieValue,
+			Expires: time.Now().Add(356 * 24 * time.Hour),
+			Path:    "/",
+		}
 
 		http.SetCookie(c.Writer, cookie)
 
