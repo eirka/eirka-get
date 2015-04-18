@@ -12,7 +12,7 @@ import (
 func AntiSpamCookie() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		var cookie = &http.Cookie{
+		cookie := &http.Cookie{
 			Name:    config.Settings.Antispam.CookieName,
 			Value:   config.Settings.Antispam.CookieValue,
 			Expires: time.Now().Add(356 * 24 * time.Hour),

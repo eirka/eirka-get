@@ -1,5 +1,9 @@
 #Pram-get Changelog
 
+### Feb 28, 2015
+
+- [FIX] Antispam cookie expire date
+
 ### Feb 22, 2015
 
 - [ADD] Added graceful shutdown/restart

@@ -1,9 +1,11 @@
 package errors
 
+import "net/http"
+
 var (
-	ErrInvalidParam  = &RequestError{ErrorString: "Invalid Parameter", ErrorCode: 400}
-	ErrInternalError = &RequestError{ErrorString: "Internal Error", ErrorCode: 500}
-	ErrNotFound      = &RequestError{ErrorString: "Request Not Found", ErrorCode: 404}
+	ErrInvalidParam  = &RequestError{ErrorString: "Invalid Parameter", ErrorCode: http.StatusBadRequest}
+	ErrInternalError = &RequestError{ErrorString: "Internal Error", ErrorCode: http.StatusInternalServerError}
+	ErrNotFound      = &RequestError{ErrorString: "Request Not Found", ErrorCode: http.StatusNotFound}
 )
 
 type RequestError struct {
