@@ -35,6 +35,8 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	r.Use(gin.ForwardedFor())
+
 	controllers := r.Group("/")
 	// Adds antispam cookie to requests
 	controllers.Use(m.AntiSpamCookie())
