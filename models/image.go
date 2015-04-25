@@ -61,7 +61,7 @@ func (i *ImageModel) Get() (err error) {
 	}
 
 	// Check to see if image has been deleted
-	if u.GetBool(image_deleted, images, image_id, i.Id) {
+	if u.GetBool("image_deleted", "images", "image_id", i.Id) {
 		return e.ErrNotFound
 	}
 

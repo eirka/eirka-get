@@ -80,7 +80,7 @@ func (i *ThreadModel) Get() (err error) {
 	paged.Get()
 
 	// Check to see if thread has been deleted
-	if u.GetBool(thread_deleted, threads, thread_id, i.Thread) {
+	if u.GetBool("thread_deleted", "threads", "thread_id", i.Thread) {
 		return e.ErrNotFound
 	}
 
