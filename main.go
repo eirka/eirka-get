@@ -48,6 +48,7 @@ func main() {
 	controllers.GET("/index/:ib/:page", c.IndexController)
 	controllers.GET("/thread/:thread/:page", c.ThreadController)
 	controllers.GET("/tag/:tag/:page", c.TagController)
+	controllers.GET("/tag/:id", c.TagInfoController)
 	controllers.GET("/directory/:ib", c.DirectoryController)
 	controllers.GET("/image/:id", c.ImageController)
 	controllers.GET("/post/:thread/:id", c.PostController)
