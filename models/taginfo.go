@@ -32,9 +32,9 @@ func (i *TagInfoModel) Get() (err error) {
 	response := TagInfoType{}
 
 	// Initialize struct for tag info
-	tagheader := TagInfo{}
+	taginfo := TagInfo{}
 
-	tagheader.Id = i.Id
+	taginfo.Id = i.Id
 
 	// Get Database handle
 	db, err := u.GetDb()
@@ -43,12 +43,15 @@ func (i *TagInfoModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ?", i.Id).Scan(&tagheader.Tag, &tagheader.Type)
+	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ?", i.Id).Scan(&taginfo.Tag, &taginfo.Type)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
 		return
 	}
+
+	// Add taginfo to the response struct
+	response.Tag = taginfo
 
 	// This is the data we will serialize
 	i.Result = response
