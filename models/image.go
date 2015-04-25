@@ -60,6 +60,11 @@ func (i *ImageModel) Get() (err error) {
 		return
 	}
 
+	// Check to see if image has been deleted
+	if u.GetBool(image_deleted, images, image_id, i.Id) {
+		return e.ErrNotFound
+	}
+
 	var image_num, image_total uint
 
 	// Get total amount of images in the thread

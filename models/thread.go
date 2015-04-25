@@ -79,6 +79,11 @@ func (i *ThreadModel) Get() (err error) {
 	// Calculate Limit and total Pages
 	paged.Get()
 
+	// Check to see if thread has been deleted
+	if u.GetBool(thread_deleted, threads, thread_id, i.Thread) {
+		return e.ErrNotFound
+	}
+
 	// Return 404 if page requested is larger than actual pages
 	if i.Page > paged.Pages {
 		return e.ErrNotFound
