@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
 )
@@ -21,9 +20,9 @@ type TagInfoType struct {
 
 // Header for tag page
 type TagInfo struct {
-	Id      uint    `json:"id"`
-	TagInfo *string `json:"tag"`
-	Type    *uint   `json:"type"`
+	Id   uint   `json:"id"`
+	Tag  string `json:"tag"`
+	Type uint   `json:"type"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -35,7 +34,7 @@ func (i *TagInfoModel) Get() (err error) {
 	// Initialize struct for tag info
 	tagheader := TagInfo{}
 
-	tagheader.Id = i.TagInfo
+	tagheader.Id = i.Id
 
 	// Get Database handle
 	db, err := u.GetDb()
