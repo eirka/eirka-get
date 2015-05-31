@@ -21,12 +21,12 @@ func ValidateParams() gin.HandlerFunc {
 				pid, err := strconv.ParseUint(param.Value, 10, 0)
 				if err != nil {
 					c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-					c.Error(e.ErrInvalidParam, "Operation aborted")
+					c.Error(e.ErrInvalidParam)
 					c.Abort()
 					return
 				} else if uint(pid) > config.Settings.Limits.ParamMaxSize {
 					c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-					c.Error(e.ErrInvalidParam, "Operation aborted")
+					c.Error(e.ErrInvalidParam)
 					c.Abort()
 					return
 				}

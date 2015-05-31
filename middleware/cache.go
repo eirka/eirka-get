@@ -47,14 +47,14 @@ func Cache() gin.HandlerFunc {
 				// Set output to cache
 				err = cache.HMSet(key.Key, key.Field, data)
 				if err != nil {
-					c.Error(err, "Operation aborted")
+					c.Error(err)
 					c.Abort()
 					return
 				}
 
 			}
 			if err != nil {
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				c.Abort()
 				return
 			}
@@ -82,7 +82,7 @@ func Cache() gin.HandlerFunc {
 					// Set output to cache
 					err = cache.SetEx(key.Key, 60, data)
 					if err != nil {
-						c.Error(err, "Operation aborted")
+						c.Error(err)
 						c.Abort()
 						return
 					}
@@ -92,7 +92,7 @@ func Cache() gin.HandlerFunc {
 					// Set output to cache
 					err = cache.Set(key.Key, data)
 					if err != nil {
-						c.Error(err, "Operation aborted")
+						c.Error(err)
 						c.Abort()
 						return
 					}
@@ -101,7 +101,7 @@ func Cache() gin.HandlerFunc {
 
 			}
 			if err != nil {
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				c.Abort()
 				return
 			}
