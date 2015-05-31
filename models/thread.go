@@ -84,15 +84,13 @@ func (i *ThreadModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// Return 404 if page requested is larger than actual pages
-	if i.Page > paged.Pages {
-		return e.ErrNotFound
-	}
-
-	// Set perpage and limit to total and 0 if page num is 0
-	if i.Page == 0 {
+	// check page number
+	switch i.Page {
+	case 0:
 		paged.PerPage = paged.Total
 		paged.Limit = 0
+	case i.Page > paged.Pages:
+		return e.ErrNotFound
 	}
 
 	// Query rows

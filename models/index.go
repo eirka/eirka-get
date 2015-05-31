@@ -61,6 +61,28 @@ func (i *IndexModel) Get() (err error) {
 		return
 	}
 
+	var ibs uint
+
+	// Get total imageboard count
+	err = db.QueryRow("select count(*) from imageboards").Scan(&ibs)
+	if err != nil {
+		return
+	}
+
+	// check ib id
+	switch i.Ib {
+	case 0:
+		return e.ErrNotFound
+	case i.Ib > ibs:
+		return e.ErrNotFound
+	}
+
+	// check page id
+	switch i.Page {
+	case 0:
+		return e.ErrNotFound
+	}
+
 	// Get total thread count and put it in pagination struct
 	err = db.QueryRow("select count(*) from threads where ib_id = ?", i.Ib).Scan(&paged.Total)
 	if err != nil {
