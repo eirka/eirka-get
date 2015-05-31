@@ -19,16 +19,19 @@ func init() {
 	// Get start time
 	u.InitTime()
 
-	// Print out config
-	if gin.IsDebugging() {
-		config.Print()
-	}
-
 	// Set up DB connection
 	u.NewDb()
 
 	// Set up Redis connection
 	u.NewRedisCache()
+
+	// Get limits and stuff from database
+	config.GetDatabaseSettings()
+
+	// Print out config
+	if gin.IsDebugging() {
+		config.Print()
+	}
 
 }
 
