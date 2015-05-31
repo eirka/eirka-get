@@ -85,8 +85,8 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// check page number
-	switch i.Page {
-	case 0:
+	switch {
+	case i.Page == 0:
 		paged.PerPage = paged.Total
 		paged.Limit = 0
 	case i.Page > paged.Pages:

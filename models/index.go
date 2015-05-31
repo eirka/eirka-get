@@ -70,16 +70,12 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// check ib id
-	switch i.Ib {
-	case 0:
+	switch {
+	case i.Ib == 0:
 		return e.ErrNotFound
 	case i.Ib > ibs:
 		return e.ErrNotFound
-	}
-
-	// check page id
-	switch i.Page {
-	case 0:
+	case i.Page == 0:
 		return e.ErrNotFound
 	}
 
