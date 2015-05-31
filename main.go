@@ -29,9 +29,7 @@ func init() {
 	u.GetDatabaseSettings()
 
 	// Print out config
-	if gin.IsDebugging() {
-		config.Print()
-	}
+	config.Print()
 
 }
 
