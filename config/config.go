@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	u "github.com/techjanitor/pram-post/utils"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 var (
