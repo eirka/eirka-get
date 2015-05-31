@@ -19,7 +19,7 @@ func TagTypesController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -28,7 +28,7 @@ func TagTypesController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 

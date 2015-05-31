@@ -19,13 +19,13 @@ func PramController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func PramController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
