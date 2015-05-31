@@ -26,7 +26,7 @@ func init() {
 	u.NewRedisCache()
 
 	// Get limits and stuff from database
-	config.GetDatabaseSettings()
+	u.GetDatabaseSettings()
 
 	// Print out config
 	if gin.IsDebugging() {
