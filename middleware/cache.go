@@ -130,7 +130,7 @@ func (r *redisKey) generateKey(params ...string) {
 
 	switch {
 	// keys like pram, directory, and tags
-	case len(params) == 1 || len(params) == 2:
+	case len(params) <= 2:
 		r.Key = strings.Join(params, ":")
 	// index and image
 	case len(params) == 3:
