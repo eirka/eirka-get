@@ -42,7 +42,7 @@ func main() {
 	// Makes sure params are uint
 	controllers.Use(m.ValidateParams())
 	// Caches requests in Redis
-	controllers.Use(m.Cache())
+	//controllers.Use(m.Cache())
 
 	controllers.GET("/index/:ib/:page", c.IndexController)
 	controllers.GET("/thread/:ib/:thread/:page", c.ThreadController)
