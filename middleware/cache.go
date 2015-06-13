@@ -25,7 +25,7 @@ func Cache() gin.HandlerFunc {
 		key.expireKey(params[0])
 
 		// Create redis key
-		r.Key = strings.Join(keys, ":")
+		key.Key = strings.Join(params, ":")
 
 		// Initialize cache handle
 		cache := u.RedisCache
