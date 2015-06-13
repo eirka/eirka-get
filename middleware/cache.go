@@ -7,6 +7,22 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
+// REDIS KEY STRUCTURE
+//
+// HASH:
+// "thread:1:45"
+// "post:1:45"
+// "tag:1:4"
+// "index:1"
+// "image:1"
+//
+// REGULAR:
+// "directory:1"
+// "tags:1"
+// "tagtypes"
+// "pram"
+// "taginfo:21"
+
 // Cache will check for the key in Redis and serve it. If not found, it will
 // take the marshalled JSON from the controller and set it in Redis
 func Cache() gin.HandlerFunc {
