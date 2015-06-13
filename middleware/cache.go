@@ -129,8 +129,8 @@ func (r *redisKey) generateKey(params ...string) {
 	var keys []string
 
 	switch {
-	// keys like directory and tags
-	case len(params) == 2:
+	// keys like pram, directory, and tags
+	case len(params) == 1 || len(params) == 2:
 		r.Key = strings.Join(params, ":")
 	// index and image
 	case len(params) == 3:
@@ -138,7 +138,7 @@ func (r *redisKey) generateKey(params ...string) {
 		r.Field = params[2]
 		r.Hash = true
 		r.Key = strings.Join(keys, ":")
-	// post, thread, and tag
+	// thread, post, and tag
 	case len(params) == 4:
 		keys = append(keys, params[0], params[1], params[2])
 		r.Field = params[3]
