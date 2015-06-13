@@ -10,6 +10,7 @@ import (
 
 // TagModel holds the parameters from the request and also the key for the cache
 type TagModel struct {
+	Ib     uint
 	Tag    uint
 	Page   uint
 	Result TagType
@@ -61,7 +62,7 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ?", i.Tag).Scan(&tagheader.Tag, &tagheader.Type)
+	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ? AND ib_id = ?", i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

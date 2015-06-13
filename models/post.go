@@ -9,6 +9,7 @@ import (
 
 // PostModel holds the parameters from the request and also the key for the cache
 type PostModel struct {
+	Ib     uint
 	Thread uint
 	Id     uint
 	Result PostType
@@ -47,10 +48,11 @@ func (i *PostModel) Get() (err error) {
 
 	post := Post{}
 
-	err = db.QueryRow(`SELECT thread_id,posts.post_id,post_name,post_num,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	err = db.QueryRow(`SELECT threads.thread_id,posts.post_id,post_name,post_num,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
-	WHERE posts.post_num = ? AND posts.thread_id = ?`, i.Id, i.Thread).Scan(&post.ThreadId, &post.PostId, &post.Name, &post.Num, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+	LEFT JOIN threads on posts.thread_id = threads.thread_id
+	WHERE posts.post_num = ? AND posts.thread_id = ? AND ib_id = ?`, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Name, &post.Num, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

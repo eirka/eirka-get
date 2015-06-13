@@ -16,8 +16,9 @@ func TagController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.TagModel{
-		Tag:  params[0],
-		Page: params[1],
+		Ib:   params[0],
+		Tag:  params[1],
+		Page: params[2],
 	}
 
 	// Get the model which outputs JSON

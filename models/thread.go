@@ -10,6 +10,7 @@ import (
 
 // ThreadModel holds the parameters from the request and also the key for the cache
 type ThreadModel struct {
+	Ib     uint
 	Thread uint
 	Page   uint
 	Result ThreadType
@@ -68,8 +69,8 @@ func (i *ThreadModel) Get() (err error) {
 	// Get total thread count and put it in pagination struct
 	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) FROM threads 
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
-	WHERE threads.thread_id = ?
-	GROUP BY threads.thread_id`, i.Thread).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
+	WHERE threads.thread_id = ? AND threads.ib_id = ?
+	GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

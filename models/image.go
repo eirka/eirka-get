@@ -9,6 +9,7 @@ import (
 
 // ImageModel holds the parameters from the request and also the key for the cache
 type ImageModel struct {
+	Ib     uint
 	Id     uint
 	Result ImageType
 }
@@ -53,7 +54,8 @@ func (i *ImageModel) Get() (err error) {
 
 	err = db.QueryRow(`SELECT image_id,posts.thread_id,image_file,image_orig_height,image_orig_width FROM images
         LEFT JOIN posts on images.post_id = posts.post_id
-        WHERE image_id = ?`, i.Id).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.File, &imageheader.Height, &imageheader.Width)
+        LEFT JOIN threads on posts.thread_id = threads.thread_id
+        WHERE image_id = ? AND ib_id = ?`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.File, &imageheader.Height, &imageheader.Width)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

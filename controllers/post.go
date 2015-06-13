@@ -16,8 +16,9 @@ func PostController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.PostModel{
-		Thread: params[0],
-		Id:     params[1],
+		Ib:     params[0],
+		Thread: params[1],
+		Id:     params[2],
 	}
 
 	// Get the model which outputs JSON
