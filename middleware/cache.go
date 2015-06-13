@@ -125,21 +125,22 @@ type redisKey struct {
 
 // Will take the params from the request and turn them into a key
 func (r *redisKey) generateKey(params ...string) {
+
 	var keys []string
 
 	switch {
-	case params[0] == "image":
-		keys = append(keys, params[0], params[2])
-		r.Key = strings.Join(keys, ":")
+	// keys like directory and tags
 	case len(params) == 2:
 		r.Key = strings.Join(params, ":")
+	// index and image
 	case len(params) == 3:
 		keys = append(keys, params[0], params[1])
 		r.Field = params[2]
 		r.Hash = true
 		r.Key = strings.Join(keys, ":")
+	// post, thread, and tag
 	case len(params) == 4:
-		keys = append(keys, params[0], params[2])
+		keys = append(keys, params[0], params[1], params[2])
 		r.Field = params[3]
 		r.Hash = true
 		r.Key = strings.Join(keys, ":")
