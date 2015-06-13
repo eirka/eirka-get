@@ -127,21 +127,23 @@ type redisKey struct {
 func (r *redisKey) generateKey(params ...string) {
 	var keys []string
 
-	for i, param := range params {
-		// Add key
-		if i == 0 || i == 1 {
-			keys = append(keys, param)
-		}
-		// Add field for redis hash if present
-		if i == 2 {
-			r.Field = param
-			r.Hash = true
-		}
-
+	switch {
+	case params[0] == "image":
+		keys = append(keys, params[0], params[2])
+		r.Key = strings.Join(keys, ":")
+	case len(params) == 2:
+		r.Key = strings.Join(params, ":")
+	case len(params) == 3:
+		keys = append(keys, params[0], params[1])
+		r.Field = params[2]
+		r.Hash = true
+		r.Key = strings.Join(keys, ":")
+	case len(params) == 4:
+		keys = append(keys, params[0], params[2])
+		r.Field = params[3]
+		r.Hash = true
+		r.Key = strings.Join(keys, ":")
 	}
-
-	// Create redis key
-	r.Key = strings.Join(keys, ":")
 
 	return
 
