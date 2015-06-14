@@ -15,7 +15,7 @@ type TagInfoModel struct {
 
 // IndexType is the top level of the JSON response
 type TagInfoType struct {
-	Tag TagInfo `json:"tag"`
+	Tag TagInfo `json:"taginfo"`
 }
 
 // Header for tag page
