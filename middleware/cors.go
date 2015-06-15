@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/url"
 	"strings"
 
 	"github.com/techjanitor/pram-get/config"
@@ -24,16 +25,14 @@ func CORS() gin.HandlerFunc {
 
 		req := c.Request
 		res := c.Writer
-		origin := req.Header.Get("Host")
+		origin := req.Header.Get("Origin")
 
 		// Set origin header from sites config
-		//if isAllowedSite(origin) {
-		//	res.Header().Set("Access-Control-Allow-Origin", origin)
-		//} else {
-		//	res.Header().Set("Access-Control-Allow-Origin", "")
-		//}
-
-		res.Header().Set("Access-Control-Allow-Origin", origin)
+		if isAllowedSite(origin) {
+			res.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			res.Header().Set("Access-Control-Allow-Origin", "")
+		}
 
 		// Add allowed method header
 		res.Header().Set("Access-Control-Allow-Methods", "GET")
@@ -46,7 +45,13 @@ func CORS() gin.HandlerFunc {
 // Check if origin is allowed
 func isAllowedSite(host string) bool {
 
-	if validSites[strings.ToLower(host)] {
+	// Get the host from the origin
+	parsed, err := url.Parse(host)
+	if err != nil {
+		return false
+	}
+
+	if validSites[strings.ToLower(parsed.Host)] {
 		return true
 	}
 
