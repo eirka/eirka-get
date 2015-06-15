@@ -2,10 +2,9 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
+	"strings"
 
 	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
 )
 
 // CORS will set the headers for Cross-origin resource sharing
