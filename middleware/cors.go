@@ -24,7 +24,7 @@ func CORS() gin.HandlerFunc {
 
 		req := c.Request
 		res := c.Writer
-		origin := req.Header.Get("Origin")
+		origin := req.RemoteAddr
 
 		// Set origin header from sites config
 		//if isAllowedSite(origin) {
