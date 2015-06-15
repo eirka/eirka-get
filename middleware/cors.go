@@ -27,11 +27,13 @@ func CORS() gin.HandlerFunc {
 		origin := req.Header.Get("Origin")
 
 		// Set origin header from sites config
-		if isAllowedSite(origin) {
-			res.Header().Set("Access-Control-Allow-Origin", origin)
-		} else {
-			res.Header().Set("Access-Control-Allow-Origin", "")
-		}
+		//if isAllowedSite(origin) {
+		//	res.Header().Set("Access-Control-Allow-Origin", origin)
+		//} else {
+		//	res.Header().Set("Access-Control-Allow-Origin", "")
+		//}
+
+		res.Header().Set("Access-Control-Allow-Origin", origin)
 
 		// Add allowed method header
 		res.Header().Set("Access-Control-Allow-Methods", "GET")
