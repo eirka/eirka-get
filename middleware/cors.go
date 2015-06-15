@@ -2,13 +2,17 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/techjanitor/pram-get/config"
 )
 
-var validSites = map[string]bool{}
+var (
+	validSites          = map[string]bool{}
+	defaultAllowHeaders = []string{"Origin", "Accept", "Content-Type"}
+)
 
 func init() {
 
@@ -34,10 +38,21 @@ func CORS() gin.HandlerFunc {
 			res.Header().Set("Access-Control-Allow-Origin", "")
 		}
 
-		// Add allowed method header
-		res.Header().Set("Access-Control-Allow-Methods", "GET")
+		if req.Method == "OPTIONS" {
 
-		c.Next()
+			// Add allowed method header
+			res.Header().Set("Access-Control-Allow-Methods", "GET")
+
+			// Add allowed headers header
+			res.Header().Set("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
+
+			c.AbortWithStatus(http.StatusOK)
+
+		} else {
+
+			c.Next()
+
+		}
 
 	}
 }
