@@ -7,14 +7,31 @@ import (
 	"github.com/techjanitor/pram-get/config"
 )
 
+var validSites = map[string]bool{}
+
+func init() {
+
+	// add valid sites to map
+	for _, site := range config.Settings.CORS.Sites {
+		validSites[site] = true
+	}
+
+}
+
 // CORS will set the headers for Cross-origin resource sharing
 func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		req := c.Request
 		res := c.Writer
+		origin := req.Header.Get("Origin")
 
 		// Set origin header from sites config
-		res.Header().Set("Access-Control-Allow-Origin", strings.Join(config.Settings.CORS.Sites, " "))
+		if isAllowedSite(origin) {
+			res.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			res.Header().Set("Access-Control-Allow-Origin", "")
+		}
 
 		// Add allowed method header
 		res.Header().Set("Access-Control-Allow-Methods", "GET")
@@ -22,4 +39,15 @@ func CORS() gin.HandlerFunc {
 		c.Next()
 
 	}
+}
+
+// Check if origin is allowed
+func isAllowedSite(host string) bool {
+
+	if validSites[strings.ToLower(host)] {
+		return true
+	}
+
+	return false
+
 }
