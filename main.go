@@ -37,6 +37,8 @@ func main() {
 	r := gin.Default()
 
 	controllers := r.Group("/")
+	// Adds CORS headers
+	controllers.Use(m.CORS())
 	// Adds antispam cookie to requests
 	controllers.Use(m.AntiSpamCookie())
 	// Makes sure params are uint

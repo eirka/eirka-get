@@ -18,6 +18,11 @@ type Config struct {
 		Port    uint
 	}
 
+	// sites for CORS
+	CORS struct {
+		Sites []string
+	}
+
 	Database struct {
 		// Database connection settings
 		User           string
