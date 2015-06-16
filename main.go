@@ -40,7 +40,7 @@ func main() {
 	// Adds CORS headers
 	controllers.Use(m.CORS())
 	// Adds antispam cookie to requests
-	//controllers.Use(m.AntiSpamCookie())
+	controllers.Use(m.AntiSpamCookie())
 	// Makes sure params are uint
 	controllers.Use(m.ValidateParams())
 	// Caches requests in Redis
