@@ -21,14 +21,16 @@ type ImageType struct {
 
 // Header for image page
 type ImageHeader struct {
-	Id     uint        `json:"id"`
-	Thread uint        `json:"thread"`
-	Prev   uint        `json:"prev,omitempty"`
-	Next   uint        `json:"next,omitempty"`
-	Width  uint        `json:"width"`
-	Height uint        `json:"height"`
-	File   string      `json:"filename"`
-	Tags   []ImageTags `json:"tags,omitempty"`
+	Id      uint        `json:"id"`
+	Thread  uint        `json:"thread"`
+	PostNum uint        `json:"post_num"`
+	PostId  uint        `json:"post_id"`
+	Prev    uint        `json:"prev,omitempty"`
+	Next    uint        `json:"next,omitempty"`
+	Width   uint        `json:"width"`
+	Height  uint        `json:"height"`
+	File    string      `json:"filename"`
+	Tags    []ImageTags `json:"tags,omitempty"`
 }
 
 // Tags for image page
@@ -52,10 +54,10 @@ func (i *ImageModel) Get() (err error) {
 
 	imageheader := ImageHeader{}
 
-	err = db.QueryRow(`SELECT image_id,posts.thread_id,image_file,image_orig_height,image_orig_width FROM images
+	err = db.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width FROM images
         LEFT JOIN posts on images.post_id = posts.post_id
         LEFT JOIN threads on posts.thread_id = threads.thread_id
-        WHERE image_id = ? AND ib_id = ?`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.File, &imageheader.Height, &imageheader.Width)
+        WHERE image_id = ? AND ib_id = ?`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.PostNum, &imageheader.PostId, &imageheader.File, &imageheader.Height, &imageheader.Width)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
