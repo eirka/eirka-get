@@ -25,7 +25,7 @@ func (i *UserModel) Get() (err error) {
 	response := UserType{}
 
 	// Initialize struct for tag info
-	user := User{}
+	user := u.User{}
 
 	user.Id = i.Id
 
@@ -44,7 +44,7 @@ func (i *UserModel) Get() (err error) {
 	}
 
 	// Add taginfo to the response struct
-	response.Tag = taginfo
+	response.User = user
 
 	// This is the data we will serialize
 	i.Result = response
