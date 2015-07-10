@@ -56,6 +56,7 @@ func main() {
 	controllers.GET("/tags/:ib", c.TagsController)
 	controllers.GET("/tagtypes", c.TagTypesController)
 	controllers.GET("/pram", c.PramController)
+	controllers.GET("/user", m.Auth(m.SetAuthLevel().All()), c.UserController)
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
