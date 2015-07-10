@@ -36,9 +36,10 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	controllers := r.Group("/")
 	// Adds CORS headers
-	controllers.Use(m.CORS())
+	r.Use(m.CORS())
+
+	controllers := r.Group("/")
 	// Adds antispam cookie to requests
 	controllers.Use(m.AntiSpamCookie())
 	// Makes sure params are uint
@@ -56,7 +57,9 @@ func main() {
 	controllers.GET("/tags/:ib", c.TagsController)
 	controllers.GET("/tagtypes", c.TagTypesController)
 	controllers.GET("/pram", c.PramController)
-	controllers.GET("/user", m.Auth(m.SetAuthLevel().All()), c.UserController)
+
+	// get user info
+	r.GET("/user", m.Auth(m.SetAuthLevel().All()), c.UserController)
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
