@@ -32,15 +32,15 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 			return []byte(config.Settings.Session.Secret), nil
 		})
-		// if there isnt a token in the request
+		// if theres no token set the anon user info
 		if err == jwt.ErrNoTokenInRequest {
-			// get anon user info
 			err = user.Info()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
 				return
 			}
+			// if theres some jwt error then return unauth
 		} else if err != nil {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 			c.Error(err)
@@ -48,30 +48,34 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			return
 		}
 
-		// if the token is valid set the data
-		if err == nil && token.Valid {
+		// process token
+		if token != nil {
+			// if the token is valid set the data
+			if err == nil && token.Valid {
 
-			uid, ok := token.Claims["user_id"].(float64)
-			if !ok {
-				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err)
-				c.Abort()
-				return
-			}
+				uid, ok := token.Claims["user_id"].(float64)
+				if !ok {
+					c.JSON(e.ErrorMessage(e.ErrInternalError))
+					c.Error(err)
+					c.Abort()
+					return
+				}
 
-			// set user id
-			user.Id = uint(uid)
+				// set user id
+				user.Id = uint(uid)
 
-			// get the rest of the user info
-			err = user.Info()
-			if err == e.ErrNotFound {
-				c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidUser.Error()})
-				c.Error(err)
-				return
-			} else if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err)
-				return
+				// get the rest of the user info
+				err = user.Info()
+				if err == e.ErrNotFound {
+					c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidUser.Error()})
+					c.Error(err)
+					return
+				} else if err != nil {
+					c.JSON(e.ErrorMessage(e.ErrInternalError))
+					c.Error(err)
+					return
+				}
+
 			}
 
 		}
