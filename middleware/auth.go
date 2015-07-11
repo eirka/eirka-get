@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	e "github.com/techjanitor/pram-get/errors"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // checks for session cookie and handles permissions
