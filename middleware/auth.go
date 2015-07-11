@@ -18,7 +18,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		// set default anonymous user
 		user := u.User{
 			Id:    1,
-			Group: 0,
+			Group: 1,
 		}
 
 		// parse jwt token if its there
@@ -112,24 +112,24 @@ func SetAuthLevel() Permissions {
 
 // All users
 func (p Permissions) All() Permissions {
-	p.Minimum = 0
+	p.Minimum = 1
 	return p
 }
 
 // registered users
 func (p Permissions) Registered() Permissions {
-	p.Minimum = 1
+	p.Minimum = 2
 	return p
 }
 
 // moderators
 func (p Permissions) Moderators() Permissions {
-	p.Minimum = 2
+	p.Minimum = 3
 	return p
 }
 
 // admins
 func (p Permissions) Admins() Permissions {
-	p.Minimum = 3
+	p.Minimum = 4
 	return p
 }
