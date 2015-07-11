@@ -48,6 +48,10 @@ type Config struct {
 		CookieValue string
 	}
 
+	Session struct {
+		Secret string
+	}
+
 	Limits struct {
 		// Set default posts per page
 		PostsPerPage uint
