@@ -39,8 +39,8 @@ func main() {
 	// Adds CORS headers
 	r.Use(m.CORS())
 
-	// get user info
-	r.GET("/user", m.Auth(m.SetAuthLevel().All()), c.UserController)
+	// get current user info
+	r.GET("/whoami", m.Auth(m.SetAuthLevel().All()), c.UserController)
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
