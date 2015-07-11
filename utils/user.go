@@ -8,15 +8,23 @@ import (
 
 // user struct
 type User struct {
-	Id    uint   `json:"id"`
-	Name  string `json:"name"`
-	Group uint   `json:"group"`
+	Id        uint   `json:"id"`
+	Name      string `json:"name"`
+	Group     uint   `json:"group"`
+	Confirmed bool   `json:"-"`
+	Locked    bool   `json:"-"`
+	Banned    bool   `json:"-"`
 }
 
-// get the user info
+// get the user info from id
 func (u *User) Info() (err error) {
 
-	err = db.QueryRow("SELECT usergroup_id,user_name FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name)
+	// this needs an id
+	if u.Id == 0 {
+		return e.ErrInvalidParam
+	}
+
+	err = db.QueryRow("SELECT usergroup_id,user_name,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name, &u.Confirmed, &u.Locked, &u.Banned)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

@@ -9,34 +9,25 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
+// UserType is the top level of the JSON response
+type UserType struct {
+	User u.User `json:"user"`
+}
+
 // UserController gets account info
 func UserController(c *gin.Context) {
 
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(u.User)
 
-	// Initialize model struct
-	m := &models.UserModel{
-		Id: userdata.Id,
-	}
+	// Initialize response header
+	response := UserType{}
 
-	// Get the model which outputs JSON
-	err := m.Get()
-	if err == e.ErrNotFound {
-		c.Set("controllerError", err)
-		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
-		return
-	}
-	if err != nil {
-		c.Set("controllerError", err)
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
-		return
-	}
+	// seet userdata from auth middleware
+	response.User = userdata
 
 	// Marshal the structs into JSON
-	output, err := json.Marshal(m.Result)
+	output, err := json.Marshal(response)
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
