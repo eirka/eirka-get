@@ -1,12 +1,17 @@
 package errors
 
-import "net/http"
+import (
+	"errors"
+	"net/http"
+)
 
 var (
 	ErrInvalidParam  = &RequestError{ErrorString: "Invalid Parameter", ErrorCode: http.StatusBadRequest}
 	ErrInternalError = &RequestError{ErrorString: "Internal Error", ErrorCode: http.StatusInternalServerError}
 	ErrNotFound      = &RequestError{ErrorString: "Request Not Found", ErrorCode: http.StatusNotFound}
 	ErrUnauthorized  = &RequestError{ErrorString: "Unauthorized", ErrorCode: http.StatusUnauthorized}
+
+	ErrInvalidUser error = errors.New("User not found")
 )
 
 type RequestError struct {
