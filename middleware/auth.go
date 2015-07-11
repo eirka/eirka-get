@@ -32,22 +32,20 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 			return []byte(config.Settings.Session.Secret), nil
 		})
-		// if the error is anything but no token
-		if err != nil && err != jwt.ErrNoTokenInRequest {
-			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-			c.Error(err)
-			c.Abort()
-			return
-		}
-
-		// get anonymous info if theres no token
+		// if there isnt a token in the request
 		if err == jwt.ErrNoTokenInRequest {
+			// get anon user info
 			err = user.Info()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
 				return
 			}
+		} else if err != nil {
+			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
+			c.Error(err)
+			c.Abort()
+			return
 		}
 
 		// if the token is valid set the data
