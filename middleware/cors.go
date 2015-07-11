@@ -11,7 +11,7 @@ import (
 
 var (
 	validSites          = map[string]bool{}
-	defaultAllowHeaders = []string{"Origin", "Accept", "Content-Type"}
+	defaultAllowHeaders = []string{"Origin", "Accept", "Content-Type", "Authorization"}
 )
 
 func init() {
