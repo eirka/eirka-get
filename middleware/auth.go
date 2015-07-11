@@ -76,6 +76,10 @@ func Auth(perms Permissions) gin.HandlerFunc {
 					return
 				}
 
+			} else {
+				c.JSON(e.ErrorMessage(e.ErrInternalError))
+				c.Error(err)
+				return
 			}
 
 		}
