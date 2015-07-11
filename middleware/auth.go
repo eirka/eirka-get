@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"fmt"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
+	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
 )
@@ -18,7 +20,48 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			Group: 0,
 		}
 
-		fmt.Println(user.Id, user.Group)
+		// parse jwt token if its there
+		token, err := jwt.ParseFromRequest(c.Request, func(token *jwt.Token) (interface{}, error) {
+
+			// check alg
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return []byte(config.Settings.Session.Secret), nil
+		})
+		// if the error is anything but no token
+		if err != nil && err != jwt.ErrNoTokenInRequest {
+			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
+			c.Error(err)
+			c.Abort()
+			return
+		}
+
+		// if the token is valid set the data
+		if err == nil && token.Valid {
+
+			uid, ok := token.Claims["user_id"].(float64)
+			if !ok {
+				c.JSON(e.ErrorMessage(e.ErrInternalError))
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			gid, ok := token.Claims["user_group"].(float64)
+			if !ok {
+				c.JSON(e.ErrorMessage(e.ErrInternalError))
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			user.Id = uint(uid)
+			user.Group = uint(gid)
+
+		}
 
 		// check if user meets set permissions
 		if user.Group < perms.Minimum {
