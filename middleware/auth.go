@@ -38,6 +38,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
+				c.Abort()
 				return
 			}
 		} else if err != nil {
@@ -69,16 +70,19 @@ func Auth(perms Permissions) gin.HandlerFunc {
 				if err == e.ErrNotFound {
 					c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidUser.Error()})
 					c.Error(err)
+					c.Abort()
 					return
 				} else if err != nil {
 					c.JSON(e.ErrorMessage(e.ErrInternalError))
 					c.Error(err)
+					c.Abort()
 					return
 				}
 
 			} else {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
+				c.Abort()
 				return
 			}
 
