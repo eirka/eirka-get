@@ -28,25 +28,24 @@ func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		req := c.Request
-		res := c.Writer
 		origin := req.Header.Get("Origin")
 
 		// Set origin header from sites config
 		if isAllowedSite(origin) {
-			res.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Header("Access-Control-Allow-Origin", origin)
 		} else {
-			res.Header().Set("Access-Control-Allow-Origin", "")
+			c.Header("Access-Control-Allow-Origin", "")
 		}
 
-		res.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Credentials", "true")
 
 		if req.Method == "OPTIONS" {
 
 			// Add allowed method header
-			res.Header().Set("Access-Control-Allow-Methods", "GET")
+			c.Header("Access-Control-Allow-Methods", "POST")
 
 			// Add allowed headers header
-			res.Header().Set("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
+			c.Header("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
 
 			c.AbortWithStatus(http.StatusOK)
 
