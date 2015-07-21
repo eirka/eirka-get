@@ -69,10 +69,9 @@ func (i *FavoritesModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// Set perpage and limit to total and 0 if page num is 0
+	// no view all on favorites
 	if i.Page == 0 {
-		paged.PerPage = paged.Total
-		paged.Limit = 0
+		return e.ErrNotFound
 	}
 
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
