@@ -64,7 +64,7 @@ func main() {
 	users.Use(m.Auth(m.SetAuthLevel().Registered()))
 
 	users.GET("/whoami", c.UserController)
-	users.GET("/favorites/:page", c.FavoritesController)
+	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),

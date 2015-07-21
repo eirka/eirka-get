@@ -9,6 +9,7 @@ import (
 // FavoritesModel holds the parameters from the request and also the key for the cache
 type FavoritesModel struct {
 	User   uint
+	Ib     uint
 	Page   uint
 	Result FavoritesType
 }
@@ -77,7 +78,9 @@ func (i *FavoritesModel) Get() (err error) {
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM favorites
 	LEFT JOIN images on favorites.image_id = images.image_id
-	WHERE favorites.user_id = ? LIMIT ?,?`, i.User, paged.Limit, paged.PerPage)
+	LEFT JOIN posts on images.post_id = posts.post_id 
+	LEFT JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE favorites.user_id = ? AND ib_id = ? LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
