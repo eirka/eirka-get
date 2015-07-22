@@ -9,8 +9,8 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
-// FavoritesController handles favorites pages
-func FavoritesController(c *gin.Context) {
+// FavoriteController handles favorited images
+func FavoriteController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
@@ -19,20 +19,13 @@ func FavoritesController(c *gin.Context) {
 	userdata := c.MustGet("userdata").(u.User)
 
 	// Initialize model struct
-	m := &models.FavoritesModel{
+	m := &models.FavoriteModel{
 		User: userdata.Id,
-		Ib:   params[0],
-		Page: params[1],
+		Id:   params[0],
 	}
 
 	// Get the model which outputs JSON
 	err := m.Get()
-	if err == e.ErrNotFound {
-		c.Set("controllerError", err)
-		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
-		return
-	}
 	if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))

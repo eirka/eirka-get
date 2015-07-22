@@ -79,7 +79,7 @@ func (i *FavoritesModel) Get() (err error) {
 	LEFT JOIN images on favorites.image_id = images.image_id
 	LEFT JOIN posts on images.post_id = posts.post_id 
 	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE favorites.user_id = ? AND ib_id = ? LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
+	WHERE favorites.user_id = ? AND ib_id = ? ORDER BY favorite_id DESC LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}

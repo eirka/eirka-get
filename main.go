@@ -36,15 +36,16 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// add CORS headers
 	r.Use(m.CORS())
+	// validate all route parameters
 	r.Use(m.ValidateParams())
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
 
-	// all users
+	// public cached pages
 	public := r.Group("/")
-	public.Use(m.Auth(m.SetAuthLevel().All()))
 	public.Use(m.AntiSpamCookie())
 	public.Use(m.Cache())
 
@@ -59,11 +60,12 @@ func main() {
 	public.GET("/tagtypes", c.TagTypesController)
 	public.GET("/pram", c.PramController)
 
-	// requires user perms
+	// user pages
 	users := r.Group("/user")
 	users.Use(m.Auth(m.SetAuthLevel().Registered()))
 
 	users.GET("/whoami", c.UserController)
+	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
