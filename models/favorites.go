@@ -56,7 +56,7 @@ func (i *FavoritesModel) Get() (err error) {
 
 	// Get total tag count
 	// Get total tag count and put it in pagination struct
-	err = db.QueryRow(`select count(*) from favorites where user_id = ?`, i.User).Scan(&paged.Total)
+	err = db.QueryRow(`select count(*) from favorites where user_id = ? AND ib_id = ?`, i.User, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
