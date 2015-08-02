@@ -17,19 +17,21 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 		// set default anonymous user
 		user := u.User{
-			Id:    1,
-			Group: 1,
+			Id:              1,
+			Group:           1,
+			IsAuthenticated: false,
 		}
 
 		// parse jwt token if its there
 		token, err := jwt.ParseFromRequest(c.Request, func(token *jwt.Token) (interface{}, error) {
 
-			// check alg
+			// check alg to make sure its hmac
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
+			// compare with secret from settings
 			return []byte(config.Settings.Session.Secret), nil
 		})
 		if err != nil && err != jwt.ErrNoTokenInRequest {
@@ -45,6 +47,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			// if the token is valid set the data
 			if err == nil && token.Valid {
 
+				// get uid from jwt, cast to float
 				uid, ok := token.Claims["user_id"].(float64)
 				if !ok {
 					c.JSON(e.ErrorMessage(e.ErrInternalError))
@@ -53,18 +56,13 @@ func Auth(perms Permissions) gin.HandlerFunc {
 					return
 				}
 
-				// set user id
+				// set user id in user struct
 				user.Id = uint(uid)
 
 				// get the rest of the user info
 				err = user.Info()
-				if err == e.ErrNotFound {
-					c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidUser.Error()})
-					c.Error(err)
-					c.Abort()
-					return
-				} else if err != nil {
-					c.JSON(e.ErrorMessage(e.ErrInternalError))
+				if err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 					c.Error(err)
 					c.Abort()
 					return
