@@ -2,8 +2,15 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 
 	e "github.com/techjanitor/pram-get/errors"
+)
+
+var (
+	ErrUserNotConfirmed error = errors.New("Account not confirmed")
+	ErrUserBanned       error = errors.New("Account banned")
+	ErrUserLocked       error = errors.New("Account locked")
 )
 
 // user struct
@@ -36,17 +43,17 @@ func (u *User) Info() (err error) {
 
 	// if account is not confirmed
 	if !u.IsConfirmed {
-		return e.ErrUserNotConfirmed
+		return ErrUserNotConfirmed
 	}
 
 	// if locked
 	if u.IsLocked {
-		return e.ErrUserLocked
+		return ErrUserLocked
 	}
 
 	// if banned
 	if u.IsBanned {
-		return e.ErrUserBanned
+		return ErrUserBanned
 	}
 
 	// mark authenticated
