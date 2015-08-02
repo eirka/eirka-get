@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"errors"
 	"net/http"
 )
 
