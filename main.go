@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -94,13 +93,13 @@ func main() {
 // called on sigterm or interrupt
 func Shutdown() {
 
-	log.Println("Shutting down...")
+	fmt.Println("Shutting down...")
 
 	// close the database connection
-	log.Println("Closing database connection")
+	fmt.Println("Closing database connection")
 	err := u.CloseDb()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 }
