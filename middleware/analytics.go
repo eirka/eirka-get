@@ -10,6 +10,8 @@ import (
 	//u "github.com/techjanitor/pram-get/utils"
 )
 
+var testout = bufio.NewWriter(os.Stdout)
+
 // requesttype holds the data we want to capture
 type RequestType struct {
 	Ib        string
@@ -58,10 +60,8 @@ func Analytics() gin.HandlerFunc {
 			Referer:   req.Referer(),
 		}
 
-		out := bufio.NewWriter(os.Stdout)
-
 		// print headers
-		fmt.Fprintf(out, "%s\n%s\n", request, req.Header)
+		fmt.Fprintf(testout, "%s\n%s\n", request, req.Header)
 
 	}
 }
