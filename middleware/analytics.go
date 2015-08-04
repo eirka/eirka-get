@@ -60,7 +60,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// print headers
-		fmt.Fprintf(gin.DefaultWriter, "%s\n%s\n", request, req.Header)
+		c.Error(fmt.Errorf("%s\n%s\n", request, req.Header))
 
 	}
 }
