@@ -72,6 +72,8 @@ func Cache() gin.HandlerFunc {
 					return
 				}
 
+				return
+
 			} else if err != nil {
 				c.Error(err)
 				c.Abort()
@@ -118,6 +120,8 @@ func Cache() gin.HandlerFunc {
 					}
 
 				}
+
+				return
 
 			} else if err != nil {
 				c.Error(err)
