@@ -125,6 +125,7 @@ func skipKey(key string) bool {
 	keyList := map[string]bool{
 		"taginfo": true,
 		"tags":    true,
+		"post":    true,
 	}
 
 	if keyList[strings.ToLower(key)] {
