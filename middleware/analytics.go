@@ -15,7 +15,7 @@ type RequestType struct {
 	User      uint
 	Path      string
 	Status    int
-	Latency   time.Duration
+	Latency   string
 	Useragent string
 	Referer   string
 	Country   string
