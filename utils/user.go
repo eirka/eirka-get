@@ -90,11 +90,15 @@ func (u *User) Info() (err error) {
 	// get original uid
 	uid := u.Id
 
+	fmt.Printf("%s\n", u)
+
 	// send to worker
 	userdataWorker.send <- u
 
 	// block until done
 	<-userdataWorker.done
+
+	fmt.Printf("%s\n", u)
 
 	// check error
 	if u.err == sql.ErrNoRows {
