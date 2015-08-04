@@ -80,6 +80,8 @@ func (u *User) Info() (err error) {
 
 	fmt.Printf("%s\n", u)
 
+	fmt.Printf("%s\n", <-userdataWorker.queue)
+
 	// if account is not confirmed
 	if !u.IsConfirmed {
 		return ErrUserNotConfirmed
