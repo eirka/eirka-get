@@ -25,10 +25,10 @@ type RequestType struct {
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
-		// Start timer
-		start := time.Now()
 		// get request path
 		path := req.URL.Path
+		// Start timer
+		start := time.Now()
 
 		// Process request
 		c.Next()
@@ -84,6 +84,7 @@ func Analytics() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+			defer ps1.Close()
 
 			// input data
 			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
