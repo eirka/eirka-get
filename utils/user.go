@@ -18,7 +18,6 @@ var (
 type userWorker struct {
 	send    chan *User
 	receive chan *User
-	err     chan error
 }
 
 // user struct
@@ -31,6 +30,7 @@ type User struct {
 	IsLocked        bool   `json:"-"`
 	IsBanned        bool   `json:"-"`
 	IsAuthenticated bool   `json:"-"`
+	err             error  `json:"-"`
 }
 
 func init() {
@@ -38,7 +38,6 @@ func init() {
 	userdataWorker = &userWorker{
 		send:    make(chan *User, 64),
 		receive: make(chan *User, 64),
-		err:     make(chan error, 64),
 	}
 
 	go func() {
@@ -61,7 +60,7 @@ func init() {
 			// input data
 			err = ps1.QueryRow(u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
 			if err != nil {
-				userdataWorker.err <- err
+				u.err = err
 			}
 
 			userdataWorker.receive <- u
@@ -83,16 +82,15 @@ func (u *User) Info() (err error) {
 	// send to worker
 	userdataWorker.send <- u
 
-	// check error
-	chanerr := <-userdataWorker.err
-	if chanerr == sql.ErrNoRows {
-		return e.ErrNotFound
-	} else if chanerr != nil {
-		return e.ErrInternalError
-	}
-
 	// block until done
 	<-userdataWorker.receive
+
+	// check error
+	if u.err == sql.ErrNoRows {
+		return e.ErrNotFound
+	} else if u.Error != nil {
+		return e.ErrInternalError
+	}
 
 	// if account is not confirmed
 	if !u.IsConfirmed {
