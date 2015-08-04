@@ -42,7 +42,7 @@ func Cache() gin.HandlerFunc {
 		key.generateKey(params...)
 
 		// if the request was cached or not
-		var cached bool
+		cached := true
 
 		// Initialize cache handle
 		cache := u.RedisCache
@@ -51,6 +51,9 @@ func Cache() gin.HandlerFunc {
 			// Check to see if there is already a key we can serve
 			result, err = cache.HGet(key.Key, key.Field)
 			if err == u.ErrCacheMiss {
+				// set cached to false
+				cached = false
+
 				c.Next()
 
 				// Check if there was an error from the controller
@@ -83,6 +86,8 @@ func Cache() gin.HandlerFunc {
 			// Check to see if there is already a key we can serve
 			result, err = cache.Get(key.Key)
 			if err == u.ErrCacheMiss {
+				// set cached to false
+				cached = false
 				c.Next()
 
 				// Check if there was an error from the controller
