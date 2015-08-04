@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -35,7 +36,7 @@ func init() {
 	config.Print()
 
 	// channel for shutdown
-	ch := make(chan os.Signal, 10)
+	c := make(chan os.Signal, 10)
 
 	// watch for shutdown signals to shutdown cleanly
 	signal.Notify(c, syscall.SIGTERM, os.Interrupt)
