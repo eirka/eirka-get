@@ -17,6 +17,7 @@ type RequestType struct {
 	Latency   time.Duration
 	Useragent string
 	Referer   string
+	Country   string
 }
 
 // Analytics will log requests in the database
@@ -28,14 +29,15 @@ func Analytics() gin.HandlerFunc {
 		// get request path
 		path := req.URL.Path
 
-		// Process request
-		c.Next()
-
 		// get the ib
 		ib := c.Param("ib")
 
+		// Process request
+		c.Next()
+
 		// abort if theres no ib
 		if ib == "" {
+			c.Error(err)
 			c.Abort()
 			return
 		}
@@ -54,6 +56,7 @@ func Analytics() gin.HandlerFunc {
 			Latency:   latency,
 			Useragent: req.UserAgent(),
 			Referer:   req.Referer(),
+			Country:   req.Header.Get("CF-IPCountry"),
 		}
 
 		// print headers
