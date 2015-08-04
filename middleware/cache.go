@@ -33,6 +33,9 @@ func Cache() gin.HandlerFunc {
 		// Get request path
 		path := c.Request.URL.Path
 
+		// bool for analytics middleware
+		c.Set("cached", false)
+
 		// Trim leading / from path and split
 		params := strings.Split(strings.Trim(path, "/"), "/")
 
@@ -48,8 +51,6 @@ func Cache() gin.HandlerFunc {
 			// Check to see if there is already a key we can serve
 			result, err = cache.HGet(key.Key, key.Field)
 			if err == u.ErrCacheMiss {
-				// bool to analytics middleware
-				c.Set("cached", false)
 
 				c.Next()
 
@@ -83,8 +84,6 @@ func Cache() gin.HandlerFunc {
 			// Check to see if there is already a key we can serve
 			result, err = cache.Get(key.Key)
 			if err == u.ErrCacheMiss {
-				// bool to analytics middleware
-				c.Set("cached", false)
 
 				c.Next()
 
@@ -128,7 +127,7 @@ func Cache() gin.HandlerFunc {
 
 		}
 
-		// bool to analytics middleware
+		// if we made it this far then the page was cached
 		c.Set("cached", true)
 
 		c.Writer.Header().Set("Content-Type", "application/json")
