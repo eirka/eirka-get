@@ -102,11 +102,4 @@ func Shutdown() {
 		log.Println(err)
 	}
 
-	// close the redis pool
-	log.Println("Closing redis pool")
-	err := u.CloseRedis()
-	if err != nil {
-		log.Println(err)
-	}
-
 }
