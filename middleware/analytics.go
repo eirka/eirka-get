@@ -30,7 +30,7 @@ func init() {
 		panic(err)
 	}
 
-	analyticsStmt, err := db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
+	analyticsStmt, err = db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
 	if err != nil {
 		panic(err)
 	}
