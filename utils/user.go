@@ -16,7 +16,8 @@ var (
 
 // struct for database insert worker
 type userWorker struct {
-	queue chan *User
+	send    chan *User
+	receive chan *User
 }
 
 // user struct
@@ -35,6 +36,7 @@ func init() {
 	// make worker channel
 	userdataWorker = &userWorker{
 		make(chan *User, 64),
+		make(chan *User, 64),
 	}
 
 	go func() {
@@ -52,7 +54,7 @@ func init() {
 		}
 
 		// range through tasks channel
-		for u := range userdataWorker.queue {
+		for u := range userdataWorker.send {
 
 			// input data
 			err = ps1.QueryRow(u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
@@ -60,7 +62,7 @@ func init() {
 				return
 			}
 
-			userdataWorker.queue <- u
+			userdataWorker.receive <- u
 
 		}
 
@@ -76,11 +78,11 @@ func (u *User) Info() (err error) {
 		return e.ErrInvalidParam
 	}
 
-	userdataWorker.queue <- u
+	userdataWorker.send <- u
 
 	fmt.Printf("%s\n", u)
 
-	fmt.Printf("%s\n", <-userdataWorker.queue)
+	fmt.Printf("%s\n", <-userdataWorker.receive)
 
 	// if account is not confirmed
 	if !u.IsConfirmed {
