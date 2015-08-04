@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 )
