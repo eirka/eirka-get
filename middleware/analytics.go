@@ -124,9 +124,11 @@ func (r *itemKey) generateKey(params ...string) {
 func skipKey(key string) bool {
 
 	keyList := map[string]bool{
-		"taginfo": true,
-		"tags":    true,
-		"post":    true,
+		"taginfo":  true,
+		"tags":     true,
+		"post":     true,
+		"tagtypes": true,
+		"pram":     true,
 	}
 
 	if keyList[strings.ToLower(key)] {
