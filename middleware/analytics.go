@@ -39,13 +39,14 @@ func init() {
 		return
 	}
 
-	// prepare query for analytics table
-	ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
-	if err != nil {
-		return
-	}
-
 	go func() {
+
+		// prepare query for analytics table
+		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
+		if err != nil {
+			return
+		}
+
 		// range through tasks channel
 		for request := range analyticsWorker.queue {
 
