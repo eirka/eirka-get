@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"database/sql"
 	"github.com/gin-gonic/gin"
 	"time"
 
@@ -67,7 +66,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// prepare query for analytics table
-		ps1, err = db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
+		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
 		if err != nil {
 			c.Error(err)
 			c.Abort()
