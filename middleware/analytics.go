@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"os"
 	"time"
 
 	//u "github.com/techjanitor/pram-get/utils"
@@ -56,8 +58,10 @@ func Analytics() gin.HandlerFunc {
 			Referer:   req.Referer(),
 		}
 
+		out := bufio.NewWriter(os.Stdout)
+
 		// print headers
-		fmt.Printf("%s\n%s\n", request, req.Header)
+		fmt.Fprintf(out, "%s\n%s\n", request, req.Header)
 
 	}
 }
