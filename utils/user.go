@@ -87,6 +87,9 @@ func (u *User) Info() (err error) {
 		return e.ErrInvalidParam
 	}
 
+	// get original uid
+	uid := u.Id
+
 	// send to worker
 	userdataWorker.send <- u
 
@@ -97,6 +100,11 @@ func (u *User) Info() (err error) {
 	if u.err == sql.ErrNoRows {
 		return ErrUserNotExist
 	} else if u.err != nil {
+		return e.ErrInternalError
+	}
+
+	// check that theyre still the same just in case
+	if u.Id != uid {
 		return e.ErrInternalError
 	}
 
