@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"database/sql"
 	"errors"
-	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 )
@@ -84,10 +84,10 @@ func (u *User) Info() (err error) {
 	userdataWorker.send <- u
 
 	// check error
-	err := <-userdataWorker.err
-	if err == sql.ErrNoRows {
+	chanerr := <-userdataWorker.err
+	if chanerr == sql.ErrNoRows {
 		return e.ErrNotFound
-	} else if err != nil {
+	} else if chanerr != nil {
 		return e.ErrInternalError
 	}
 
