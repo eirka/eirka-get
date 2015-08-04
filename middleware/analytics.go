@@ -96,7 +96,7 @@ func Analytics() gin.HandlerFunc {
 
 type itemKey struct {
 	Key   string
-	Value string
+	Value int
 }
 
 // Will take the params from the request and turn them into a key
