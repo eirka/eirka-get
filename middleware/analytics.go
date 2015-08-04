@@ -1,10 +1,8 @@
 package middleware
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"os"
 	"time"
 
 	//u "github.com/techjanitor/pram-get/utils"
