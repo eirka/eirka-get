@@ -1,12 +1,16 @@
 package middleware
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"time"
 
-	//u "github.com/techjanitor/pram-get/utils"
+	u "github.com/techjanitor/pram-get/utils"
 )
+
+// holds our prepared statement
+var analyticsStmt *sql.Stmt
 
 // requesttype holds the data we want to capture
 type RequestType struct {
@@ -20,6 +24,20 @@ type RequestType struct {
 	Country   string
 }
 
+func init() {
+	// Get Database handle
+	db, err := u.GetDb()
+	if err != nil {
+		panic(err)
+	}
+
+	analyticsStmt, err := db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
+	if err != nil {
+		panic(err)
+	}
+
+}
+
 // Analytics will log requests in the database
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -29,15 +47,14 @@ func Analytics() gin.HandlerFunc {
 		// get request path
 		path := req.URL.Path
 
-		// get the ib
-		ib := c.Param("ib")
-
 		// Process request
 		c.Next()
 
+		// get the ib
+		ib := c.Param("ib")
+
 		// abort if theres no ib
 		if ib == "" {
-			c.Error(fmt.Errorf("no ib???"))
 			c.Abort()
 			return
 		}
@@ -59,8 +76,11 @@ func Analytics() gin.HandlerFunc {
 			Country:   req.Header.Get("CF-IPCountry"),
 		}
 
-		// print headers
-		c.Error(fmt.Errorf("%s\n%s\n", request, req.Header))
+		// input data
+		_, err = analyticsStmt.Exec(request.Ib, request.Ip, request.Path, request.Status)
+		if err != nil {
+			return
+		}
 
 	}
 }
