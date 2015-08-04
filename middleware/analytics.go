@@ -10,8 +10,6 @@ import (
 	//u "github.com/techjanitor/pram-get/utils"
 )
 
-var testout = bufio.NewWriter(os.Stdout)
-
 // requesttype holds the data we want to capture
 type RequestType struct {
 	Ib        string
@@ -31,8 +29,6 @@ func Analytics() gin.HandlerFunc {
 		start := time.Now()
 		// get request path
 		path := req.URL.Path
-
-		fmt.Fprintln(testout, "derp")
 
 		// Process request
 		c.Next()
@@ -63,7 +59,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// print headers
-		fmt.Fprintf(testout, "%s\n%s\n", request, req.Header)
+		fmt.Fprintf(gin.DefaultWriter, "%s\n%s\n", request, req.Header)
 
 	}
 }
