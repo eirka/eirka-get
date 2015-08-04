@@ -70,9 +70,6 @@ func UserInit() {
 				u.err = err
 			}
 
-			// send back data
-			userdataWorker.done <- u.IsConfirmed
-
 		}
 
 	}()
@@ -94,9 +91,6 @@ func (u *User) Info() (err error) {
 
 	// send to worker
 	userdataWorker.send <- u
-
-	// block until done
-	<-userdataWorker.done
 
 	fmt.Printf("%s\n", u)
 
