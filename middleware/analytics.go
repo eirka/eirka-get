@@ -8,8 +8,10 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
+// database insert worker
 var analyticsWorker *requestWorker
 
+// struct for database insert worker
 type requestWorker struct {
 	queue chan RequestType
 }
