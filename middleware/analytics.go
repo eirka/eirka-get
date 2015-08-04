@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"time"
 
-	u "github.com/techjanitor/pram-get/utils"
+	//u "github.com/techjanitor/pram-get/utils"
 )
 
 // requesttype holds the data we want to capture
@@ -14,7 +14,7 @@ type RequestType struct {
 	Ip        string
 	Path      string
 	Status    int
-	Latency   int
+	Latency   time.Duration
 	Useragent string
 	Referer   string
 }
@@ -57,7 +57,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// print headers
-		fmt.Println(request, req.Header)
+		fmt.Printf("%s\n%s\n", request, req.Header)
 
 	}
 }
