@@ -8,6 +8,12 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
+var analyticsWorker requestWorker
+
+type requestWorker struct {
+	queue chan RequestType
+}
+
 // requesttype holds the data we want to capture
 type RequestType struct {
 	Ib        string
@@ -19,6 +25,46 @@ type RequestType struct {
 	Status    int
 	Latency   time.Duration
 	Cached    bool
+}
+
+func init() {
+	// make worker channel
+	analyticsWorker = &requestWorker{
+		make(chan RequestType, 64),
+	}
+
+	// Get Database handle
+	db, err := u.GetDb()
+	if err != nil {
+		c.Error(err)
+		c.Abort()
+		return
+	}
+
+	// prepare query for analytics table
+	ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
+	if err != nil {
+		c.Error(err)
+		c.Abort()
+		return
+	}
+
+	go func() {
+		// range through tasks channel
+		for request := range analyticsWorker.queue {
+
+			// input data
+			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+		}
+
+	}()
+
 }
 
 // Analytics will log requests in the database
@@ -69,30 +115,7 @@ func Analytics() gin.HandlerFunc {
 				Cached:    cached,
 			}
 
-			// Get Database handle
-			db, err := u.GetDb()
-			if err != nil {
-				c.Error(err)
-				c.Abort()
-				return
-			}
-
-			// prepare query for analytics table
-			ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
-			if err != nil {
-				c.Error(err)
-				c.Abort()
-				return
-			}
-			defer ps1.Close()
-
-			// input data
-			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
-			if err != nil {
-				c.Error(err)
-				c.Abort()
-				return
-			}
+			analyticsWorker <- request
 
 		}
 
