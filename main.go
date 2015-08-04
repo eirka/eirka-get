@@ -38,7 +38,7 @@ func init() {
 	u.UserInit()
 
 	// init the analytics data worker
-	u.AnalyticsInit()
+	m.AnalyticsInit()
 
 	// channel for shutdown
 	c := make(chan os.Signal, 10)
