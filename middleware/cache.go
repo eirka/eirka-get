@@ -41,6 +41,9 @@ func Cache() gin.HandlerFunc {
 		key.expireKey(params[0])
 		key.generateKey(params...)
 
+		// if the request was cached or not
+		var cached bool
+
 		// Initialize cache handle
 		cache := u.RedisCache
 
@@ -68,8 +71,7 @@ func Cache() gin.HandlerFunc {
 					return
 				}
 
-			}
-			if err != nil {
+			} else if err != nil {
 				c.Error(err)
 				c.Abort()
 				return
@@ -115,8 +117,7 @@ func Cache() gin.HandlerFunc {
 
 				}
 
-			}
-			if err != nil {
+			} else if err != nil {
 				c.Error(err)
 				c.Abort()
 				return
@@ -125,7 +126,7 @@ func Cache() gin.HandlerFunc {
 		}
 
 		// Hand off bool to analytics middleware
-		c.Set("cached", true)
+		c.Set("cached", cached)
 
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.Write(result)

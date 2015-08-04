@@ -102,7 +102,11 @@ type itemKey struct {
 // Will take the params from the request and turn them into a key
 func (r *itemKey) generateKey(params ...string) {
 
-	if len(params) >= 3 {
+	switch {
+	case len(params) <= 2:
+		r.Key = params[0]
+		r.Value = "1"
+	case len(params) >= 3:
 		r.Key = params[0]
 		r.Value = params[2]
 	}
