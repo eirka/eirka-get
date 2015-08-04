@@ -54,7 +54,7 @@ func init() {
 		for u := range userdataWorker.queue {
 
 			// input data
-			_, err = ps1.QueryRow(u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
+			err = ps1.QueryRow(u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
 			if err != nil {
 				return
 			}
