@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"time"
 
@@ -77,8 +76,10 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// input data
-		_, err = analyticsStmt.Exec(request.Ib, request.Ip, request.Path, request.Status)
+		_, err := analyticsStmt.Exec(request.Ib, request.Ip, request.Path, request.Status)
 		if err != nil {
+			c.Error(err)
+			c.Abort()
 			return
 		}
 
