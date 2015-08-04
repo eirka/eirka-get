@@ -31,6 +31,9 @@ type RequestType struct {
 }
 
 func AnalyticsInit() {
+
+	fmt.Println("Initializing Analytics Worker...")
+
 	// make worker channel
 	analyticsWorker = &requestWorker{
 		make(chan RequestType, 64),

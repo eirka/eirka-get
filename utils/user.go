@@ -36,6 +36,9 @@ type User struct {
 }
 
 func UserInit() {
+
+	fmt.Println("Initializing User Info Worker...")
+
 	// make worker channel
 	userdataWorker = &userWorker{
 		send:    make(chan *User, 64),
