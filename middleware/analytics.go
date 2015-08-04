@@ -11,6 +11,7 @@ import (
 type RequestType struct {
 	Ib        string
 	Ip        string
+	User      uint
 	Path      string
 	Status    int
 	Latency   time.Duration
@@ -23,6 +24,8 @@ type RequestType struct {
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
+		// get userdata from session middleware
+		userdata := c.MustGet("userdata").(u.User)
 		// Start timer
 		start := time.Now()
 		// get request path
@@ -43,6 +46,7 @@ func Analytics() gin.HandlerFunc {
 		request := RequestType{
 			Ib:        ib,
 			Ip:        c.ClientIP(),
+			User:      userdata.Id,
 			Path:      path,
 			Status:    c.Writer.Status(),
 			Latency:   latency,
@@ -60,7 +64,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// prepare query for analytics table
-		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
+		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_referer, request_latency, request_ua, request_country, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
 		if err != nil {
 			c.Error(err)
 			c.Abort()
@@ -68,7 +72,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// input data
-		_, err = ps1.Exec(request.Ib, request.Ip, request.Path, request.Status)
+		_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Referer, request.Latency, request.Useragent, request.Country)
 		if err != nil {
 			c.Error(err)
 			c.Abort()

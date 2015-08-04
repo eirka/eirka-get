@@ -59,8 +59,9 @@ func main() {
 
 	// public cached pages
 	public := r.Group("/")
-	public.Use(m.Analytics())
 	public.Use(m.AntiSpamCookie())
+	public.Use(m.Auth(m.SetAuthLevel().All()))
+	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
 	public.GET("/index/:ib/:page", c.IndexController)
