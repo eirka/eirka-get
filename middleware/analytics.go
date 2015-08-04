@@ -1,21 +1,12 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 	"time"
 
 	u "github.com/techjanitor/pram-get/utils"
 )
-
-// database insert worker
-var analyticsWorker *requestWorker
-
-// struct for database insert worker
-type requestWorker struct {
-	queue chan RequestType
-}
 
 // requesttype holds the data we want to capture
 type RequestType struct {
@@ -30,44 +21,6 @@ type RequestType struct {
 	Cached    bool
 }
 
-func AnalyticsInit() {
-
-	fmt.Println("Initializing Analytics Worker...")
-
-	// make worker channel
-	analyticsWorker = &requestWorker{
-		make(chan RequestType, 10),
-	}
-
-	go func() {
-
-		// Get Database handle
-		db, err := u.GetDb()
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		// prepare query for analytics table
-		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		// range through tasks channel
-		for request := range analyticsWorker.queue {
-
-			// input data
-			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-		}
-
-	}()
-
-}
-
 // Analytics will log requests in the database
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -77,6 +30,7 @@ func Analytics() gin.HandlerFunc {
 		// Start timer
 		start := time.Now()
 
+		// Process request
 		c.Next()
 
 		// Stop timer
@@ -115,7 +69,30 @@ func Analytics() gin.HandlerFunc {
 				Cached:    cached,
 			}
 
-			analyticsWorker.queue <- request
+			// Get Database handle
+			db, err := u.GetDb()
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			// prepare query for analytics table
+			ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
+			defer ps1.Close()
+
+			// input data
+			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
 
 		}
 
