@@ -61,7 +61,6 @@ func main() {
 	public := r.Group("/")
 	public.Use(m.Analytics())
 	public.Use(m.AntiSpamCookie())
-	public.Use(m.Cache())
 
 	public.GET("/index/:ib/:page", c.IndexController)
 	public.GET("/thread/:ib/:thread/:page", c.ThreadController)
