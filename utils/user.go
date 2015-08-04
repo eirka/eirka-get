@@ -3,7 +3,6 @@ package utils
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 )
@@ -89,15 +88,11 @@ func (u *User) Info() (err error) {
 	// get original uid
 	uid := u.Id
 
-	fmt.Printf("first: %s\n", u)
-
 	// send to worker
 	userdataWorker.send <- u
 
 	// block until done
 	<-userdataWorker.done
-
-	fmt.Printf("second: %s\n", u)
 
 	// check error
 	if u.err == sql.ErrNoRows {
