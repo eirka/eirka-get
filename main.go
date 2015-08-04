@@ -1,11 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
 
 	"github.com/techjanitor/pram-get/config"
 	c "github.com/techjanitor/pram-get/controllers"
@@ -31,6 +34,16 @@ func init() {
 	// Print out config
 	config.Print()
 
+	// channel for shutdown
+	ch := make(chan os.Signal, 10)
+
+	// watch for shutdown signals to shutdown cleanly
+	signal.Notify(c, syscall.SIGTERM, os.Interrupt)
+	go func() {
+		<-c
+		Shutdown()
+	}()
+
 }
 
 func main() {
@@ -52,11 +65,11 @@ func main() {
 	public.GET("/index/:ib/:page", c.IndexController)
 	public.GET("/thread/:ib/:thread/:page", c.ThreadController)
 	public.GET("/tag/:ib/:tag/:page", c.TagController)
-	public.GET("/taginfo/:id", c.TagInfoController)
-	public.GET("/directory/:ib", c.DirectoryController)
 	public.GET("/image/:ib/:id", c.ImageController)
 	public.GET("/post/:ib/:thread/:id", c.PostController)
 	public.GET("/tags/:ib", c.TagsController)
+	public.GET("/directory/:ib", c.DirectoryController)
+	public.GET("/taginfo/:id", c.TagInfoController)
 	public.GET("/tagtypes", c.TagTypesController)
 	public.GET("/pram", c.PramController)
 
@@ -74,5 +87,26 @@ func main() {
 	}
 
 	gracehttp.Serve(s)
+
+}
+
+// called on sigterm or interrupt
+func Shutdown() {
+
+	log.Println("Shutting down...")
+
+	// close the database connection
+	log.Println("Closing database connection")
+	err := u.CloseDb()
+	if err != nil {
+		log.Println(err)
+	}
+
+	// close the redis pool
+	log.Println("Closing redis pool")
+	err := u.CloseRedis()
+	if err != nil {
+		log.Println(err)
+	}
 
 }

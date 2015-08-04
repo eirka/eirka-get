@@ -38,6 +38,11 @@ func NewRedisCache() {
 	return
 }
 
+// CloseRedis releases the pool
+func CloseRedis() (err error) {
+	return RedisStore.pool.Close()
+}
+
 // Get will retrieve a key
 func (c *RedisStore) Get(key string) (result []byte, err error) {
 	conn := c.pool.Get()
