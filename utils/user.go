@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"errors"
 
 	e "github.com/techjanitor/pram-get/errors"
@@ -34,13 +33,13 @@ type User struct {
 func init() {
 	// make worker channel
 	userdataWorker = &userWorker{
-		make(chan User, 64),
+		make(chan *User, 64),
 	}
 
 	go func() {
 
 		// Get Database handle
-		db, err := u.GetDb()
+		db, err := GetDb()
 		if err != nil {
 			return
 		}
