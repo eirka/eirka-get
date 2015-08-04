@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 )
@@ -34,7 +35,7 @@ type User struct {
 	err             error  `json:"-"`
 }
 
-func init() {
+func UserInit() {
 	// make worker channel
 	userdataWorker = &userWorker{
 		send:    make(chan *User, 64),
@@ -46,12 +47,14 @@ func init() {
 		// Get Database handle
 		db, err := GetDb()
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
 		// prepare query for users table
 		ps1, err := db.Prepare("SELECT usergroup_id,user_name,user_email,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?")
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
