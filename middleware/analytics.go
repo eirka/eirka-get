@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"time"
 
@@ -40,7 +41,7 @@ func Analytics() gin.HandlerFunc {
 		// Stop timer
 		end := time.Now()
 		// get request latency
-		latency := end.Sub(start)
+		latency := fmt.Sprintf("%13v", end.Sub(start))
 
 		// set our data
 		request := RequestType{
