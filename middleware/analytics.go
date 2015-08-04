@@ -36,7 +36,7 @@ func AnalyticsInit() {
 
 	// make worker channel
 	analyticsWorker = &requestWorker{
-		make(chan RequestType, 64),
+		make(chan RequestType, 10),
 	}
 
 	go func() {
