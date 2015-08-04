@@ -34,12 +34,6 @@ func Analytics() gin.HandlerFunc {
 		// get the ib
 		ib := c.Param("ib")
 
-		// abort if theres no ib
-		if ib == "" {
-			c.Abort()
-			return
-		}
-
 		// Stop timer
 		end := time.Now()
 		// get request latency
