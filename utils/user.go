@@ -71,7 +71,7 @@ func UserInit() {
 			}
 
 			// send back data
-			userdataWorker.done <- true
+			userdataWorker.done <- u.IsConfirmed
 
 		}
 
