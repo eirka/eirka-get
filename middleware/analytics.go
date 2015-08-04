@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"strings"
 	"time"
 
 	u "github.com/techjanitor/pram-get/utils"
@@ -9,20 +10,21 @@ import (
 
 // requesttype holds the data we want to capture
 type RequestType struct {
-	Ib      string
-	Ip      string
-	User    uint
-	Path    string
-	Status  int
-	Latency time.Duration
+	Ib        string
+	Ip        string
+	User      uint
+	Path      string
+	ItemKey   string
+	ItemValue int
+	Status    int
+	Latency   time.Duration
+	Cached    bool
 }
 
 // Analytics will log requests in the database
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
-		// get userdata from session middleware
-		userdata := c.MustGet("userdata").(u.User)
 		// Start timer
 		start := time.Now()
 		// get request path
@@ -30,6 +32,19 @@ func Analytics() gin.HandlerFunc {
 
 		// Process request
 		c.Next()
+
+		// get userdata from session middleware
+		userdata := c.MustGet("userdata").(u.User)
+
+		// get cached state from cache middleware
+		cached := c.MustGet("cached").(bool)
+
+		// Trim leading / from path and split
+		params := strings.Split(strings.Trim(path, "/"), "/")
+
+		// Make key from path
+		key := itemKey{}
+		key.generateKey(params...)
 
 		// get the ib
 		ib := c.Param("ib")
@@ -41,12 +56,15 @@ func Analytics() gin.HandlerFunc {
 
 		// set our data
 		request := RequestType{
-			Ib:      ib,
-			Ip:      c.ClientIP(),
-			User:    userdata.Id,
-			Path:    path,
-			Status:  c.Writer.Status(),
-			Latency: latency,
+			Ib:        ib,
+			Ip:        c.ClientIP(),
+			User:      userdata.Id,
+			Path:      path,
+			Status:    c.Writer.Status(),
+			Latency:   latency,
+			ItemKey:   key.Key,
+			ItemValue: key.Value,
+			Cached:    cached,
 		}
 
 		// Get Database handle
@@ -58,7 +76,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// prepare query for analytics table
-		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_time) VALUES (?,?,?,?,?,?,NOW())")
+		ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
 		if err != nil {
 			c.Error(err)
 			c.Abort()
@@ -66,7 +84,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// input data
-		_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency)
+		_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
 		if err != nil {
 			c.Error(err)
 			c.Abort()
@@ -74,4 +92,21 @@ func Analytics() gin.HandlerFunc {
 		}
 
 	}
+}
+
+type itemKey struct {
+	Key   string
+	Value string
+}
+
+// Will take the params from the request and turn them into a key
+func (r *itemKey) generateKey(params ...string) {
+
+	if len(params) >= 3 {
+		r.Key = params[0]
+		r.Value = params[2]
+	}
+
+	return
+
 }

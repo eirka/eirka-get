@@ -124,6 +124,9 @@ func Cache() gin.HandlerFunc {
 
 		}
 
+		// Hand off bool to analytics middleware
+		c.Set("cached", true)
+
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.Write(result)
 		c.Abort()
