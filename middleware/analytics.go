@@ -74,7 +74,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// input data
-		_, err := ps1.Exec(request.Ib, request.Ip, request.Path, request.Status)
+		_, err = ps1.Exec(request.Ib, request.Ip, request.Path, request.Status)
 		if err != nil {
 			c.Error(err)
 			c.Abort()
