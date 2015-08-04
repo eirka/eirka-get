@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 )
@@ -76,6 +77,8 @@ func (u *User) Info() (err error) {
 	}
 
 	userdataWorker.queue <- u
+
+	fmt.Printf("%s\n", u)
 
 	// if account is not confirmed
 	if !u.IsConfirmed {
