@@ -88,7 +88,7 @@ func (u *User) Info() (err error) {
 	// check error
 	if u.err == sql.ErrNoRows {
 		return e.ErrNotFound
-	} else if u.Error != nil {
+	} else if u.err != nil {
 		return e.ErrInternalError
 	}
 
