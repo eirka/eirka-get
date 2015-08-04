@@ -18,8 +18,8 @@ var (
 
 // struct for database insert worker
 type userWorker struct {
-	send <-chan *User
-	done chan<- bool
+	send chan *User
+	done chan bool
 }
 
 // user struct
