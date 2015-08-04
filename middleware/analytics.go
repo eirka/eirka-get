@@ -37,7 +37,7 @@ func Analytics() gin.HandlerFunc {
 
 		// abort if theres no ib
 		if ib == "" {
-			c.Error(err)
+			c.Error(fmt.Errorf("no ib???"))
 			c.Abort()
 			return
 		}
