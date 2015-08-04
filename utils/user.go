@@ -18,8 +18,8 @@ var (
 
 // struct for database insert worker
 type userWorker struct {
-	send    chan *User
-	receive chan *User
+	send chan *User
+	done chan *User
 }
 
 // user struct
@@ -41,8 +41,8 @@ func UserInit() {
 
 	// make worker channel
 	userdataWorker = &userWorker{
-		send:    make(chan *User, 64),
-		receive: make(chan *User, 64),
+		send: make(chan *User, 64),
+		done: make(chan bool, 64),
 	}
 
 	go func() {
@@ -71,7 +71,7 @@ func UserInit() {
 			}
 
 			// send back data
-			userdataWorker.receive <- u
+			userdataWorker.done <- true
 
 		}
 
@@ -94,7 +94,7 @@ func (u *User) Info() (err error) {
 	userdataWorker.send <- u
 
 	// block until done
-	<-userdataWorker.receive
+	<-userdataWorker.done
 
 	// check error
 	if u.err == sql.ErrNoRows {
