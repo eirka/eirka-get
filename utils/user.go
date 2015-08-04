@@ -82,7 +82,9 @@ func (u *User) Info() (err error) {
 
 	fmt.Printf("%s\n", u)
 
-	fmt.Printf("%s\n", <-userdataWorker.receive)
+	<-userdataWorker.receive
+
+	fmt.Printf("%s\n", u)
 
 	// if account is not confirmed
 	if !u.IsConfirmed {
