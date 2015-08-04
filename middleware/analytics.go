@@ -73,7 +73,6 @@ func Analytics() gin.HandlerFunc {
 		// Start timer
 		start := time.Now()
 
-		// Process request
 		c.Next()
 
 		// Stop timer

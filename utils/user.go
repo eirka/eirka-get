@@ -11,6 +11,7 @@ var (
 	ErrUserNotConfirmed error = errors.New("Account not confirmed")
 	ErrUserBanned       error = errors.New("Account banned")
 	ErrUserLocked       error = errors.New("Account locked")
+	ErrUserNotExist     error = errors.New("User does not exist")
 	userdataWorker      *userWorker
 )
 
@@ -63,6 +64,7 @@ func init() {
 				u.err = err
 			}
 
+			// send back data
 			userdataWorker.receive <- u
 
 		}
@@ -87,7 +89,7 @@ func (u *User) Info() (err error) {
 
 	// check error
 	if u.err == sql.ErrNoRows {
-		return e.ErrNotFound
+		return ErrUserNotExist
 	} else if u.err != nil {
 		return e.ErrInternalError
 	}
