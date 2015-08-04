@@ -75,7 +75,7 @@ func Print() {
 		panic(err)
 	}
 
-	fmt.Printf("%s", output)
+	fmt.Printf("%s\n", output)
 
 	return
 
