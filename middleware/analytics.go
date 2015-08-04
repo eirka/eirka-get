@@ -8,9 +8,6 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
-// holds our prepared statement
-var analyticsStmt *sql.Stmt
-
 // requesttype holds the data we want to capture
 type RequestType struct {
 	Ib        string
@@ -21,20 +18,6 @@ type RequestType struct {
 	Useragent string
 	Referer   string
 	Country   string
-}
-
-func init() {
-	// Get Database handle
-	db, err := u.GetDb()
-	if err != nil {
-		panic(err)
-	}
-
-	analyticsStmt, err = db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
-	if err != nil {
-		panic(err)
-	}
-
 }
 
 // Analytics will log requests in the database
@@ -75,8 +58,24 @@ func Analytics() gin.HandlerFunc {
 			Country:   req.Header.Get("CF-IPCountry"),
 		}
 
+		// Get Database handle
+		db, err := u.GetDb()
+		if err != nil {
+			c.Error(err)
+			c.Abort()
+			return
+		}
+
+		// prepare query for analytics table
+		ps1, err = db.Prepare("INSERT INTO analytics (ib_id, request_time, request_ip, request_path, request_status) VALUES (?,NOW(),?,?,?)")
+		if err != nil {
+			c.Error(err)
+			c.Abort()
+			return
+		}
+
 		// input data
-		_, err := analyticsStmt.Exec(request.Ib, request.Ip, request.Path, request.Status)
+		_, err := ps1.Exec(request.Ib, request.Ip, request.Path, request.Status)
 		if err != nil {
 			c.Error(err)
 			c.Abort()
