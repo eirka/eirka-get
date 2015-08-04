@@ -32,6 +32,8 @@ func Analytics() gin.HandlerFunc {
 		// get request path
 		path := req.URL.Path
 
+		fmt.Fprintln(testout, "derp")
+
 		// Process request
 		c.Next()
 
