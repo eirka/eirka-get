@@ -15,7 +15,7 @@ type RequestType struct {
 	User      uint
 	Path      string
 	ItemKey   string
-	ItemValue int
+	ItemValue string
 	Status    int
 	Latency   time.Duration
 	Cached    bool
@@ -96,7 +96,7 @@ func Analytics() gin.HandlerFunc {
 
 type itemKey struct {
 	Key   string
-	Value int
+	Value string
 }
 
 // Will take the params from the request and turn them into a key
