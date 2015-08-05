@@ -34,12 +34,6 @@ func init() {
 	// Print out config
 	config.Print()
 
-	// init the user data worker
-	u.UserInit()
-
-	// init the analytics data worker
-	m.AnalyticsInit()
-
 	// channel for shutdown
 	c := make(chan os.Signal, 10)
 
