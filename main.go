@@ -72,6 +72,7 @@ func main() {
 	public.GET("/tags/:ib", c.TagsController)
 	public.GET("/directory/:ib", c.DirectoryController)
 	public.GET("/popular/:ib", c.PopularController)
+	public.GET("/new/:ib", c.NewController)
 	public.GET("/taginfo/:id", c.TagInfoController)
 	public.GET("/tagtypes", c.TagTypesController)
 	public.GET("/pram", c.PramController)
