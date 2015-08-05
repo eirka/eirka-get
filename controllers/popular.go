@@ -43,6 +43,9 @@ func PopularController(c *gin.Context) {
 		return
 	}
 
+	// Hand off data to cache middleware
+	c.Set("data", output)
+
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.Write(output)
 
