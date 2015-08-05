@@ -71,6 +71,7 @@ func main() {
 	public.GET("/post/:ib/:thread/:id", c.PostController)
 	public.GET("/tags/:ib", c.TagsController)
 	public.GET("/directory/:ib", c.DirectoryController)
+	public.GET("/popular/:ib", c.PopularController)
 	public.GET("/taginfo/:id", c.TagInfoController)
 	public.GET("/tagtypes", c.TagTypesController)
 	public.GET("/pram", c.PramController)

@@ -102,7 +102,7 @@ func Cache() gin.HandlerFunc {
 				if key.Expire {
 
 					// Set output to cache
-					err = cache.SetEx(key.Key, 60, data)
+					err = cache.SetEx(key.Key, 300, data)
 					if err != nil {
 						c.Error(err)
 						c.Abort()
@@ -180,7 +180,8 @@ func (r *redisKey) generateKey(params ...string) {
 func (r *redisKey) expireKey(key string) {
 
 	keyList := map[string]bool{
-		"pram": true,
+		"pram":    true,
+		"popular": true,
 	}
 
 	if keyList[strings.ToLower(key)] {
