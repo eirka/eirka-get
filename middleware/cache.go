@@ -182,6 +182,7 @@ func (r *redisKey) expireKey(key string) {
 	keyList := map[string]bool{
 		"pram":    true,
 		"popular": true,
+		"new":     true,
 	}
 
 	if keyList[strings.ToLower(key)] {
