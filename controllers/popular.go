@@ -6,7 +6,6 @@ import (
 
 	e "github.com/techjanitor/pram-get/errors"
 	"github.com/techjanitor/pram-get/models"
-	u "github.com/techjanitor/pram-get/utils"
 )
 
 // PopularController handles Popular pages
