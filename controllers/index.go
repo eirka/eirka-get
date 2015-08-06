@@ -44,7 +44,7 @@ func IndexController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(e.ErrInvalidParam)
+		c.Error(err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func IndexController(c *gin.Context) {
 	if up > 20 {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(e.ErrInvalidParam)
 		return
 	}
 
