@@ -18,9 +18,6 @@ func TagsController(c *gin.Context) {
 	// get search query if its there
 	search := c.Query("search")
 
-	fmt.Println("fart")
-	fmt.Println(c.Request.URL.Query())
-
 	// Initialize model struct
 	m := &models.TagsModel{
 		Ib:   params[0],

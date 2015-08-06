@@ -36,6 +36,7 @@ func Cache() gin.HandlerFunc {
 		// break cache if there is a query
 		if c.Request.URL.RawQuery != "" {
 			c.Next()
+			return
 		}
 
 		// Get request path
