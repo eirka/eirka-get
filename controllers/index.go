@@ -31,9 +31,25 @@ func IndexController(c *gin.Context) {
 		return
 	}
 
+	// max for query params
+	if ut > 20 || ut < 5 {
+		c.Set("controllerError", err)
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
+		return
+	}
+
 	// validate query parameter
 	up, err := u.ValidateParam(posts)
 	if err != nil {
+		c.Set("controllerError", err)
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
+		return
+	}
+
+	// max for query params
+	if up > 20 || up < 5 {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
