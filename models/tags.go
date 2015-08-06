@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
@@ -54,6 +55,9 @@ func (i *TagsModel) Get() (err error) {
 			return err
 		}
 	} else {
+		// create our search term with wildcards
+		searchterm := fmt.Sprintf("%%%s%%", i.Term)
+
 		rows, err := db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags left join tagmap on tags.tag_id = tagmap.tag_id group by tag_id) as a 
