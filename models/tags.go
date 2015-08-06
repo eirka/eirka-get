@@ -42,12 +42,9 @@ func (i *TagsModel) Get() (err error) {
 
 	tags := []Tags{}
 
-	// to hold our potential search term
-	var tag string
-
 	// Validate tag input
 	if i.Term != "" {
-		tag = u.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+		tag := u.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 		if tag.MinLength() {
 			return e.ErrInvalidParam
 		} else if tag.MaxLength() {
@@ -56,7 +53,7 @@ func (i *TagsModel) Get() (err error) {
 	}
 
 	// add wildcards to the term
-	searchterm := fmt.Sprintf("%%%s%%", tag)
+	searchterm := fmt.Sprintf("%%%s%%", i.Term)
 
 	rows, err := db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id

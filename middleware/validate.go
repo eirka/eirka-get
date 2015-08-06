@@ -2,9 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
 
-	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
 )
