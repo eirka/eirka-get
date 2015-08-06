@@ -27,7 +27,7 @@ func FavoriteController(c *gin.Context) {
 	// Get the model which outputs JSON
 	err := m.Get()
 	if err != nil {
-		c.Set("controllerError", err)
+		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
@@ -36,7 +36,7 @@ func FavoriteController(c *gin.Context) {
 	// Marshal the structs into JSON
 	output, err := json.Marshal(m.Result)
 	if err != nil {
-		c.Set("controllerError", err)
+		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return

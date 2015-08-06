@@ -40,7 +40,7 @@ func Analytics() gin.HandlerFunc {
 
 		// Check if there was an error from the controller
 		controllerError, _ := c.Get("controllerError")
-		if controllerError != nil {
+		if controllerError {
 			c.Abort()
 			return
 		}

@@ -28,7 +28,7 @@ func UserController(c *gin.Context) {
 	// Marshal the structs into JSON
 	output, err := json.Marshal(response)
 	if err != nil {
-		c.Set("controllerError", err)
+		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
