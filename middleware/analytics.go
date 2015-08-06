@@ -39,7 +39,7 @@ func Analytics() gin.HandlerFunc {
 		latency := end.Sub(start)
 
 		// Check if there was an error from the controller
-		controllerError := c.Get("controllerError").(bool)
+		_, controllerError := c.Get("controllerError")
 		if controllerError {
 			c.Abort()
 			return

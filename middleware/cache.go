@@ -61,7 +61,7 @@ func Cache() gin.HandlerFunc {
 				c.Next()
 
 				// Check if there was an error from the controller
-				controllerError := c.Get("controllerError").(bool)
+				_, controllerError := c.Get("controllerError")
 				if controllerError {
 					c.Abort()
 					return
@@ -96,7 +96,7 @@ func Cache() gin.HandlerFunc {
 				c.Next()
 
 				// Check if there was an error from the controller
-				controllerError := c.Get("controllerError").(bool)
+				_, controllerError := c.Get("controllerError")
 				if controllerError {
 					c.Abort()
 					return
