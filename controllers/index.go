@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
+	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	"github.com/techjanitor/pram-get/models"
 )
@@ -14,10 +15,35 @@ func IndexController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
+	// how many threads per index page
+	threads := c.DefaultQuery("threads", config.Settings.Limits.ThreadsPerPage)
+	// how many posts per thread
+	posts := c.DefaultQuery("posts", config.Settings.Limits.PostsPerThread)
+
+	// validate query parameter
+	ut, err := u.ValidateParam(threads)
+	if err != nil {
+		c.Set("controllerError", err)
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
+		return
+	}
+
+	// validate query parameter
+	up, err := u.ValidateParam(posts)
+	if err != nil {
+		c.Set("controllerError", err)
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
+		return
+	}
+
 	// Initialize model struct
 	m := &models.IndexModel{
-		Ib:   params[0],
-		Page: params[1],
+		Ib:      params[0],
+		Page:    params[1],
+		Threads: ut,
+		Posts:   up,
 	}
 
 	// Get the model which outputs JSON

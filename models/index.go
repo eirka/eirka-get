@@ -8,9 +8,11 @@ import (
 
 // IndexModel holds the parameters from the request and also the key for the cache
 type IndexModel struct {
-	Ib     uint
-	Page   uint
-	Result IndexType
+	Ib      uint
+	Page    uint
+	Threads uint
+	Posts   uint
+	Result  IndexType
 }
 
 // ThreadIds holds all the thread ids for the loop that gets the posts
@@ -50,7 +52,7 @@ func (i *IndexModel) Get() (err error) {
 	// Set current page to parameter
 	paged.CurrentPage = i.Page
 	// Set threads per index page to config setting
-	paged.PerPage = config.Settings.Limits.ThreadsPerPage
+	paged.PerPage = i.Threads
 
 	// Initialize struct for all thread ids
 	thread_ids := []ThreadIds{}
@@ -99,7 +101,7 @@ func (i *IndexModel) Get() (err error) {
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
 	WHERE ib_id = ? AND thread_deleted = 0
 	GROUP BY threads.thread_id
-	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, config.Settings.Limits.ThreadsPerPage)
+	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, i.Threads)
 	if err != nil {
 		return
 	}
@@ -155,13 +157,13 @@ func (i *IndexModel) Get() (err error) {
 		thread.Pages = postpages.Pages
 
 		// Get omitted postcount
-		if id.Total <= config.Settings.Limits.PostsPerThread {
+		if id.Total <= i.Posts {
 			thread.OmitPosts = 0
 		} else {
-			thread.OmitPosts = (id.Total - config.Settings.Limits.PostsPerThread)
+			thread.OmitPosts = (id.Total - i.Posts)
 		}
 
-		e1, err := ps1.Query(id.Id, config.Settings.Limits.PostsPerThread)
+		e1, err := ps1.Query(id.Id, i.Posts)
 		if err != nil {
 			return err
 		}
