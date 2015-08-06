@@ -18,7 +18,7 @@ func TagsController(c *gin.Context) {
 	// get search query if its there
 	search := c.Query("search")
 
-	fmt.Println(search)
+	fmt.Println(c.Query)
 
 	// Initialize model struct
 	m := &models.TagsModel{
