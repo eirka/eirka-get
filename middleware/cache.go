@@ -30,11 +30,16 @@ func Cache() gin.HandlerFunc {
 		var result []byte
 		var err error
 
-		// Get request path
-		path := c.Request.URL.Path
-
 		// bool for analytics middleware
 		c.Set("cached", false)
+
+		// break cache if there is a query
+		if c.Request.URL.RawQuery != "" {
+			c.Next()
+		}
+
+		// Get request path
+		path := c.Request.URL.Path
 
 		// Trim leading / from path and split
 		params := strings.Split(strings.Trim(path, "/"), "/")
