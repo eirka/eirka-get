@@ -45,6 +45,8 @@ func (i *TagsModel) Get() (err error) {
 	// initialize our rows
 	var rows *sql.Rows
 
+	fmt.Println(i.Term)
+
 	if i.Term == "" {
 		rows, err = db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
