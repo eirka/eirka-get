@@ -7,6 +7,7 @@ import (
 	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	"github.com/techjanitor/pram-get/models"
+	u "github.com/techjanitor/pram-get/utils"
 )
 
 // IndexController handles index pages
@@ -16,9 +17,9 @@ func IndexController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// how many threads per index page
-	threads := c.DefaultQuery("threads", config.Settings.Limits.ThreadsPerPage)
+	threads := c.DefaultQuery("threads", string(config.Settings.Limits.ThreadsPerPage))
 	// how many posts per thread
-	posts := c.DefaultQuery("posts", config.Settings.Limits.PostsPerThread)
+	posts := c.DefaultQuery("posts", string(config.Settings.Limits.PostsPerThread))
 
 	// validate query parameter
 	ut, err := u.ValidateParam(threads)
@@ -47,7 +48,7 @@ func IndexController(c *gin.Context) {
 	}
 
 	// Get the model which outputs JSON
-	err := m.Get()
+	err = m.Get()
 	if err == e.ErrNotFound {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
