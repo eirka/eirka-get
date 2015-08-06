@@ -53,6 +53,9 @@ type Config struct {
 	}
 
 	Limits struct {
+		// tag limits for seaarch
+		TagMaxLength int
+		TagMinLength int
 		// Set default posts per page
 		PostsPerPage uint
 

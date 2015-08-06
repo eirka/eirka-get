@@ -44,6 +44,16 @@ func GetDatabaseSettings() {
 		panic(err)
 	}
 
+	err = ps.QueryRow("tag_maxlength").Scan(&config.Settings.Limits.TagMaxLength)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ps.QueryRow("tag_minlength").Scan(&config.Settings.Limits.TagMinLength)
+	if err != nil {
+		panic(err)
+	}
+
 	err = ps.QueryRow("param_maxsize").Scan(&config.Settings.Limits.ParamMaxSize)
 	if err != nil {
 		panic(err)

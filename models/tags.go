@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
 )
@@ -41,7 +42,21 @@ func (i *TagsModel) Get() (err error) {
 
 	tags := []Tags{}
 
-	searchterm := fmt.Sprintf("%%%s%%", i.Term)
+	// to hold our potential search term
+	var tag string
+
+	// Validate tag input
+	if i.Term != "" {
+		tag = u.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+		if tag.MinLength() {
+			return e.ErrInvalidParam
+		} else if tag.MaxLength() {
+			return e.ErrInvalidParam
+		}
+	}
+
+	// add wildcards to the term
+	searchterm := fmt.Sprintf("%%%s%%", tag)
 
 	rows, err := db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
