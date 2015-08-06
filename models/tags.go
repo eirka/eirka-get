@@ -42,29 +42,15 @@ func (i *TagsModel) Get() (err error) {
 
 	tags := []Tags{}
 
-	// initialize our rows
-	var rows *sql.Rows
+	searchterm := fmt.Sprintf("%%%s%%", i.Term)
 
-	if i.Term == "" {
-		rows, err = db.Query(`select count,tag_id,tag_name,tagtype_id
-	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
-	FROM tags left join tagmap on tags.tag_id = tagmap.tag_id group by tag_id) as a where ib_id = ?
-	ORDER BY count DESC`, i.Ib)
-		if err != nil {
-			return err
-		}
-	} else {
-		// create our search term with wildcards
-		searchterm := fmt.Sprintf("%%%s%%", i.Term)
-
-		rows, err = db.Query(`select count,tag_id,tag_name,tagtype_id
+	rows, err = db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags left join tagmap on tags.tag_id = tagmap.tag_id group by tag_id) as a 
 	WHERE ib_id = ? AND tag_name LIKE ?
 	ORDER BY count DESC`, i.Ib, searchterm)
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	for rows.Next() {
