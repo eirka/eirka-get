@@ -61,7 +61,7 @@ func (i *TagsModel) Get() (err error) {
 	WHERE ib_id = ? AND tag_name LIKE ?
 	ORDER BY count DESC`, i.Ib, searchterm)
 	if err != nil {
-		return err
+		return
 	}
 
 	for rows.Next() {

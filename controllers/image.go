@@ -27,8 +27,7 @@ func ImageController(c *gin.Context) {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
 		c.Error(err)
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		c.Set("controllerError", err)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
