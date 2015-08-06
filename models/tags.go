@@ -53,13 +53,13 @@ func (i *TagsModel) Get() (err error) {
 	}
 
 	// add wildcards to the term
-	searchterm := fmt.Sprintf("%%%s%%", i.Term)
+	searchterm := fmt.Sprintf("%s%%", i.Term)
 
 	rows, err := db.Query(`select count,tag_id,tag_name,tagtype_id
 	FROM (select count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags left join tagmap on tags.tag_id = tagmap.tag_id group by tag_id) as a 
 	WHERE ib_id = ? AND tag_name LIKE ?
-	ORDER BY count DESC`, i.Ib, searchterm)
+	ORDER BY tag_name ASC`, i.Ib, searchterm)
 	if err != nil {
 		return
 	}
