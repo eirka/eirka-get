@@ -17,20 +17,10 @@ func TagsController(c *gin.Context) {
 	// get search query if its there
 	search := c.Query("search")
 
-	var m struct{}
-
-	// pick what model we want
-	if search == "" {
-		// Initialize model struct
-		m := &models.TagsModel{
-			Ib: params[0],
-		}
-	} else {
-		// Initialize model struct
-		m := &models.TagSearchModel{
-			Ib:   params[0],
-			Term: search,
-		}
+	// Initialize model struct
+	m := &models.TagsModel{
+		Ib:   params[0],
+		Term: search,
 	}
 
 	// Get the model which outputs JSON
