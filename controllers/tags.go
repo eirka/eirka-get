@@ -17,6 +17,8 @@ func TagsController(c *gin.Context) {
 	// get search query if its there
 	search := c.Query("search")
 
+	var m struct{}
+
 	// pick what model we want
 	if search == "" {
 		// Initialize model struct
