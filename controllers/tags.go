@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 
 	e "github.com/techjanitor/pram-get/errors"
@@ -16,6 +17,8 @@ func TagsController(c *gin.Context) {
 
 	// get search query if its there
 	search := c.Query("search")
+
+	fmt.Println(search)
 
 	// Initialize model struct
 	m := &models.TagsModel{
