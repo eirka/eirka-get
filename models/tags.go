@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 
 	e "github.com/techjanitor/pram-get/errors"
