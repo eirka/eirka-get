@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	"database/sql"
 
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
@@ -51,7 +51,7 @@ func (i *TagsModel) Get() (err error) {
 	FROM tags left join tagmap on tags.tag_id = tagmap.tag_id group by tag_id) as a where ib_id = ?
 	ORDER BY count DESC`, i.Ib)
 		if err != nil {
-			return
+			return err
 		}
 	} else {
 		rows, err := db.Query(`select count,tag_id,tag_name,tagtype_id
@@ -60,7 +60,7 @@ func (i *TagsModel) Get() (err error) {
 	WHERE ib_id = ? AND tag_name LIKE ?
 	ORDER BY count DESC`, i.Ib, searchterm)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
