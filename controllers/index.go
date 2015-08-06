@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"strconv"
 
 	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
@@ -17,9 +18,9 @@ func IndexController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// how many threads per index page
-	threads := c.DefaultQuery("threads", string(config.Settings.Limits.ThreadsPerPage))
+	threads := c.DefaultQuery("threads", strconv.Itoa(int(config.Settings.Limits.ThreadsPerPage)))
 	// how many posts per thread
-	posts := c.DefaultQuery("posts", string(config.Settings.Limits.PostsPerThread))
+	posts := c.DefaultQuery("posts", strconv.Itoa(int(config.Settings.Limits.PostsPerThread)))
 
 	// validate query parameter
 	ut, err := u.ValidateParam(threads)

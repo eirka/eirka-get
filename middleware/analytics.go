@@ -38,6 +38,13 @@ func Analytics() gin.HandlerFunc {
 		// get request latency
 		latency := end.Sub(start)
 
+		// Check if there was an error from the controller
+		controllerError, _ := c.Get("controllerError")
+		if controllerError != nil {
+			c.Abort()
+			return
+		}
+
 		// get userdata from session middleware
 		userdata := c.MustGet("userdata").(u.User)
 
