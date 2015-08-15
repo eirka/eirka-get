@@ -27,7 +27,7 @@ func Auth(perm Permission) gin.HandlerFunc {
 		// set default anonymous user
 		user := u.User{
 			Id:              1,
-			Group:           1,
+			Group:           uint(All),
 			IsAuthenticated: false,
 		}
 
@@ -87,7 +87,7 @@ func Auth(perm Permission) gin.HandlerFunc {
 		}
 
 		// check if user meets set permissions
-		if user.Group < perm {
+		if user.Group < uint(perm) {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 			c.Error(e.ErrUnauthorized)
 			c.Abort()
