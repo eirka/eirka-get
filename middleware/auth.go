@@ -27,7 +27,7 @@ func Auth(perm Permission) gin.HandlerFunc {
 		// set default anonymous user
 		user := u.User{
 			Id:              1,
-			Group:           All,
+			Group:           1,
 			IsAuthenticated: false,
 		}
 
