@@ -60,7 +60,7 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(m.AntiSpamCookie())
-	public.Use(m.Auth(m.SetAuthLevel().All()))
+	public.Use(m.Auth(m.All))
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
@@ -79,7 +79,7 @@ func main() {
 
 	// user pages
 	users := r.Group("/user")
-	users.Use(m.Auth(m.SetAuthLevel().Registered()))
+	users.Use(m.Auth(m.Registered))
 
 	users.GET("/whoami", c.UserController)
 	users.GET("/favorite/:id", c.FavoriteController)

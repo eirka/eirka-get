@@ -11,14 +11,23 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
+type Permission uint
+
+const (
+	All Permission = 1 << iota
+	Registered
+	Moderators
+	Admins
+)
+
 // checks for session cookie and handles permissions
-func Auth(perms Permissions) gin.HandlerFunc {
+func Auth(perm Permission) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// set default anonymous user
 		user := u.User{
 			Id:              1,
-			Group:           1,
+			Group:           All,
 			IsAuthenticated: false,
 		}
 
@@ -78,7 +87,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		}
 
 		// check if user meets set permissions
-		if user.Group < perms.Minimum {
+		if user.Group < perm {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 			c.Error(e.ErrUnauthorized)
 			c.Abort()
@@ -92,37 +101,4 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 	}
 
-}
-
-// permissions data
-type Permissions struct {
-	Minimum uint
-}
-
-func SetAuthLevel() Permissions {
-	return Permissions{}
-}
-
-// All users
-func (p Permissions) All() Permissions {
-	p.Minimum = 1
-	return p
-}
-
-// registered users
-func (p Permissions) Registered() Permissions {
-	p.Minimum = 2
-	return p
-}
-
-// moderators
-func (p Permissions) Moderators() Permissions {
-	p.Minimum = 3
-	return p
-}
-
-// admins
-func (p Permissions) Admins() Permissions {
-	p.Minimum = 4
-	return p
 }
