@@ -20,8 +20,9 @@ func ImageController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.ImageModel{
-		Ib: params[0],
-		Id: params[1],
+		User: userdata.Id,
+		Ib:   params[0],
+		Id:   params[1],
 	}
 
 	// Get the model which outputs JSON

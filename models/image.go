@@ -9,6 +9,7 @@ import (
 
 // ImageModel holds the parameters from the request and also the key for the cache
 type ImageModel struct {
+	User   uint
 	Ib     uint
 	Id     uint
 	Result ImageType
