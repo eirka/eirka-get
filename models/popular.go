@@ -38,7 +38,7 @@ func (i *PopularModel) Get() (err error) {
 	rows, err := db.Query(`SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width FROM
     (SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width, COUNT(*) AS hits
     FROM analytics
-    LEFT JOIN images on request_itemvalue = images.image_id
+    INNER JOIN images on request_itemvalue = images.image_id
     WHERE request_itemkey = "image" AND request_time > (now() - interval 3 day) AND ib_id = ?
     GROUP BY request_itemvalue
     ORDER BY hits DESC LIMIT 50) AS popular`, i.Ib)

@@ -14,6 +14,9 @@ func ImageController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
+	// get userdata from session middleware
+	userdata := c.MustGet("userdata").(u.User)
+
 	// Initialize model struct
 	m := &models.ImageModel{
 		Ib: params[0],
