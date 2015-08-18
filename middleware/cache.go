@@ -23,6 +23,11 @@ import (
 // "pram"
 // "taginfo:21"
 
+const (
+	// key expire seconds
+	ExpireSeconds = 600
+)
+
 // Cache will check for the key in Redis and serve it. If not found, it will
 // take the marshalled JSON from the controller and set it in Redis
 func Cache() gin.HandlerFunc {
@@ -108,7 +113,7 @@ func Cache() gin.HandlerFunc {
 				if key.Expire {
 
 					// Set output to cache
-					err = cache.SetEx(key.Key, 300, data)
+					err = cache.SetEx(key.Key, ExpireSeconds, data)
 					if err != nil {
 						c.Error(err)
 						c.Abort()

@@ -6,7 +6,6 @@ import (
 
 	e "github.com/techjanitor/pram-get/errors"
 	"github.com/techjanitor/pram-get/models"
-	u "github.com/techjanitor/pram-get/utils"
 )
 
 // ImageController handles image pages
@@ -15,14 +14,10 @@ func ImageController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
-
 	// Initialize model struct
 	m := &models.ImageModel{
-		User: userdata.Id,
-		Ib:   params[0],
-		Id:   params[1],
+		Ib: params[0],
+		Id: params[1],
 	}
 
 	// Get the model which outputs JSON

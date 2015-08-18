@@ -42,12 +42,14 @@ func CORS() gin.HandlerFunc {
 		if req.Method == "OPTIONS" {
 
 			// Add allowed method header
-			c.Header("Access-Control-Allow-Methods", "POST")
+			c.Header("Access-Control-Allow-Methods", "GET")
 
 			// Add allowed headers header
 			c.Header("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
 
 			c.AbortWithStatus(http.StatusOK)
+
+			return
 
 		} else {
 
