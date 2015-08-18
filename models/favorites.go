@@ -54,13 +54,12 @@ func (i *FavoritesModel) Get() (err error) {
 		return
 	}
 
-	// Get total tag count
-	// Get total tag count and put it in pagination struct
+	// Get total favorites count and put it in pagination struct
 	err = db.QueryRow(`SELECT count(*) FROM favorites 
 	LEFT JOIN images on favorites.image_id = images.image_id
 	LEFT JOIN posts on images.post_id = posts.post_id 
 	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE user_id = ? AND ib_id = ?`, i.User, i.Ib).Scan(&paged.Total)
+	WHERE favorites.user_id = ? AND ib_id = ?`, i.User, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -78,6 +77,7 @@ func (i *FavoritesModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
+	// get images in users favorites with limits
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM favorites
 	LEFT JOIN images on favorites.image_id = images.image_id
