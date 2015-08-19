@@ -14,7 +14,7 @@ import (
 type Permission uint
 
 const (
-	All Permission = 1 << iota
+	All Permission = 1 + iota
 	Registered
 	Moderators
 	Admins
