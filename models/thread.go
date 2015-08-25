@@ -34,8 +34,9 @@ type ThreadInfo struct {
 type ThreadPosts struct {
 	Id          uint    `json:"id"`
 	Num         uint    `json:"num"`
-	Name        *string `json:"name"`
-	Time        *string `json:"time"`
+	Name        string  `json:"name"`
+	Group       uint    `json:"group"`
+	Time        string  `json:"time"`
 	Text        *string `json:"comment"`
 	ImgId       *uint   `json:"img_id,omitempty"`
 	File        *string `json:"filename,omitempty"`
@@ -68,7 +69,7 @@ func (i *ThreadModel) Get() (err error) {
 
 	// Get total thread count and put it in pagination struct
 	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) FROM threads 
-	LEFT JOIN posts on threads.thread_id = posts.thread_id
+	INNER JOIN posts on threads.thread_id = posts.thread_id
 	WHERE threads.thread_id = ? AND threads.ib_id = ?
 	GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
@@ -95,9 +96,10 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := db.Query(`SELECT posts.post_id,post_num,post_name,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	rows, err := db.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
+	INNER JOIN users on posts.user_id = users.user_id
 	WHERE posts.thread_id = ? ORDER BY post_id LIMIT ?,?`, i.Thread, paged.Limit, paged.PerPage)
 
 	if err != nil {
@@ -109,7 +111,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}
