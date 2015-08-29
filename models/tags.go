@@ -58,7 +58,7 @@ func (i *TagsModel) Get() (err error) {
 	rows, err := db.Query(`SELECT count,tag_id,tag_name,tagtype_id
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags 
-	INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
+	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
 	WHERE ib_id = ? AND tag_name LIKE ?
 	group by tag_id) as a 
 	ORDER BY tag_name ASC`, i.Ib, searchterm)
