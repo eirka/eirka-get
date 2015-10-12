@@ -14,14 +14,10 @@ func TagsController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get search query if its there
-	search := c.Query("search")
-
 	// Initialize model struct
 	m := &models.TagsModel{
 		Ib:   params[0],
 		Page: params[1],
-		Term: search,
 	}
 
 	// Get the model which outputs JSON

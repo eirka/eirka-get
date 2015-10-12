@@ -12,7 +12,6 @@ import (
 type TagsModel struct {
 	Ib     uint
 	Page   uint
-	Term   string
 	Result TagsType
 }
 
@@ -51,26 +50,31 @@ func (i *TagsModel) Get() (err error) {
 		return
 	}
 
-	// Validate tag input
-	if i.Term != "" {
-		tag := u.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
-		if tag.MinLength() {
-			return e.ErrInvalidParam
-		} else if tag.MaxLength() {
-			return e.ErrInvalidParam
-		}
+	// Get total tag count and put it in pagination struct
+	err = db.QueryRow("SELECT count(*) FROM tags WHERE ib_id = ?", i.Ib).Scan(&paged.Total)
+	if err != nil {
+		return
 	}
 
-	// add wildcards to the term
-	searchterm := fmt.Sprintf("%s%%", i.Term)
+	// Calculate Limit and total Pages
+	paged.Get()
+
+	// check page number
+	switch {
+	case i.Page == 0:
+		paged.PerPage = paged.Total
+		paged.Limit = 0
+	case i.Page > paged.Pages:
+		return e.ErrNotFound
+	}
 
 	rows, err := db.Query(`SELECT count,tag_id,tag_name,tagtype_id
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags 
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
-	WHERE ib_id = ? AND tag_name LIKE ?
-	group by tag_id) as a 
-	ORDER BY tag_name ASC`, i.Ib, searchterm)
+	WHERE ib_id = ?
+	GROUP by tag_id) as a 
+	ORDER BY count DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
