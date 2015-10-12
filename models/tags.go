@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
