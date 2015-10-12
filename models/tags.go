@@ -97,7 +97,7 @@ func (i *TagsModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	paged.Total = len(tags)
+	paged.Total = uint(len(tags))
 
 	// Calculate Limit and total Pages
 	paged.Get()
