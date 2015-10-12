@@ -8,48 +8,31 @@ import (
 	u "github.com/techjanitor/pram-get/utils"
 )
 
-// TagsModel holds the parameters from the request and also the key for the cache
-type TagsModel struct {
+// TagSearchModel holds the parameters from the request and also the key for the cache
+type TagSearchModel struct {
 	Ib     uint
-	Page   uint
 	Term   string
-	Result TagsType
+	Result TagSearchType
 }
 
-// TagsType is the top level of the JSON response
-type TagsType struct {
-	Body u.PagedResponse `json:"tags"`
-}
-
-// Taglist struct
-type Tags struct {
-	Id    uint   `json:"id"`
-	Tag   string `json:"tag"`
-	Total uint   `json:"total"`
-	Type  uint   `json:"type"`
+// TagSearchType is the top level of the JSON response
+type TagSearchType struct {
+	Body []Tags `json:"tagsearch"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
-func (i *TagsModel) Get() (err error) {
+func (i *TagSearchModel) Get() (err error) {
 
 	// Initialize response header
-	response := TagsType{}
-
-	// tags slice
-	tags := []Tags{}
-
-	// Initialize struct for pagination
-	paged := u.PagedResponse{}
-	// Set current page to parameter
-	paged.CurrentPage = i.Page
-	// Set threads per index page to config setting
-	paged.PerPage = config.Settings.Limits.PostsPerPage
+	response := TagSearchType{}
 
 	// Get Database handle
 	db, err := u.GetDb()
 	if err != nil {
 		return
 	}
+
+	tags := []Tags{}
 
 	// Validate tag input
 	if i.Term != "" {
@@ -97,11 +80,8 @@ func (i *TagsModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// Add threads slice to items interface
-	paged.Items = tags
-
 	// Add pagedresponse to the response struct
-	response.Body = paged
+	response.Body = tags
 
 	// This is the data we will serialize
 	i.Result = response
