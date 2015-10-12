@@ -20,6 +20,7 @@ func TagsController(c *gin.Context) {
 	// Initialize model struct
 	m := &models.TagsModel{
 		Ib:   params[0],
+		Page: params[1],
 		Term: search,
 	}
 

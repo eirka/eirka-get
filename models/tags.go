@@ -11,13 +11,14 @@ import (
 // TagsModel holds the parameters from the request and also the key for the cache
 type TagsModel struct {
 	Ib     uint
+	Page   uint
 	Term   string
 	Result TagsType
 }
 
 // TagsType is the top level of the JSON response
 type TagsType struct {
-	Body []Tags `json:"tags"`
+	Body u.PagedResponse `json:"tags"`
 }
 
 // Taglist struct
@@ -34,13 +35,21 @@ func (i *TagsModel) Get() (err error) {
 	// Initialize response header
 	response := TagsType{}
 
+	// tags slice
+	tags := []Tags{}
+
+	// Initialize struct for pagination
+	paged := u.PagedResponse{}
+	// Set current page to parameter
+	paged.CurrentPage = i.Page
+	// Set threads per index page to config setting
+	paged.PerPage = config.Settings.Limits.PostsPerPage
+
 	// Get Database handle
 	db, err := u.GetDb()
 	if err != nil {
 		return
 	}
-
-	tags := []Tags{}
 
 	// Validate tag input
 	if i.Term != "" {
@@ -88,8 +97,16 @@ func (i *TagsModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
+	paged.Total = len(tags)
+
+	// Calculate Limit and total Pages
+	paged.Get()
+
+	// Add threads slice to items interface
+	paged.Items = tags
+
 	// Add pagedresponse to the response struct
-	response.Body = tags
+	response.Body = paged
 
 	// This is the data we will serialize
 	i.Result = response
