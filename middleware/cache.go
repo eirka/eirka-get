@@ -191,9 +191,10 @@ func (r *redisKey) generateKey(params ...string) {
 func (r *redisKey) expireKey(key string) {
 
 	keyList := map[string]bool{
-		"pram":    true,
-		"popular": true,
-		"new":     true,
+		"pram":      true,
+		"popular":   true,
+		"new":       true,
+		"favorited": true,
 	}
 
 	if keyList[strings.ToLower(key)] {
