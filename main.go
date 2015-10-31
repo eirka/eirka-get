@@ -34,16 +34,6 @@ func init() {
 	// Print out config
 	config.Print()
 
-	// channel for shutdown
-	c := make(chan os.Signal, 10)
-
-	// watch for shutdown signals to shutdown cleanly
-	signal.Notify(c, syscall.SIGTERM, os.Interrupt)
-	go func() {
-		<-c
-		Shutdown()
-	}()
-
 }
 
 func main() {
@@ -93,19 +83,5 @@ func main() {
 	}
 
 	gracehttp.Serve(s)
-
-}
-
-// called on sigterm or interrupt
-func Shutdown() {
-
-	fmt.Println("Shutting down...")
-
-	// close the database connection
-	fmt.Println("Closing database connection")
-	err := u.CloseDb()
-	if err != nil {
-		fmt.Println(err)
-	}
 
 }
