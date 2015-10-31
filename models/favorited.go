@@ -39,6 +39,9 @@ func (i *FavoritedModel) Get() (err error) {
     (SELECT favorites.image_id,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
     FROM favorites
     INNER JOIN images ON favorites.image_id = images.image_id
+ 	INNER JOIN posts on images.post_id = posts.post_id 
+	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE ib_id = ?
     GROUP BY image_id
     ORDER BY favorites DESC
     LIMIT 20) AS favorited`, i.Ib)
