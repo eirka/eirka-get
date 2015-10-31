@@ -12,7 +12,7 @@ var (
 )
 
 type Config struct {
-	General struct {
+	Get struct {
 		// Settings for daemon
 		Address string
 		Port    uint
@@ -86,7 +86,7 @@ func Print() {
 
 // Get the config file and decode into struct
 func init() {
-	file, err := os.Open("/etc/pram/get.conf")
+	file, err := os.Open("/etc/pram/pram.conf")
 	if err != nil {
 		panic(err)
 	}
