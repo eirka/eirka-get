@@ -88,7 +88,7 @@ func main() {
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
+		Addr:    fmt.Sprintf("%s:%d", config.Settings.Get.Address, config.Settings.Get.Port),
 		Handler: r,
 	}
 
