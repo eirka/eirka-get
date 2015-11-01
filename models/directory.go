@@ -43,7 +43,7 @@ func (i *DirectoryModel) Get() (err error) {
 	FROM threads
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
 	LEFT JOIN images on images.post_id = posts.post_id
-	WHERE ib_id = ? AND thread_deleted != 1
+	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
 	GROUP BY threads.thread_id
 	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC`, i.Ib)
 	if err != nil {
