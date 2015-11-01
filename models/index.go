@@ -99,7 +99,7 @@ func (i *IndexModel) Get() (err error) {
 	thread_id_rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id)
 	FROM threads
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
-	WHERE ib_id = ? AND thread_deleted != 1
+	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
 	GROUP BY threads.thread_id
 	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, i.Threads)
 	if err != nil {
