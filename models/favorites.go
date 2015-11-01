@@ -56,10 +56,10 @@ func (i *FavoritesModel) Get() (err error) {
 
 	// Get total favorites count and put it in pagination struct
 	err = db.QueryRow(`SELECT count(*) FROM favorites 
-	LEFT JOIN images on favorites.image_id = images.image_id
-	LEFT JOIN posts on images.post_id = posts.post_id 
-	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE favorites.user_id = ? AND ib_id = ?`, i.User, i.Ib).Scan(&paged.Total)
+	INNER JOIN images on favorites.image_id = images.image_id
+	INNER JOIN posts on images.post_id = posts.post_id 
+	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.User, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -80,10 +80,11 @@ func (i *FavoritesModel) Get() (err error) {
 	// get images in users favorites with limits
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM favorites
-	LEFT JOIN images on favorites.image_id = images.image_id
-	LEFT JOIN posts on images.post_id = posts.post_id 
-	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE favorites.user_id = ? AND ib_id = ? ORDER BY favorite_id DESC LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
+	INNER JOIN images on favorites.image_id = images.image_id
+	INNER JOIN posts on images.post_id = posts.post_id 
+	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+	ORDER BY favorite_id DESC LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}

@@ -67,10 +67,15 @@ func (i *ThreadModel) Get() (err error) {
 		return
 	}
 
+	// Check to see if thread has been deleted
+	if u.GetBool("thread_deleted", "threads", "thread_id", i.Thread) {
+		return e.ErrNotFound
+	}
+
 	// Get total thread count and put it in pagination struct
 	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) FROM threads 
 	INNER JOIN posts on threads.thread_id = posts.thread_id
-	WHERE threads.thread_id = ? AND threads.ib_id = ?
+	WHERE threads.thread_id = ? AND threads.ib_id = ? AND post_deleted != 1
 	GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
@@ -80,11 +85,6 @@ func (i *ThreadModel) Get() (err error) {
 
 	// Calculate Limit and total Pages
 	paged.Get()
-
-	// Check to see if thread has been deleted
-	if u.GetBool("thread_deleted", "threads", "thread_id", i.Thread) {
-		return e.ErrNotFound
-	}
 
 	// check page number
 	switch {
@@ -100,7 +100,8 @@ func (i *ThreadModel) Get() (err error) {
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id
-	WHERE posts.thread_id = ? ORDER BY post_id LIMIT ?,?`, i.Thread, paged.Limit, paged.PerPage)
+	WHERE posts.thread_id = ? AND post_deleted != 1
+    ORDER BY post_id LIMIT ?,?`, i.Thread, paged.Limit, paged.PerPage)
 
 	if err != nil {
 		return

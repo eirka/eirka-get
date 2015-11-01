@@ -82,7 +82,7 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// Get total thread count and put it in pagination struct
-	err = db.QueryRow("select count(*) from threads where ib_id = ?", i.Ib).Scan(&paged.Total)
+	err = db.QueryRow("select count(*) from threads where ib_id = ? AND thread_deleted != 1", i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -99,7 +99,7 @@ func (i *IndexModel) Get() (err error) {
 	thread_id_rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id)
 	FROM threads
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
-	WHERE ib_id = ? AND thread_deleted = 0
+	WHERE ib_id = ? AND thread_deleted != 1
 	GROUP BY threads.thread_id
 	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, i.Threads)
 	if err != nil {
@@ -129,7 +129,8 @@ func (i *IndexModel) Get() (err error) {
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id
-	WHERE posts.thread_id = ? ORDER BY post_num = 1 DESC, post_num DESC LIMIT ?)
+	WHERE posts.thread_id = ? AND post_deleted != 1
+	ORDER BY post_num = 1 DESC, post_num DESC LIMIT ?)
 	AS p ORDER BY post_num ASC`)
 	if err != nil {
 		return
