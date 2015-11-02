@@ -25,8 +25,8 @@ type ImageHeader struct {
 	Thread  uint        `json:"thread"`
 	PostNum uint        `json:"post_num"`
 	PostId  uint        `json:"post_id"`
-	Prev    uint        `json:"prev,omitempty"`
-	Next    uint        `json:"next,omitempty"`
+	Prev    *uint       `json:"prev,omitempty"`
+	Next    *uint       `json:"next,omitempty"`
 	Width   uint        `json:"width"`
 	Height  uint        `json:"height"`
 	File    string      `json:"filename"`
