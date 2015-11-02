@@ -69,7 +69,6 @@ func (i *TagModel) Get() (err error) {
 		return
 	}
 
-	// Get total tag count
 	// Get total tag count and put it in pagination struct
 	err = db.QueryRow(`select count(*) from tagmap where tag_id = ?`, i.Tag).Scan(&paged.Total)
 	if err != nil {
@@ -92,8 +91,11 @@ func (i *TagModel) Get() (err error) {
 
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM tagmap
-	LEFT JOIN images on tagmap.image_id = images.image_id
-	WHERE tagmap.tag_id = ? ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
+	INNER JOIN images on tagmap.image_id = images.image_id
+    INNER JOIN posts on images.post_id = posts.post_id 
+    INNER JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
+	ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
