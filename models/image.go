@@ -64,73 +64,31 @@ func (i *ImageModel) Get() (err error) {
 		return
 	}
 
-	// Check to see if image has been deleted
-	if u.GetBool("image_deleted", "images", "image_id", i.Id) {
+	// Check to see if thread has been deleted
+	if u.GetBool("thread_deleted", "threads", "thread_id", imageheader.Thread) {
 		return e.ErrNotFound
 	}
 
-	var image_num, image_total uint
+	// Check to see if post has been deleted
+	if u.GetBool("post_deleted", "posts", "post_id", imageheader.PostId) {
+		return e.ErrNotFound
+	}
 
-	// Get total amount of images in the thread
-	err = db.QueryRow(`SELECT count(image_id)
-	FROM images 
-	LEFT JOIN posts on images.post_id = posts.post_id 
-	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE threads.thread_id = ?`, imageheader.Thread).Scan(&image_total)
+	// Get the next and previous image id
+	err = db.QueryRow(`SELECT (SELECT image_id 
+    FROM images 
+    INNER JOIN posts on images.post_id = posts.post_id 
+    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id < ?
+    ORDER BY post_num DESC LIMIT 1) as previous,
+    (SELECT image_id 
+    FROM images 
+    INNER JOIN posts on images.post_id = posts.post_id 
+    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id > ?
+    ORDER BY post_num ASC LIMIT 1) as next`, imageheader.Thread, i.Id, imageheader.Thread, i.Id).Scan(&imageheader.Prev, &imageheader.Next)
 	if err != nil {
 		return
-	}
-
-	// Get the position of the image in the thread
-	err = db.QueryRow(`SELECT image_num FROM
-	(SELECT image_id, @rownum := @rownum + 1 AS image_num
-	FROM images 
-	JOIN (SELECT @rownum := 0) r
-	LEFT JOIN posts on images.post_id = posts.post_id 
-	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE threads.thread_id = ?
-	ORDER BY images.post_id) as F
-	WHERE image_id = ?`, imageheader.Thread, i.Id).Scan(&image_num)
-	if err != nil {
-		return
-	}
-
-	if image_num > 1 {
-		prev_image := image_num - 1
-
-		// Get the previous image id
-		err = db.QueryRow(`SELECT image_id FROM
-		(SELECT image_id, @rownum := @rownum + 1 AS rank
-		FROM images 
-		JOIN (SELECT @rownum := 0) r
-		LEFT JOIN posts on images.post_id = posts.post_id 
-		LEFT JOIN threads on posts.thread_id = threads.thread_id 
-		WHERE threads.thread_id = ?
-		ORDER BY images.post_id) as F
-		WHERE rank = ?`, imageheader.Thread, prev_image).Scan(&imageheader.Prev)
-		if err != nil {
-			return
-		}
-
-	}
-
-	if image_num < image_total {
-		next_image := image_num + 1
-
-		// Get the next image id
-		err = db.QueryRow(`SELECT image_id FROM
-		(SELECT image_id, @rownum := @rownum + 1 AS rank
-		FROM images 
-		JOIN (SELECT @rownum := 0) r
-		LEFT JOIN posts on images.post_id = posts.post_id 
-		LEFT JOIN threads on posts.thread_id = threads.thread_id 
-		WHERE threads.thread_id = ?
-		ORDER BY images.post_id) as F
-		WHERE rank = ?`, imageheader.Thread, next_image).Scan(&imageheader.Next)
-		if err != nil {
-			return
-		}
-
 	}
 
 	// Get tags for image
