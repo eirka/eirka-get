@@ -54,24 +54,16 @@ func (i *ImageModel) Get() (err error) {
 
 	imageheader := ImageHeader{}
 
-	err = db.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width FROM images
-        INNER JOIN posts on images.post_id = posts.post_id
-        INNER JOIN threads on posts.thread_id = threads.thread_id
-        WHERE image_id = ? AND ib_id = ?`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.PostNum, &imageheader.PostId, &imageheader.File, &imageheader.Height, &imageheader.Width)
+	// get image information
+	err = db.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width 
+	FROM images
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
+    WHERE image_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.PostNum, &imageheader.PostId, &imageheader.File, &imageheader.Height, &imageheader.Width)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
 		return
-	}
-
-	// Check to see if thread has been deleted
-	if u.GetBool("thread_deleted", "threads", "thread_id", imageheader.Thread) {
-		return e.ErrNotFound
-	}
-
-	// Check to see if post has been deleted
-	if u.GetBool("post_deleted", "posts", "post_id", imageheader.PostId) {
-		return e.ErrNotFound
 	}
 
 	// Get the next and previous image id
