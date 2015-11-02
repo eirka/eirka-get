@@ -37,9 +37,10 @@ func (i *NewModel) Get() (err error) {
 
 	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM images
-	LEFT JOIN posts on images.post_id = posts.post_id 
-	LEFT JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE ib_id = ? ORDER BY images.image_id DESC LIMIT 20`, i.Ib)
+	INNER JOIN posts on images.post_id = posts.post_id 
+	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+	ORDER BY images.image_id DESC LIMIT 20`, i.Ib)
 	if err != nil {
 		return
 	}

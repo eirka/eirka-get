@@ -41,7 +41,7 @@ func (i *FavoritedModel) Get() (err error) {
     INNER JOIN images ON favorites.image_id = images.image_id
  	INNER JOIN posts on images.post_id = posts.post_id 
 	INNER JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE ib_id = ?
+	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     GROUP BY image_id
     ORDER BY favorites DESC
     LIMIT 20) AS favorited`, i.Ib)
