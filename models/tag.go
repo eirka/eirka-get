@@ -62,16 +62,12 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ? AND ib_id = ?", i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type)
+	err = db.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
+    INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
+    WHERE tags.tag_id = ? AND ib_id = ?`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
-		return
-	}
-
-	// Get total tag count and put it in pagination struct
-	err = db.QueryRow(`select count(*) from tagmap where tag_id = ?`, i.Tag).Scan(&paged.Total)
-	if err != nil {
 		return
 	}
 
