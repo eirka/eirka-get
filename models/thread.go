@@ -67,15 +67,11 @@ func (i *ThreadModel) Get() (err error) {
 		return
 	}
 
-	// Check to see if thread has been deleted
-	if u.GetBool("thread_deleted", "threads", "thread_id", i.Thread) {
-		return e.ErrNotFound
-	}
-
 	// Get total thread count and put it in pagination struct
-	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) FROM threads 
+	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) 
+	FROM threads 
 	INNER JOIN posts on threads.thread_id = posts.thread_id
-	WHERE threads.thread_id = ? AND threads.ib_id = ? AND post_deleted != 1
+	WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
 	GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
