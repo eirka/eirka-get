@@ -66,13 +66,16 @@ func (i *TagsModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	rows, err := db.Query(`SELECT count,tag_id,tag_name,tagtype_id
-	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
-	FROM tags 
-	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
-	WHERE ib_id = ?
-	GROUP by tag_id) as a 
-	ORDER BY count DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
+	// get image counts from tagmap
+	rows, err := db.Query(`SELECT * FROM 
+    (SELECT count(tagmap.image_id) as count,tags.tag_id,tag_name,tagtype_id FROM tags
+    LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
+    LEFT JOIN images on tagmap.image_id = images.image_id
+    LEFT JOIN posts on images.post_id = posts.post_id 
+    LEFT JOIN threads on posts.thread_id = threads.thread_id 
+    WHERE tags.ib_id = ? AND (thread_deleted != 1 OR thread_deleted IS NULL) AND (post_deleted != 1 OR post_deleted IS NULL)
+    GROUP by tag_id) as a
+    ORDER BY count DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
