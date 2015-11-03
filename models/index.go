@@ -37,7 +37,7 @@ type IndexThreadHeader struct {
 	Title  string        `json:"title"`
 	Closed bool          `json:"closed"`
 	Sticky bool          `json:"sticky"`
-	Posts  uint          `json:"posts"`
+	Total  uint          `json:"total"`
 	Images uint          `json:"images"`
 	Pages  uint          `json:"last_page"`
 	Posts  []ThreadPosts `json:"posts"`
@@ -154,7 +154,7 @@ func (i *IndexModel) Get() (err error) {
 			Title:  id.Title,
 			Closed: id.Closed,
 			Sticky: id.Sticky,
-			Posts:  id.Total,
+			Total:  id.Total,
 			Images: id.Images,
 			Pages:  postpages.Pages,
 		}
