@@ -150,13 +150,13 @@ func (i *IndexModel) Get() (err error) {
 
 		// Set thread fields
 		thread := IndexThreadHeader{
-			thread.Id:     id.Id,
-			thread.Title:  id.Title,
-			thread.Closed: id.Closed,
-			thread.Sticky: id.Sticky,
-			thread.Posts:  id.Total,
-			thread.Images: id.Images,
-			thread.Pages:  postpages.Pages,
+			Id:     id.Id,
+			Title:  id.Title,
+			Closed: id.Closed,
+			Sticky: id.Sticky,
+			Posts:  id.Total,
+			Images: id.Images,
+			Pages:  postpages.Pages,
 		}
 
 		e1, err := ps1.Query(id.Id, i.Posts)
