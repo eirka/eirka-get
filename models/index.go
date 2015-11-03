@@ -23,6 +23,7 @@ type ThreadIds struct {
 	Closed   bool
 	Sticky   bool
 	Total    uint
+	Images   uint
 }
 
 // IndexType is the top level of the JSON response
@@ -32,13 +33,14 @@ type IndexType struct {
 
 // IndexThreadHeader holds the information for the threads
 type IndexThreadHeader struct {
-	Id        uint          `json:"id"`
-	Title     string        `json:"title"`
-	Closed    bool          `json:"closed"`
-	Sticky    bool          `json:"sticky"`
-	OmitPosts uint          `json:"omit_posts"`
-	Pages     uint          `json:"last_page"`
-	Posts     []ThreadPosts `json:"posts"`
+	Id     uint          `json:"id"`
+	Title  string        `json:"title"`
+	Closed bool          `json:"closed"`
+	Sticky bool          `json:"sticky"`
+	Posts  uint          `json:"posts"`
+	Images uint          `json:"images"`
+	Pages  uint          `json:"last_page"`
+	Posts  []ThreadPosts `json:"posts"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -91,9 +93,10 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// Get all thread ids with limit
-	thread_id_rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id)
+	thread_id_rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id)
 	FROM threads
-	LEFT JOIN posts on threads.thread_id = posts.thread_id
+	INNER JOIN posts on threads.thread_id = posts.thread_id
+	LEFT JOIN images on posts.post_id = images.post_id
 	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
 	GROUP BY threads.thread_id
 	ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, i.Threads)
@@ -106,7 +109,7 @@ func (i *IndexModel) Get() (err error) {
 		// Initialize posts struct
 		thread_id_row := ThreadIds{}
 		// Scan rows and place column into struct
-		err := thread_id_rows.Scan(&thread_id_row.Id, &thread_id_row.Title, &thread_id_row.Closed, &thread_id_row.Sticky, &thread_id_row.Total)
+		err := thread_id_rows.Scan(&thread_id_row.Id, &thread_id_row.Title, &thread_id_row.Closed, &thread_id_row.Sticky, &thread_id_row.Total, &thread_id_row.Images)
 		if err != nil {
 			return err
 		}
@@ -138,8 +141,6 @@ func (i *IndexModel) Get() (err error) {
 	// Loop over the values of thread_ids
 	for _, id := range thread_ids {
 
-		thread := IndexThreadHeader{}
-
 		// Get last page from thread
 		postpages := u.PagedResponse{}
 		postpages.Total = id.Total
@@ -148,17 +149,14 @@ func (i *IndexModel) Get() (err error) {
 		postpages.Get()
 
 		// Set thread fields
-		thread.Id = id.Id
-		thread.Title = id.Title
-		thread.Closed = id.Closed
-		thread.Sticky = id.Sticky
-		thread.Pages = postpages.Pages
-
-		// Get omitted postcount
-		if id.Total <= i.Posts {
-			thread.OmitPosts = 0
-		} else {
-			thread.OmitPosts = (id.Total - i.Posts)
+		thread := IndexThreadHeader{
+			thread.Id:     id.Id,
+			thread.Title:  id.Title,
+			thread.Closed: id.Closed,
+			thread.Sticky: id.Sticky,
+			thread.Posts:  id.Total,
+			thread.Images: id.Images,
+			thread.Pages:  postpages.Pages,
 		}
 
 		e1, err := ps1.Query(id.Id, i.Posts)
