@@ -39,7 +39,7 @@ type IndexThreadHeader struct {
 	Sticky bool          `json:"sticky"`
 	Total  uint          `json:"total"`
 	Images uint          `json:"images"`
-	Pages  uint          `json:"last_page"`
+	Pages  uint          `json:"pages"`
 	Posts  []ThreadPosts `json:"posts"`
 }
 
