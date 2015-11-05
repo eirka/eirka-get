@@ -36,6 +36,7 @@ type ThreadPosts struct {
 	Num         uint    `json:"num"`
 	Name        string  `json:"name"`
 	Group       uint    `json:"group"`
+	Avatar      uint    `json:"avatar"`
 	Time        string  `json:"time"`
 	Text        *string `json:"comment"`
 	ImgId       *uint   `json:"img_id,omitempty"`
@@ -92,7 +93,7 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := db.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	rows, err := db.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id
@@ -108,7 +109,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}

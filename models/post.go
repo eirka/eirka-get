@@ -26,6 +26,7 @@ type Post struct {
 	Num         uint    `json:"num"`
 	Name        string  `json:"name"`
 	Group       uint    `json:"group"`
+	Avatar      uint    `json:"avatar"`
 	Time        *string `json:"time"`
 	Text        *string `json:"comment"`
 	ImgId       *uint   `json:"img_id,omitempty"`
@@ -49,12 +50,12 @@ func (i *PostModel) Get() (err error) {
 
 	post := Post{}
 
-	err = db.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,usergroup_id,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	err = db.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN threads on posts.thread_id = threads.thread_id
 	INNER JOIN users on posts.user_id = users.user_id
-	WHERE posts.post_num = ? AND posts.thread_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+	WHERE posts.post_num = ? AND posts.thread_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Group, &user.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

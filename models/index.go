@@ -123,7 +123,7 @@ func (i *IndexModel) Get() (err error) {
 
 	//Get last thread posts
 	ps1, err := db.Prepare(`SELECT * FROM
-	(SELECT posts.post_id,post_num,user_name,usergroup_id,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
+	(SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id
@@ -169,7 +169,7 @@ func (i *IndexModel) Get() (err error) {
 			// Initialize posts struct
 			post := ThreadPosts{}
 			// Scan rows and place column into struct
-			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 			if err != nil {
 				return err
 			}
