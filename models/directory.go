@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/techjanitor/pram-get/config"
 	e "github.com/techjanitor/pram-get/errors"
 	u "github.com/techjanitor/pram-get/utils"
 )
@@ -23,7 +24,8 @@ type Directory struct {
 	Closed bool   `json:"closed"`
 	Sticky bool   `json:"sticky"`
 	Posts  uint   `json:"postcount"`
-	Lpost  string `json:"last_post"`
+	Pages  uint   `json:"pages"`
+	Last   string `json:"last_post"`
 	Images uint   `json:"images"`
 }
 
@@ -54,10 +56,21 @@ func (i *DirectoryModel) Get() (err error) {
 	threads := []Directory{}
 	for rows.Next() {
 		thread := Directory{}
-		err := rows.Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Lpost)
+		err := rows.Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
 		if err != nil {
 			return err
 		}
+
+		// Get the number of pages in the thread
+		postpages := u.PagedResponse{}
+		postpages.Total = thread.Posts
+		postpages.CurrentPage = 1
+		postpages.PerPage = config.Settings.Limits.PostsPerPage
+		postpages.Get()
+
+		// set pages
+		thread.Pages = postpages.Pages
+
 		threads = append(threads, thread)
 	}
 	err = rows.Err()
