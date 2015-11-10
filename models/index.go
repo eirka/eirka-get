@@ -128,7 +128,7 @@ func (i *IndexModel) Get() (err error) {
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id
 	WHERE posts.thread_id = ? AND post_deleted != 1
-	ORDER BY post_num = 1 DESC, post_num DESC LIMIT ?)
+	ORDER BY post_num DESC LIMIT ?)
 	AS p ORDER BY post_num ASC`)
 	if err != nil {
 		return
