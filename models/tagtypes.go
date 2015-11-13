@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // TagTypesModel holds the parameters from the request and also the key for the cache
@@ -27,14 +27,14 @@ func (i *TagTypesModel) Get() (err error) {
 	response := TagTypesType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	tags := []TagTypes{}
 
-	rows, err := db.Query("select tagtype_id,tagtype_name from tagtype")
+	rows, err := dbase.Query("select tagtype_id,tagtype_name from tagtype")
 	if err != nil {
 		return
 	}

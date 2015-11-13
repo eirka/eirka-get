@@ -3,8 +3,9 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // PostModel holds the parameters from the request and also the key for the cache
@@ -43,14 +44,14 @@ func (i *PostModel) Get() (err error) {
 	response := PostType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	post := Post{}
 
-	err = db.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN threads on posts.thread_id = threads.thread_id

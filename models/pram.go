@@ -1,9 +1,9 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // PramModel holds the parameters from the request and also the key for the cache
@@ -47,12 +47,12 @@ func (i *PramModel) Get() (err error) {
 	response.Info = pram
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	rows, err := db.Query(`SELECT ib_id, ib_title, ib_description, ib_domain, 
+	rows, err := dbase.Query(`SELECT ib_id, ib_title, ib_description, ib_domain, 
 	(SELECT COUNT(thread_id)
 	FROM threads
 	WHERE threads.ib_id=imageboards.ib_id) AS thread_count,

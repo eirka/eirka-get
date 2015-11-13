@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
-var (
-	PramVersion = "1.1.2"
-	Settings    *Config
-)
+var Settings *Config
 
 type Config struct {
 	Get struct {
@@ -41,54 +39,44 @@ type Config struct {
 		MaxIdle        int
 		MaxConnections int
 	}
-
-	Antispam struct {
-		// Antispam cookie
-		CookieName  string
-		CookieValue string
-	}
-
-	Session struct {
-		Secret string
-	}
-
-	Limits struct {
-		// tag limits for seaarch
-		TagMaxLength int
-		TagMinLength int
-		// Set default posts per page
-		PostsPerPage uint
-
-		// Set default threads per index page
-		ThreadsPerPage uint
-		// Add one to number because first post is included
-		PostsPerThread uint
-
-		// Max request parameter input size
-		ParamMaxSize uint
-	}
 }
 
-// Prints the current config during start if debug
 func Print() {
 
-	// Marshal the structs into JSON
-	output, err := json.MarshalIndent(Settings, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s\n", output)
-
-	return
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n", "Local Config")
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "Server")
+	fmt.Printf("%-20v%40v\n", "Type", "GET")
+	fmt.Printf("%-20v%40v\n", "Address", Settings.Post.Address)
+	fmt.Printf("%-20v%40v\n", "Port", Settings.Post.Port)
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "CORS")
+	fmt.Printf("%-20v%40v\n", "Domains", strings.Join(Settings.CORS.Sites, ", "))
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "Database")
+	fmt.Printf("%-20v%40v\n", "User", Settings.Database.User)
+	fmt.Printf("%-20v%40v\n", "Password", Settings.Database.Password)
+	fmt.Printf("%-20v%40v\n", "Protocol", Settings.Database.Proto)
+	fmt.Printf("%-20v%40v\n", "Host", Settings.Database.Host)
+	fmt.Printf("%-20v%40v\n", "Database", Settings.Database.Database)
+	fmt.Printf("%-20v%40v\n", "Max Idle", Settings.Database.MaxIdle)
+	fmt.Printf("%-20v%40v\n", "Max Connections", Settings.Database.MaxConnections)
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "Redis")
+	fmt.Printf("%-20v%40v\n", "Protocol", Settings.Redis.Protocol)
+	fmt.Printf("%-20v%40v\n", "Address", Settings.Redis.Address)
+	fmt.Printf("%-20v%40v\n", "Max Idle", Settings.Redis.MaxIdle)
+	fmt.Printf("%-20v%40v\n", "Max Connections", Settings.Redis.MaxConnections)
+	fmt.Println(strings.Repeat("*", 60))
 
 }
 
-// Get the config file and decode into struct
 func init() {
 	file, err := os.Open("/etc/pram/pram.conf")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	Settings = &Config{}
@@ -97,7 +85,8 @@ func init() {
 
 	err = decoder.Decode(&Settings)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }

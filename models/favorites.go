@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -49,13 +51,13 @@ func (i *FavoritesModel) Get() (err error) {
 	tagheader := FavoritesHeader{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get total favorites count and put it in pagination struct
-	err = db.QueryRow(`SELECT count(*) FROM favorites 
+	err = dbase.QueryRow(`SELECT count(*) FROM favorites 
 	INNER JOIN images on favorites.image_id = images.image_id
 	INNER JOIN posts on images.post_id = posts.post_id 
 	INNER JOIN threads on posts.thread_id = threads.thread_id 
@@ -78,7 +80,7 @@ func (i *FavoritesModel) Get() (err error) {
 	}
 
 	// get images in users favorites with limits
-	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM favorites
 	INNER JOIN images on favorites.image_id = images.image_id
 	INNER JOIN posts on images.post_id = posts.post_id 

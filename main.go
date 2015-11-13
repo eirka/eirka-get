@@ -7,29 +7,74 @@ import (
 	"net/http"
 	"runtime"
 
-	"github.com/techjanitor/pram-get/config"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/cors"
+	"github.com/techjanitor/pram-libs/db"
+	"github.com/techjanitor/pram-libs/redis"
+	"github.com/techjanitor/pram-libs/validate"
+
+	local "github.com/techjanitor/pram-get/config"
 	c "github.com/techjanitor/pram-get/controllers"
 	m "github.com/techjanitor/pram-get/middleware"
 	u "github.com/techjanitor/pram-get/utils"
 )
 
-func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+var (
+	version = "1.0.5"
+)
 
-	// Get start time
-	u.InitTime()
+func init() {
+	// Database connection settings
+	dbase := db.Database{
+
+		User:           local.Settings.Database.User,
+		Password:       local.Settings.Database.Password,
+		Proto:          local.Settings.Database.Proto,
+		Host:           local.Settings.Database.Host,
+		Database:       local.Settings.Database.Database,
+		MaxIdle:        local.Settings.Database.MaxIdle,
+		MaxConnections: local.Settings.Database.MaxConnections,
+	}
 
 	// Set up DB connection
-	u.NewDb()
-
-	// Set up Redis connection
-	u.NewRedisCache()
+	dbase.NewDb()
 
 	// Get limits and stuff from database
-	u.GetDatabaseSettings()
+	config.GetDatabaseSettings()
+
+	// redis settings
+	r := redis.Redis{
+		// Redis address and max pool connections
+		Protocol:       local.Settings.Redis.Protocol,
+		Address:        local.Settings.Redis.Address,
+		MaxIdle:        local.Settings.Redis.MaxIdle,
+		MaxConnections: local.Settings.Redis.MaxConnections,
+	}
+
+	// Set up Redis connection
+	r.NewRedisCache()
+
+	// set auth middleware secret
+	auth.Secret = local.Settings.Session.Secret
+
+	// print the starting info
+	StartInfo()
 
 	// Print out config
 	config.Print()
+
+	// Print out config
+	local.Print()
+
+	// check what services are available
+	u.CheckServices()
+
+	// Print capabilities
+	u.Services.Print()
+
+	// set cors domains
+	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
 
 }
 
@@ -37,9 +82,9 @@ func main() {
 	r := gin.Default()
 
 	// add CORS headers
-	r.Use(m.CORS())
+	r.Use(cors.CORS())
 	// validate all route parameters
-	r.Use(m.ValidateParams())
+	r.Use(validate.ValidateParams())
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
@@ -47,7 +92,7 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(m.AntiSpamCookie())
-	public.Use(m.Auth(m.All))
+	public.Use(auth.Auth(auth.All))
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
@@ -68,17 +113,26 @@ func main() {
 
 	// user pages
 	users := r.Group("/user")
-	users.Use(m.Auth(m.Registered))
+	users.Use(auth.Auth(auth.Registered))
 
 	users.GET("/whoami", c.UserController)
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Settings.Get.Address, config.Settings.Get.Port),
+		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
 		Handler: r,
 	}
 
 	gracehttp.Serve(s)
+
+}
+
+func StartInfo() {
+
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "PRAM-GET")
+	fmt.Printf("%-20v%40v\n", "Version", version)
+	fmt.Println(strings.Repeat("*", 60))
 
 }

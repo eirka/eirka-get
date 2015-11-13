@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // FavoritedModel holds the parameters from the request and also the key for the cache
@@ -30,12 +30,12 @@ func (i *FavoritedModel) Get() (err error) {
 	response := FavoritedType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	rows, err := db.Query(`SELECT image_id,image_thumbnail,image_tn_height,image_tn_width FROM
+	rows, err := dbase.Query(`SELECT image_id,image_thumbnail,image_tn_height,image_tn_width FROM
     (SELECT favorites.image_id,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
     FROM favorites
     INNER JOIN images ON favorites.image_id = images.image_id

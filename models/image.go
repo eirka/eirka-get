@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // ImageModel holds the parameters from the request and also the key for the cache
@@ -47,7 +47,7 @@ func (i *ImageModel) Get() (err error) {
 	response := ImageType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -55,7 +55,7 @@ func (i *ImageModel) Get() (err error) {
 	imageheader := ImageHeader{}
 
 	// get image information
-	err = db.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width 
+	err = dbase.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width 
 	FROM images
     INNER JOIN posts on images.post_id = posts.post_id
     INNER JOIN threads on posts.thread_id = threads.thread_id
@@ -67,7 +67,7 @@ func (i *ImageModel) Get() (err error) {
 	}
 
 	// Get the next and previous image id
-	err = db.QueryRow(`SELECT (SELECT image_id 
+	err = dbase.QueryRow(`SELECT (SELECT image_id 
     FROM images 
     INNER JOIN posts on images.post_id = posts.post_id 
     INNER JOIN threads on posts.thread_id = threads.thread_id 
@@ -84,7 +84,7 @@ func (i *ImageModel) Get() (err error) {
 	}
 
 	// Get tags for image
-	rows, err := db.Query("SELECT tags.tag_id,tagtype_id,tag_name from tagmap LEFT JOIN tags on tagmap.tag_id = tags.tag_id WHERE image_id = ?", i.Id)
+	rows, err := dbase.Query("SELECT tags.tag_id,tagtype_id,tag_name from tagmap LEFT JOIN tags on tagmap.tag_id = tags.tag_id WHERE image_id = ?", i.Id)
 	if err != nil {
 		return
 	}

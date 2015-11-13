@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // PopularModel holds the parameters from the request and also the key for the cache
@@ -30,12 +30,12 @@ func (i *PopularModel) Get() (err error) {
 	response := PopularType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	rows, err := db.Query(`SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width FROM
+	rows, err := dbase.Query(`SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width FROM
     (SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width, COUNT(*) AS hits
     FROM analytics
     INNER JOIN images on request_itemvalue = images.image_id

@@ -5,10 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
+
 	"github.com/techjanitor/pram-get/models"
-	u "github.com/techjanitor/pram-get/utils"
 )
 
 // IndexController handles index pages
@@ -23,7 +24,7 @@ func IndexController(c *gin.Context) {
 	posts := c.DefaultQuery("posts", strconv.Itoa(int(config.Settings.Limits.PostsPerThread)))
 
 	// validate query parameter
-	ut, err := u.ValidateParam(threads)
+	ut, err := validate.ValidateParam(threads)
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
@@ -40,7 +41,7 @@ func IndexController(c *gin.Context) {
 	}
 
 	// validate query parameter
-	up, err := u.ValidateParam(posts)
+	up, err := validate.ValidateParam(posts)
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))

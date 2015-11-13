@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-get/models"
 	u "github.com/techjanitor/pram-get/utils"
 )
@@ -16,7 +18,7 @@ func FavoritesController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	// Initialize model struct
 	m := &models.FavoritesModel{

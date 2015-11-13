@@ -3,9 +3,10 @@ package models
 import (
 	"fmt"
 
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 // TagSearchModel holds the parameters from the request and also the key for the cache
@@ -27,7 +28,7 @@ func (i *TagSearchModel) Get() (err error) {
 	response := TagSearchType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -36,7 +37,7 @@ func (i *TagSearchModel) Get() (err error) {
 
 	// Validate tag input
 	if i.Term != "" {
-		tag := u.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+		tag := validate.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 		if tag.MinLength() {
 			return e.ErrInvalidParam
 		} else if tag.MaxLength() {
@@ -47,7 +48,7 @@ func (i *TagSearchModel) Get() (err error) {
 	// add wildcards to the term
 	searchterm := fmt.Sprintf("%s%%", i.Term)
 
-	rows, err := db.Query(`SELECT count,tag_id,tag_name,tagtype_id
+	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags 
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 

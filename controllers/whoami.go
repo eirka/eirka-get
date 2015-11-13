@@ -4,20 +4,20 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/auth"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // UserType is the top level of the JSON response
 type UserType struct {
-	User u.User `json:"user"`
+	User auth.User `json:"user"`
 }
 
 // UserController gets account info
 func UserController(c *gin.Context) {
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	// Initialize response header
 	response := UserType{}

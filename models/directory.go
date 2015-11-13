@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -36,12 +38,12 @@ func (i *DirectoryModel) Get() (err error) {
 	response := DirectoryType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),thread_last_post 
+	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),thread_last_post 
 	FROM threads
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
 	LEFT JOIN images on images.post_id = posts.post_id

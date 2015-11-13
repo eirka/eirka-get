@@ -3,8 +3,10 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -63,13 +65,13 @@ func (i *ThreadModel) Get() (err error) {
 	thread := ThreadInfo{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get total thread count and put it in pagination struct
-	err = db.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) 
+	err = dbase.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) 
 	FROM threads 
 	INNER JOIN posts on threads.thread_id = posts.thread_id
 	WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
@@ -93,7 +95,7 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := db.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN users on posts.user_id = users.user_id

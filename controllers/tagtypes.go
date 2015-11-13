@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	e "github.com/techjanitor/pram-get/errors"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-get/models"
 )
 

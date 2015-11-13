@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-get/errors"
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // TagInfoModel holds the parameters from the request and also the key for the cache
@@ -37,13 +37,13 @@ func (i *TagInfoModel) Get() (err error) {
 	taginfo.Id = i.Id
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get tag name and type
-	err = db.QueryRow("select tag_name,tagtype_id from tags where tag_id = ?", i.Id).Scan(&taginfo.Tag, &taginfo.Type)
+	err = dbase.QueryRow("select tag_name,tagtype_id from tags where tag_id = ?", i.Id).Scan(&taginfo.Tag, &taginfo.Type)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // FavoriteModel holds the parameters from the request and also the key for the cache
@@ -23,13 +23,13 @@ func (i *FavoriteModel) Get() (err error) {
 	response := FavoriteType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// see if a user has starred an image
-	err = db.QueryRow("select count(*) from favorites where user_id = ? AND image_id = ? LIMIT 1", i.User, i.Id).Scan(&response.Starred)
+	err = dbase.QueryRow("select count(*) from favorites where user_id = ? AND image_id = ? LIMIT 1", i.User, i.Id).Scan(&response.Starred)
 	if err != nil {
 		return
 	}

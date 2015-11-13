@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -60,7 +62,7 @@ func (i *IndexModel) Get() (err error) {
 	thread_ids := []ThreadIds{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -68,7 +70,7 @@ func (i *IndexModel) Get() (err error) {
 	var ibs uint
 
 	// Get total thread count and put it in pagination struct
-	err = db.QueryRow(`SELECT (SELECT count(*) FROM imageboards) as imageboards,
+	err = dbase.QueryRow(`SELECT (SELECT count(*) FROM imageboards) as imageboards,
     (select count(*) from threads where ib_id = ? AND thread_deleted != 1) as threads`, i.Ib).Scan(&ibs, &paged.Total)
 	if err != nil {
 		return
@@ -93,7 +95,7 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// Get all thread ids with limit
-	thread_id_rows, err := db.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id)
+	thread_id_rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id)
 	FROM threads
 	INNER JOIN posts on threads.thread_id = posts.thread_id
 	LEFT JOIN images on posts.post_id = images.post_id
@@ -122,7 +124,7 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	//Get last thread posts
-	ps1, err := db.Prepare(`SELECT * FROM
+	ps1, err := dbase.Prepare(`SELECT * FROM
 	(SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id

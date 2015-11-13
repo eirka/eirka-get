@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // NewModel holds the parameters from the request and also the key for the cache
@@ -30,12 +30,12 @@ func (i *NewModel) Get() (err error) {
 	response := NewType{}
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM images
 	INNER JOIN posts on images.post_id = posts.post_id 
 	INNER JOIN threads on posts.thread_id = threads.thread_id 

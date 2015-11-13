@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -43,13 +45,13 @@ func (i *TagsModel) Get() (err error) {
 	paged.PerPage = config.Settings.Limits.PostsPerPage
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get total tag count and put it in pagination struct
-	err = db.QueryRow("SELECT count(*) FROM tags WHERE ib_id = ?", i.Ib).Scan(&paged.Total)
+	err = dbase.QueryRow("SELECT count(*) FROM tags WHERE ib_id = ?", i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -67,7 +69,7 @@ func (i *TagsModel) Get() (err error) {
 	}
 
 	// get image counts from tagmap
-	rows, err := db.Query(`SELECT * FROM 
+	rows, err := dbase.Query(`SELECT * FROM 
     (SELECT count(tagmap.image_id) as count,tags.tag_id,tag_name,tagtype_id FROM tags
     LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
     LEFT JOIN images on tagmap.image_id = images.image_id

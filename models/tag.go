@@ -3,8 +3,10 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-get/config"
-	e "github.com/techjanitor/pram-get/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-get/utils"
 )
 
@@ -56,13 +58,13 @@ func (i *TagModel) Get() (err error) {
 	tagheader.Id = i.Tag
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get tag name and type
-	err = db.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
+	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
     INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
     WHERE tags.tag_id = ? AND ib_id = ?`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
 	if err == sql.ErrNoRows {
@@ -85,7 +87,7 @@ func (i *TagModel) Get() (err error) {
 		paged.Limit = 0
 	}
 
-	rows, err := db.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
 	FROM tagmap
 	INNER JOIN images on tagmap.image_id = images.image_id
     INNER JOIN posts on images.post_id = posts.post_id 
