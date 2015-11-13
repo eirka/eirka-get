@@ -33,13 +33,6 @@ func (i *PramModel) Get() (err error) {
 	// Initialize response header
 	response := PramType{}
 
-	// Add pram info to response
-	pram := Pram{
-		Version: config.PramVersion,
-	}
-
-	response.Info = pram
-
 	// Get Database handle
 	dbase, err := db.GetDb()
 	if err != nil {
