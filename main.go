@@ -17,7 +17,6 @@ import (
 	local "github.com/techjanitor/pram-get/config"
 	c "github.com/techjanitor/pram-get/controllers"
 	m "github.com/techjanitor/pram-get/middleware"
-	u "github.com/techjanitor/pram-get/utils"
 )
 
 var (
