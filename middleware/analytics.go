@@ -5,7 +5,8 @@ import (
 	"strings"
 	"time"
 
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/db"
 )
 
 // requesttype holds the data we want to capture
@@ -46,7 +47,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// get userdata from session middleware
-		userdata := c.MustGet("userdata").(u.User)
+		userdata := c.MustGet("userdata").(auth.User)
 
 		// get cached state from cache middleware
 		cached := c.MustGet("cached").(bool)
@@ -77,7 +78,7 @@ func Analytics() gin.HandlerFunc {
 			}
 
 			// Get Database handle
-			db, err := u.GetDb()
+			dbase, err := db.GetDb()
 			if err != nil {
 				c.Error(err)
 				c.Abort()
@@ -85,7 +86,7 @@ func Analytics() gin.HandlerFunc {
 			}
 
 			// prepare query for analytics table
-			ps1, err := db.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
+			ps1, err := dbase.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
 			if err != nil {
 				c.Error(err)
 				c.Abort()

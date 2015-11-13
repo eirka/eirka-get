@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-libs/config"
 	"github.com/techjanitor/pram-libs/db"
 	e "github.com/techjanitor/pram-libs/errors"
 )

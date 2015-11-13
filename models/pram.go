@@ -13,13 +13,7 @@ type PramModel struct {
 
 // ImageboardsType is the top level of the JSON response
 type PramType struct {
-	Info Pram         `json:"pram"`
 	Body []Imageboard `json:"imageboards"`
-}
-
-// Info has information about pram
-type Pram struct {
-	Version string `json:"version"`
 }
 
 // Imageboard has information and statistics about the boards on a pram

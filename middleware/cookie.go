@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/techjanitor/pram-get/config"
+	"github.com/techjanitor/pram-libs/config"
 )
 
 // Generates the antispam cookie for pram-post

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strings"
 
-	u "github.com/techjanitor/pram-get/utils"
+	"github.com/techjanitor/pram-libs/redis"
 )
 
 // REDIS KEY STRUCTURE
@@ -56,12 +56,12 @@ func Cache() gin.HandlerFunc {
 		key.generateKey(params...)
 
 		// Initialize cache handle
-		cache := u.RedisCache
+		cache := redis.RedisCache
 
 		if key.Hash {
 			// Check to see if there is already a key we can serve
 			result, err = cache.HGet(key.Key, key.Field)
-			if err == u.ErrCacheMiss {
+			if err == redis.ErrCacheMiss {
 
 				c.Next()
 
@@ -96,7 +96,7 @@ func Cache() gin.HandlerFunc {
 		if !key.Hash {
 			// Check to see if there is already a key we can serve
 			result, err = cache.Get(key.Key)
-			if err == u.ErrCacheMiss {
+			if err == redis.ErrCacheMiss {
 
 				c.Next()
 
