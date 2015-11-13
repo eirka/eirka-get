@@ -5,7 +5,7 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"runtime"
+	"strings"
 
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
@@ -67,12 +67,6 @@ func init() {
 	// Print out config
 	local.Print()
 
-	// check what services are available
-	u.CheckServices()
-
-	// Print capabilities
-	u.Services.Print()
-
 	// set cors domains
 	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
 
@@ -120,7 +114,7 @@ func main() {
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
+		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Address, local.Settings.Get.Port),
 		Handler: r,
 	}
 

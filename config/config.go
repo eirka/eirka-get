@@ -39,6 +39,11 @@ type Config struct {
 		MaxIdle        int
 		MaxConnections int
 	}
+
+	// HMAC secret for bcrypt
+	Session struct {
+		Secret string
+	}
 }
 
 func Print() {
