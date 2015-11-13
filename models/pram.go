@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-libs/config"
 	"github.com/techjanitor/pram-libs/db"
 	e "github.com/techjanitor/pram-libs/errors"
 )
