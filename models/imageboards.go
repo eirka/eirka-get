@@ -5,13 +5,13 @@ import (
 	e "github.com/techjanitor/pram-libs/errors"
 )
 
-// PramModel holds the parameters from the request and also the key for the cache
-type PramModel struct {
-	Result PramType
+// ImageboardsModel holds the parameters from the request and also the key for the cache
+type ImageboardsModel struct {
+	Result ImageboardsType
 }
 
 // ImageboardsType is the top level of the JSON response
-type PramType struct {
+type ImageboardsType struct {
 	Body []Imageboard `json:"imageboards"`
 }
 
@@ -27,10 +27,10 @@ type Imageboard struct {
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
-func (i *PramModel) Get() (err error) {
+func (i *ImageboardsModel) Get() (err error) {
 
 	// Initialize response header
-	response := PramType{}
+	response := ImageboardsType{}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

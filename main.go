@@ -102,7 +102,7 @@ func main() {
 	public.GET("/favorited/:ib", c.FavoritedController)
 	public.GET("/taginfo/:id", c.TagInfoController)
 	public.GET("/tagtypes", c.TagTypesController)
-	public.GET("/pram", c.PramController)
+	public.GET("/imageboards", c.ImageboardsController)
 
 	// user pages
 	users := r.Group("/user")

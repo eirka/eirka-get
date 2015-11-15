@@ -9,11 +9,11 @@ import (
 	"github.com/techjanitor/pram-get/models"
 )
 
-// PramController handles pram index
-func PramController(c *gin.Context) {
+// ImageboardsController handles pram index
+func ImageboardsController(c *gin.Context) {
 
 	// Initialize model struct
-	m := &models.PramModel{}
+	m := &models.ImageboardsModel{}
 
 	// Get the model which outputs JSON
 	err := m.Get()
