@@ -15,8 +15,6 @@ type PopularType struct {
 	Body []ImageType `json:"popular,omitempty"`
 }
 
-=
-
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *PopularModel) Get() (err error) {
 
