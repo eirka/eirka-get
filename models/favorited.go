@@ -12,15 +12,7 @@ type FavoritedModel struct {
 
 // FavoritedType is the top level of the JSON response
 type FavoritedType struct {
-	Body []FavoritedImage `json:"favorited,omitempty"`
-}
-
-// Image struct for tag page
-type FavoritedImage struct {
-	Id          uint    `json:"id"`
-	Thumb       *string `json:"thumbnail"`
-	ThumbHeight *uint   `json:"tn_height"`
-	ThumbWidth  *uint   `json:"tn_width"`
+	Body []ImageType `json:"favorited,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -35,7 +27,7 @@ func (i *FavoritedModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT image_id,image_thumbnail,image_tn_height,image_tn_width FROM
+	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
     (SELECT favorites.image_id,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
     FROM favorites
     INNER JOIN images ON favorites.image_id = images.image_id
@@ -52,9 +44,9 @@ func (i *FavoritedModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := FavoritedImage{}
+		image := ImageType{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}

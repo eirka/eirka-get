@@ -25,15 +25,16 @@ type TagType struct {
 
 // Header for tag page
 type TagHeader struct {
-	Id     uint       `json:"id"`
-	Tag    *string    `json:"tag"`
-	Type   *uint      `json:"type"`
-	Images []TagImage `json:"images,omitempty"`
+	Id     uint        `json:"id"`
+	Tag    *string     `json:"tag"`
+	Type   *uint       `json:"type"`
+	Images []ImageType `json:"images,omitempty"`
 }
 
 // Image struct for tag page
-type TagImage struct {
+type ImageType struct {
 	Id          uint    `json:"id"`
+	File        *string `json:"filename"`
 	Thumb       *string `json:"thumbnail"`
 	ThumbHeight *uint   `json:"tn_height"`
 	ThumbWidth  *uint   `json:"tn_width"`
@@ -87,7 +88,7 @@ func (i *TagModel) Get() (err error) {
 		paged.Limit = 0
 	}
 
-	rows, err := dbase.Query(`SELECT images.image_id,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
 	FROM tagmap
 	INNER JOIN images on tagmap.image_id = images.image_id
     INNER JOIN posts on images.post_id = posts.post_id 
@@ -101,9 +102,9 @@ func (i *TagModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := TagImage{}
+		image := ImageType{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}

@@ -12,16 +12,10 @@ type PopularModel struct {
 
 // PopularType is the top level of the JSON response
 type PopularType struct {
-	Body []PopularImage `json:"popular,omitempty"`
+	Body []ImageType `json:"popular,omitempty"`
 }
 
-// Image struct for tag page
-type PopularImage struct {
-	Id          uint    `json:"id"`
-	Thumb       *string `json:"thumbnail"`
-	ThumbHeight *uint   `json:"tn_height"`
-	ThumbWidth  *uint   `json:"tn_width"`
-}
+=
 
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *PopularModel) Get() (err error) {
@@ -35,7 +29,7 @@ func (i *PopularModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width FROM
+	rows, err := dbase.Query(`SELECT request_itemvalue,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
     (SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width, COUNT(*) AS hits
     FROM analytics
     INNER JOIN images on request_itemvalue = images.image_id
@@ -51,9 +45,9 @@ func (i *PopularModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := PopularImage{}
+		image := ImageType{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}
