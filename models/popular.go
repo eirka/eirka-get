@@ -28,7 +28,7 @@ func (i *PopularModel) Get() (err error) {
 	}
 
 	rows, err := dbase.Query(`SELECT request_itemvalue,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
-    (SELECT request_itemvalue,image_thumbnail,image_tn_height,image_tn_width, COUNT(*) AS hits
+    (SELECT request_itemvalue,image_file,image_thumbnail,image_tn_height,image_tn_width, COUNT(*) AS hits
     FROM analytics
     INNER JOIN images on request_itemvalue = images.image_id
 	INNER JOIN posts on images.post_id = posts.post_id 
