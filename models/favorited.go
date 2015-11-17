@@ -12,7 +12,7 @@ type FavoritedModel struct {
 
 // FavoritedType is the top level of the JSON response
 type FavoritedType struct {
-	Body []ImageType `json:"favorited,omitempty"`
+	Body []OnlyImage `json:"favorited,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -44,7 +44,7 @@ func (i *FavoritedModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := ImageType{}
+		image := OnlyImage{}
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {

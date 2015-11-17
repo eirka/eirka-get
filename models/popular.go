@@ -12,7 +12,7 @@ type PopularModel struct {
 
 // PopularType is the top level of the JSON response
 type PopularType struct {
-	Body []ImageType `json:"popular,omitempty"`
+	Body []OnlyImage `json:"popular,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -43,7 +43,7 @@ func (i *PopularModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := ImageType{}
+		image := OnlyImage{}
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {

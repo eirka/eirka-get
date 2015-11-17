@@ -23,7 +23,7 @@ type FavoritesType struct {
 
 // Header for tag page
 type FavoritesHeader struct {
-	Images []ImageType `json:"images,omitempty"`
+	Images []OnlyImage `json:"images,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -86,7 +86,7 @@ func (i *FavoritesModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := ImageType{}
+		image := OnlyImage{}
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {

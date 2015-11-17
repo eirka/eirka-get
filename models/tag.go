@@ -28,11 +28,11 @@ type TagHeader struct {
 	Id     uint        `json:"id"`
 	Tag    *string     `json:"tag"`
 	Type   *uint       `json:"type"`
-	Images []ImageType `json:"images,omitempty"`
+	Images []OnlyImage `json:"images,omitempty"`
 }
 
 // Image struct for tag page
-type ImageType struct {
+type OnlyImage struct {
 	Id          uint    `json:"id"`
 	File        *string `json:"filename"`
 	Thumb       *string `json:"thumbnail"`
@@ -102,7 +102,7 @@ func (i *TagModel) Get() (err error) {
 
 	for rows.Next() {
 		// Initialize posts struct
-		image := ImageType{}
+		image := OnlyImage{}
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
