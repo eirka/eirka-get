@@ -28,7 +28,7 @@ func (i *FavoritedModel) Get() (err error) {
 	}
 
 	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
-    (SELECT favorites.image_id,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
+    (SELECT favorites.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
     FROM favorites
     INNER JOIN images ON favorites.image_id = images.image_id
  	INNER JOIN posts on images.post_id = posts.post_id 
