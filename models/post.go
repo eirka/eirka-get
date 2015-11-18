@@ -51,7 +51,7 @@ func (i *PostModel) Get() (err error) {
 
 	post := Post{}
 
-	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,user_group_map.usergroup_id,COALESCE(role_id, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,user_group_map.usergroup_id,IF(role_id, 1, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM posts
 	LEFT JOIN images on posts.post_id = images.post_id
 	INNER JOIN threads on posts.thread_id = threads.thread_id

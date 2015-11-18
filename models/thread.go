@@ -96,7 +96,7 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,user_group_map.usergroup_id,COALESCE(role_id, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,user_group_map.usergroup_id,IF(role_id, 1, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
     LEFT JOIN images on posts.post_id = images.post_id
     INNER JOIN users on posts.user_id = users.user_id
