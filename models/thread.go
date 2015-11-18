@@ -38,6 +38,7 @@ type ThreadPosts struct {
 	Num         uint    `json:"num"`
 	Name        string  `json:"name"`
 	Group       uint    `json:"group"`
+	Moderator   bool    `json:"moderator"`
 	Avatar      uint    `json:"avatar"`
 	Time        string  `json:"time"`
 	Text        *string `json:"comment"`
@@ -95,12 +96,14 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,usergroup_id,user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-	FROM posts
-	LEFT JOIN images on posts.post_id = images.post_id
-	INNER JOIN users on posts.user_id = users.user_id
-	WHERE posts.thread_id = ? AND post_deleted != 1
-    ORDER BY post_id LIMIT ?,?`, i.Thread, paged.Limit, paged.PerPage)
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,user_group_map.usergroup_id,COALESCE(role_id, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+    FROM posts
+    LEFT JOIN images on posts.post_id = images.post_id
+    INNER JOIN users on posts.user_id = users.user_id
+    INNER JOIN user_group_map ON (user_group_map.user_id = users.user_id)
+    LEFT JOIN user_ib_role_map ON (user_ib_role_map.user_id = users.user_id AND user_ib_role_map.ib_id = ?)
+    WHERE posts.thread_id = ? AND post_deleted != 1
+    ORDER BY post_id LIMIT ?,?`, i.Ib, i.Thread, paged.Limit, paged.PerPage)
 
 	if err != nil {
 		return
@@ -111,7 +114,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Moderator, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}
