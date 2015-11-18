@@ -58,7 +58,7 @@ func (i *PostModel) Get() (err error) {
 	INNER JOIN users on posts.user_id = users.user_id
     INNER JOIN user_group_map ON (user_group_map.user_id = users.user_id)
     LEFT JOIN user_ib_role_map ON (user_ib_role_map.user_id = users.user_id AND user_ib_role_map.ib_id = ?)
-	WHERE posts.post_num = ? AND posts.thread_id = ? AND thread.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Group, &post.Moderator, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+	WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Group, &post.Moderator, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
