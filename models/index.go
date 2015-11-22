@@ -125,14 +125,15 @@ func (i *IndexModel) Get() (err error) {
 
 	//Get last thread posts
 	ps1, err := dbase.Prepare(`SELECT * FROM
-    (SELECT posts.post_id,post_num,user_name,user_group_map.usergroup_id,IF(role_id, 1, 0),user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
+    (SELECT posts.post_id,post_num,user_name,
+    COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
+    user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
     FROM posts
     LEFT JOIN images ON (posts.post_id = images.post_id)
     INNER JOIN users ON (posts.user_id = users.user_id)
-    INNER JOIN user_group_map ON (user_group_map.user_id = users.user_id)
-    LEFT JOIN user_ib_role_map ON (user_ib_role_map.user_id = users.user_id AND user_ib_role_map.ib_id = ?)
+    INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
     WHERE posts.thread_id = ? AND post_deleted != 1
-    ORDER BY post_num DESC LIMIT ?)AS p 
+    ORDER BY post_num DESC LIMIT ?) AS p
     ORDER BY post_num ASC`)
 	if err != nil {
 		return
@@ -173,7 +174,7 @@ func (i *IndexModel) Get() (err error) {
 			// Initialize posts struct
 			post := ThreadPosts{}
 			// Scan rows and place column into struct
-			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Moderator, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 			if err != nil {
 				return err
 			}
