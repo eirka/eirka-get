@@ -6,6 +6,8 @@ import (
 
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+
+	"github.com/techjanitor/pram-get/models"
 )
 
 // UserController gets account info
