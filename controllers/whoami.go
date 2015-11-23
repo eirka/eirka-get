@@ -3,9 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-
-	"github.com/techjanitor/pram-libs/auth"
-	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // UserController gets account info
