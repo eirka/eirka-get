@@ -18,7 +18,7 @@ func UserController(c *gin.Context) {
 	userdata := c.MustGet("userdata").(auth.User)
 
 	// Initialize model struct
-	m := &models.FavoritesModel{
+	m := &models.UserModel{
 		User: userdata.Id,
 		Ib:   params[0],
 	}
