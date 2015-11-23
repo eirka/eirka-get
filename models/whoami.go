@@ -2,16 +2,23 @@ package models
 
 import (
 	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // UserModel holds the parameters from the request and also the key for the cache
 type UserModel struct {
-	User uint
-	Ib   uint
+	User   uint
+	Ib     uint
+	Result UserType
 }
 
-// IndexType is the top level of the JSON response
+// UserType is the top level of the JSON response
 type UserType struct {
+	User UserInfo `json:"user"`
+}
+
+// UserInfo holds all the user metadata
+type UserInfo struct {
 	Id     uint   `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
@@ -23,7 +30,9 @@ type UserType struct {
 func (i *UserModel) Get() (err error) {
 
 	// Initialize response header
-	r := UserType{}
+	response := UserType{}
+
+	r := UserInfo{}
 
 	// set our user id
 	r.Id = i.User
@@ -31,7 +40,7 @@ func (i *UserModel) Get() (err error) {
 	// Get Database handle
 	dbase, err := db.GetDb()
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	// get data from users table
@@ -39,14 +48,12 @@ func (i *UserModel) Get() (err error) {
     user_name,user_email,user_avatar FROM users
     INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
     WHERE users.user_id = ?`, i.Ib, i.User).Scan(&r.Group, &r.Name, &r.Email, &r.Avatar)
-	if err == sql.ErrNoRows {
-		return e.ErrUserNotExist
-	} else if err != nil {
-		return e.ErrInternalError
+	if err != nil {
+		return
 	}
 
 	// This is the data we will serialize
-	i.Result = r
+	i.Result = response
 
 	return
 
