@@ -13,7 +13,7 @@ type UserModel struct {
 
 // UserType is the top level of the JSON response
 type UserType struct {
-	User UserInfo `json:"user"`
+	Body UserInfo `json:"user"`
 }
 
 // UserInfo holds all the user metadata
@@ -50,6 +50,8 @@ func (i *UserModel) Get() (err error) {
 	if err != nil {
 		return
 	}
+
+	response.Body = r
 
 	// This is the data we will serialize
 	i.Result = response
