@@ -108,7 +108,7 @@ func main() {
 	users := r.Group("/user")
 	users.Use(auth.Auth(auth.Registered))
 
-	users.GET("/whoami", c.UserController)
+	users.GET("/whoami/:ib", c.UserController)
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
