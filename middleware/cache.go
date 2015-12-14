@@ -21,7 +21,6 @@ import (
 // "tags:1"
 // "tagtypes"
 // "pram"
-// "taginfo:21"
 
 const (
 	// key expire seconds
