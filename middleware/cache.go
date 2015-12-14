@@ -195,6 +195,7 @@ func (r *redisKey) expireKey(key string) {
 		"popular":     true,
 		"new":         true,
 		"favorited":   true,
+		"tag":         true,
 	}
 
 	if keyList[strings.ToLower(key)] {
