@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-libs/config"
-	"github.com/techjanitor/pram-libs/db"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/config"
+	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 
-	u "github.com/techjanitor/pram-get/utils"
+	u "github.com/eirka/eirka-get/utils"
 )
 
 // DirectoryModel holds the parameters from the request and also the key for the cache

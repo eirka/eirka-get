@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	u "github.com/techjanitor/pram-get/utils"
+	u "github.com/eirka/eirka-get/utils"
 )
 
 // Uptime controllers shows proc uptime

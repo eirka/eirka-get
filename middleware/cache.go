@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strings"
 
-	"github.com/techjanitor/pram-libs/redis"
+	"github.com/eirka/eirka-libs/redis"
 )
 
 // REDIS KEY STRUCTURE

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-libs/db"
+	"github.com/eirka/eirka-libs/db"
 )
 
 // PopularModel holds the parameters from the request and also the key for the cache

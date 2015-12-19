@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	"github.com/techjanitor/pram-libs/auth"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/auth"
+	e "github.com/eirka/eirka-libs/errors"
 
-	"github.com/techjanitor/pram-get/models"
+	"github.com/eirka/eirka-get/models"
 )
 
 // UserController gets account info

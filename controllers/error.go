@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 
-	e "github.com/techjanitor/pram-libs/errors"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 // Handles error messages for wrong routes

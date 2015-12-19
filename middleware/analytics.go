@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/techjanitor/pram-libs/auth"
-	"github.com/techjanitor/pram-libs/db"
+	"github.com/eirka/eirka-libs/auth"
+	"github.com/eirka/eirka-libs/db"
 )
 
 // requesttype holds the data we want to capture

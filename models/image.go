@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-libs/db"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 // ImageModel holds the parameters from the request and also the key for the cache

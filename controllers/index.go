@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 
-	"github.com/techjanitor/pram-libs/config"
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/validate"
+	"github.com/eirka/eirka-libs/config"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/validate"
 
-	"github.com/techjanitor/pram-get/models"
+	"github.com/eirka/eirka-get/models"
 )
 
 // IndexController handles index pages
