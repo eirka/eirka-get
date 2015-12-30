@@ -52,7 +52,7 @@ func (i *TagSearchModel) Get() (err error) {
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags 
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
-	WHERE ib_id = ? AND MATCH(tag_name) AGAINST ('?' IN BOOLEAN MODE)
+	WHERE ib_id = ? AND MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)
 	group by tag_id) as a 
 	ORDER BY tag_name ASC`, i.Ib, searchterm)
 	if err != nil {
