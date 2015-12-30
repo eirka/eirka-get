@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -43,13 +45,16 @@ func (i *TagSearchModel) Get() (err error) {
 		}
 	}
 
+	// add wildcards to the term
+	searchterm := fmt.Sprintf("%s*", i.Term)
+
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
 	FROM tags 
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
-	WHERE ib_id = ? AND MATCH(tag_name) AGAINST ('?*' IN BOOLEAN MODE)
+	WHERE ib_id = ? AND MATCH(tag_name) AGAINST ('?' IN BOOLEAN MODE)
 	group by tag_id) as a 
-	ORDER BY tag_name ASC`, i.Ib, i.Term)
+	ORDER BY tag_name ASC`, i.Ib, searchterm)
 	if err != nil {
 		return
 	}
