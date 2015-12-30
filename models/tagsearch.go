@@ -54,7 +54,7 @@ func (i *TagSearchModel) Get() (err error) {
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
 	WHERE ib_id = ? AND MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)
 	group by tag_id) as a 
-	ORDER BY tag_name ASC`, i.Ib, searchterm)
+	ORDER BY CHAR_LENGTH(tag_name) ASC`, i.Ib, searchterm)
 	if err != nil {
 		return
 	}
