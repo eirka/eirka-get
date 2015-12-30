@@ -80,11 +80,6 @@ func (i *DirectoryModel) Get() (err error) {
 		return
 	}
 
-	// Return 404 if there are no threads in ib
-	if len(threads) == 0 {
-		return e.ErrNotFound
-	}
-
 	// Add pagedresponse to the response struct
 	response.Body = threads
 

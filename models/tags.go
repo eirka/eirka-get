@@ -99,11 +99,6 @@ func (i *TagsModel) Get() (err error) {
 		return
 	}
 
-	// Return 404 if there are no threads in ib
-	if len(tags) == 0 {
-		return e.ErrNotFound
-	}
-
 	// Add threads slice to items interface
 	paged.Items = tags
 
