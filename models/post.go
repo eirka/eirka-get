@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -21,19 +22,19 @@ type PostType struct {
 }
 
 type Post struct {
-	ThreadId    uint    `json:"thread_id"`
-	PostId      uint    `json:"post_id"`
-	Num         uint    `json:"num"`
-	Name        string  `json:"name"`
-	Group       uint    `json:"group"`
-	Avatar      uint    `json:"avatar"`
-	Time        *string `json:"time"`
-	Text        *string `json:"comment"`
-	ImgId       *uint   `json:"img_id,omitempty"`
-	File        *string `json:"filename,omitempty"`
-	Thumb       *string `json:"thumbnail,omitempty"`
-	ThumbHeight *uint   `json:"tn_height,omitempty"`
-	ThumbWidth  *uint   `json:"tn_width,omitempty"`
+	ThreadId    uint       `json:"thread_id"`
+	PostId      uint       `json:"post_id"`
+	Num         uint       `json:"num"`
+	Name        string     `json:"name"`
+	Group       uint       `json:"group"`
+	Avatar      uint       `json:"avatar"`
+	Time        *time.Time `json:"time"`
+	Text        *string    `json:"comment"`
+	ImgId       *uint      `json:"img_id,omitempty"`
+	File        *string    `json:"filename,omitempty"`
+	Thumb       *string    `json:"thumbnail,omitempty"`
+	ThumbHeight *uint      `json:"tn_height,omitempty"`
+	ThumbWidth  *uint      `json:"tn_width,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data

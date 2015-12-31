@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
+	"time"
 
 	u "github.com/eirka/eirka-get/utils"
 )
@@ -20,14 +21,14 @@ type DirectoryType struct {
 
 // Thread directory
 type Directory struct {
-	Id     uint   `json:"id"`
-	Title  string `json:"title"`
-	Closed bool   `json:"closed"`
-	Sticky bool   `json:"sticky"`
-	Posts  uint   `json:"postcount"`
-	Pages  uint   `json:"pages"`
-	Last   string `json:"last_post"`
-	Images uint   `json:"images"`
+	Id     uint       `json:"id"`
+	Title  string     `json:"title"`
+	Closed bool       `json:"closed"`
+	Sticky bool       `json:"sticky"`
+	Posts  uint       `json:"postcount"`
+	Pages  uint       `json:"pages"`
+	Last   *time.Time `json:"last_post"`
+	Images uint       `json:"images"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data

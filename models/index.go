@@ -19,13 +19,12 @@ type IndexModel struct {
 
 // ThreadIds holds all the thread ids for the loop that gets the posts
 type ThreadIds struct {
-	Id       uint
-	Title    string
-	LastPost string
-	Closed   bool
-	Sticky   bool
-	Total    uint
-	Images   uint
+	Id     uint
+	Title  string
+	Closed bool
+	Sticky bool
+	Total  uint
+	Images uint
 }
 
 // IndexType is the top level of the JSON response
