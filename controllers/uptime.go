@@ -1,16 +1,20 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-
-	u "github.com/eirka/eirka-get/utils"
+	"time"
 )
+
+var StartTime = time.Now()
 
 // Uptime controllers shows proc uptime
 func UptimeController(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"uptime": u.GetTime()})
+	c.JSON(http.StatusOK, gin.H{
+		"uptime": fmt.Sprintf("%fm", time.Since(StartTime).Minutes()),
+	})
 
 	return
 
