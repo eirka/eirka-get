@@ -7,5 +7,5 @@ import (
 var StartTime = time.Now()
 
 func GetTime() string {
-	return time.Since(StartTime) * time.Second
+	return fmt.Sprintf("%s", time.Since(StartTime)*time.Second)
 }
