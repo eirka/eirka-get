@@ -27,6 +27,15 @@ const (
 	ExpireSeconds = 600
 )
 
+// list of keys to expire
+var cacheKeyList = map[string]bool{
+	"imageboards": true,
+	"popular":     true,
+	"new":         true,
+	"favorited":   true,
+	"tag":         true,
+}
+
 // Cache will check for the key in Redis and serve it. If not found, it will
 // take the marshalled JSON from the controller and set it in Redis
 func Cache() gin.HandlerFunc {
@@ -189,15 +198,7 @@ func (r *redisKey) generateKey(params ...string) {
 // Check if key should be expired
 func (r *redisKey) expireKey(key string) {
 
-	keyList := map[string]bool{
-		"imageboards": true,
-		"popular":     true,
-		"new":         true,
-		"favorited":   true,
-		"tag":         true,
-	}
-
-	if keyList[strings.ToLower(key)] {
+	if cacheKeyList[strings.ToLower(key)] {
 		r.Expire = true
 	}
 

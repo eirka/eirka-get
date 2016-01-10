@@ -9,6 +9,17 @@ import (
 	"github.com/eirka/eirka-libs/db"
 )
 
+// list of keys to skip
+var analyticsKeyList = map[string]bool{
+	"taginfo":     true,
+	"tags":        true,
+	"post":        true,
+	"tagtypes":    true,
+	"imageboards": true,
+	"new":         true,
+	"favorited":   true,
+}
+
 // requesttype holds the data we want to capture
 type RequestType struct {
 	Ib        string
@@ -128,18 +139,10 @@ func (r *itemKey) generateKey(params ...string) {
 
 }
 
-// Check if key should be expired
+// Check if key should be skipped
 func skipKey(key string) bool {
 
-	keyList := map[string]bool{
-		"taginfo":     true,
-		"tags":        true,
-		"post":        true,
-		"tagtypes":    true,
-		"imageboards": true,
-	}
-
-	if keyList[strings.ToLower(key)] {
+	if analyticsKeyList[strings.ToLower(key)] {
 		return true
 	}
 

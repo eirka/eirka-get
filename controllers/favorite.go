@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
-	"github.com/eirka/eirka-libs/auth"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-get/models"
 )
@@ -17,7 +17,7 @@ func FavoriteController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(auth.User)
+	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
 	m := &models.FavoriteModel{
