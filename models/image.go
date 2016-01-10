@@ -72,13 +72,13 @@ func (i *ImageModel) Get() (err error) {
     INNER JOIN posts on images.post_id = posts.post_id 
     INNER JOIN threads on posts.thread_id = threads.thread_id 
     WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id < ?
-    ORDER BY post_num DESC LIMIT 1) as previous,
+    ORDER BY images.post_id DESC LIMIT 1) as previous,
     (SELECT image_id 
     FROM images 
     INNER JOIN posts on images.post_id = posts.post_id 
     INNER JOIN threads on posts.thread_id = threads.thread_id 
     WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id > ?
-    ORDER BY post_num ASC LIMIT 1) as next`, imageheader.Thread, i.Id, imageheader.Thread, i.Id).Scan(&imageheader.Prev, &imageheader.Next)
+    ORDER BY images.post_id ASC LIMIT 1) as next`, imageheader.Thread, i.Id, imageheader.Thread, i.Id).Scan(&imageheader.Prev, &imageheader.Next)
 	if err != nil {
 		return
 	}
