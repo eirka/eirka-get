@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -45,8 +46,25 @@ func (i *TagSearchModel) Get() (err error) {
 		}
 	}
 
-	// add wildcards to the term
-	searchterm := fmt.Sprintf("%s*", i.Term)
+	// split search term
+	terms := strings.Split(strings.TrimSpace(i.Term), " ")
+
+	var searchterm string
+
+	// add wildcards to the terms
+	for i, term := range terms {
+		// if not the first index then add a space before
+		if i > 0 {
+			searchterm += " "
+		}
+		// add a plus to the front of the term
+		if len(term) > 0 && term != "" {
+			searchterm += fmt.Sprintf("+%s", term)
+		}
+	}
+
+	// add a wildcard to the end of the term
+	searchterm += "*"
 
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
 	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
