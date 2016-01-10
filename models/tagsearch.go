@@ -51,7 +51,7 @@ func (i *TagSearchModel) Get() (err error) {
 
 	var searchterm string
 
-	// add wildcards to the terms
+	// add plusses to the terms
 	for i, term := range terms {
 		// if not the first index then add a space before
 		if i > 0 {
@@ -64,14 +64,15 @@ func (i *TagSearchModel) Get() (err error) {
 	}
 
 	// add a wildcard to the end of the term
-	searchterm += "*"
+	wildterm := fmt.Sprintf("%s*", searchterm)
 
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
-	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id
+	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id,
+	MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) as relevance
 	FROM tags 
 	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
 	WHERE ib_id = ? AND MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)
-	group by tag_id) as a`, i.Ib, searchterm)
+	group by tag_id ORDER BY relevance DESC) as a`, searchterm, i.Ib, wildterm)
 	if err != nil {
 		return
 	}
