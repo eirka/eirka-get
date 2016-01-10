@@ -4,14 +4,8 @@ import (
 	"time"
 )
 
-var StartTime time.Time
+var StartTime = time.Now()
 
-func InitTime() {
-	StartTime = time.Now()
-}
-
-func GetTime() (curtime string) {
-	curtime = time.Since(StartTime).String()
-
-	return
+func GetTime() string {
+	return time.Since(StartTime).String()
 }
