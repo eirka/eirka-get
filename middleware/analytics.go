@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/db"
+	"github.com/eirka/eirka-libs/user"
 )
 
 // list of keys to skip
@@ -58,7 +58,7 @@ func Analytics() gin.HandlerFunc {
 		}
 
 		// get userdata from session middleware
-		userdata := c.MustGet("userdata").(auth.User)
+		userdata := c.MustGet("userdata").(user.User)
 
 		// get cached state from cache middleware
 		cached := c.MustGet("cached").(bool)
