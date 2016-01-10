@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
 
 	local "github.com/eirka/eirka-get/config"
@@ -55,7 +55,7 @@ func init() {
 	r.NewRedisCache()
 
 	// set auth middleware secret
-	auth.Secret = local.Settings.Session.Secret
+	user.Secret = local.Settings.Session.Secret
 
 	// print the starting info
 	StartInfo()
@@ -85,7 +85,7 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(m.AntiSpamCookie())
-	public.Use(auth.Auth(false))
+	public.Use(user.Auth(false))
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
@@ -105,7 +105,7 @@ func main() {
 
 	// user pages
 	users := r.Group("/user")
-	users.Use(auth.Auth(true))
+	users.Use(user.Auth(true))
 
 	users.GET("/whoami/:ib", c.UserController)
 	users.GET("/favorite/:id", c.FavoriteController)
