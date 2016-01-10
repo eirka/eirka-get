@@ -13,7 +13,7 @@ var StartTime = time.Now()
 func UptimeController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
-		"uptime": fmt.Sprintf("%fm", time.Since(StartTime).Minutes()),
+		"uptime": fmt.Sprintf("%.0fm", time.Since(StartTime).Minutes()),
 	})
 
 	return
