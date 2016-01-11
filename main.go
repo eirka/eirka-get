@@ -115,7 +115,7 @@ func main() {
 	CSRF := csrf.Protect(
 		[]byte("521ba8ae9ab286fbf31499d89bc68245bcef109cc4d5b695f345aa4341c15588"),
 		csrf.CookieName("XSRF-TOKEN"),
-		csrf.HttpOnly(true),
+		csrf.HttpOnly(false),
 		csrf.Secure(false),
 		csrf.Path("/"),
 		csrf.RequestHeader("X-XSRF-TOKEN"),
