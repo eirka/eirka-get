@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
+	"github.com/justinas/nosurf"
 	"net/http"
 	"strings"
 
@@ -111,9 +112,19 @@ func main() {
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
+	// add csrf
+	csrf := nosurf.New(r)
+
+	// csrf cookie for angularjs
+	csrf.SetBaseCookie(&http.Cookie{
+		Name:     "XSRF-TOKEN",
+		Path:     "/",
+		HttpOnly: true,
+	})
+
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Address, local.Settings.Get.Port),
-		Handler: r,
+		Handler: csrf,
 	}
 
 	gracehttp.Serve(s)
