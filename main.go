@@ -112,10 +112,15 @@ func main() {
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
-	nosurf.CookieName = "XSRF-TOKEN"
-
 	// add csrf
 	csrf := nosurf.New(r)
+
+	// csrf cookie for angularjs
+	csrf.SetBaseCookie(http.Cookie{
+		Name:     "XSRF-TOKEN",
+		Path:     "/",
+		HttpOnly: true,
+	})
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Address, local.Settings.Get.Port),
