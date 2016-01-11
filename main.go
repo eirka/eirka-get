@@ -116,7 +116,7 @@ func main() {
 	csrf := nosurf.New(r)
 
 	// csrf cookie for angularjs
-	csrf.SetBaseCookie(&http.Cookie{
+	csrf.SetBaseCookie(http.Cookie{
 		Name:     "XSRF-TOKEN",
 		Path:     "/",
 		HttpOnly: true,
