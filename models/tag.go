@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -65,8 +67,11 @@ func (i *TagModel) Get() (err error) {
 	// Get tag name and type
 	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
     INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
-    WHERE tags.tag_id = ? AND ib_id = ?`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
-	if err != nil {
+    WHERE tags.tag_id = ? AND ib_id = ?
+    HAVING tag_name IS NOT NULL`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
+	if err == sql.ErrNoRows {
+		return e.ErrNotFound
+	} else if err != nil {
 		return
 	}
 
@@ -74,7 +79,7 @@ func (i *TagModel) Get() (err error) {
 	paged.Get()
 
 	// Return 404 if page requested is larger than actual pages
-	if paged.Total == 0 || i.Page > paged.Pages {
+	if i.Page > paged.Pages {
 		return e.ErrNotFound
 	}
 
@@ -85,12 +90,12 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
-	FROM tagmap
-	INNER JOIN images on tagmap.image_id = images.image_id
+    FROM tagmap
+    INNER JOIN images on tagmap.image_id = images.image_id
     INNER JOIN posts on images.post_id = posts.post_id 
     INNER JOIN threads on posts.thread_id = threads.thread_id 
-	WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
-	ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
+    WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
+    ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
