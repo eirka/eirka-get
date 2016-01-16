@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
 )
 
 // TagTypesModel holds the parameters from the request and also the key for the cache
