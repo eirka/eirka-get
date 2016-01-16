@@ -74,7 +74,7 @@ func (i *TagModel) Get() (err error) {
 	paged.Get()
 
 	// Return 404 if page requested is larger than actual pages
-	if i.Page > paged.Pages || paged.Total == 0 {
+	if i.Page > paged.Pages || paged.Pages == 0 {
 		return e.ErrNotFound
 	}
 
