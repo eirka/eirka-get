@@ -1,8 +1,6 @@
 package models
 
 import (
-	"database/sql"
-
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
