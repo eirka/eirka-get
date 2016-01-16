@@ -69,9 +69,12 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
+	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(tagmap.image_id) FROM tags 
     INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
-    WHERE tags.tag_id = ? AND ib_id = ?
+    INNER JOIN images on tagmap.image_id = images.image_id
+    INNER JOIN posts on images.post_id = posts.post_id 
+    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    WHERE tags.tag_id = ? AND tags.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     HAVING tag_name IS NOT NULL`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
