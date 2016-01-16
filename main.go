@@ -84,7 +84,6 @@ func main() {
 
 	// public cached pages
 	public := r.Group("/")
-	public.Use(m.AntiSpamCookie())
 	public.Use(user.Auth(false))
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
