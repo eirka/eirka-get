@@ -52,6 +52,10 @@ type ThreadPosts struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *ThreadModel) Get() (err error) {
 
+	if i.Ib == 0 || i.Thread == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := ThreadType{}
 

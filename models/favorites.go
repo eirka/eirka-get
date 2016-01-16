@@ -29,6 +29,10 @@ type FavoritesHeader struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *FavoritesModel) Get() (err error) {
 
+	if i.Ib == 0 || i.User == 0 || i.Page == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := FavoritesType{}
 
@@ -63,11 +67,6 @@ func (i *FavoritesModel) Get() (err error) {
 
 	// Return 404 if page requested is larger than actual pages
 	if i.Page > paged.Pages {
-		return e.ErrNotFound
-	}
-
-	// no view all on favorites
-	if i.Page == 0 {
 		return e.ErrNotFound
 	}
 

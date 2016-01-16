@@ -19,6 +19,10 @@ type FavoriteType struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *FavoriteModel) Get() (err error) {
 
+	if i.User == 0 || i.Id == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := FavoriteType{}
 

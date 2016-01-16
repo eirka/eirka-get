@@ -34,6 +34,10 @@ type Directory struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *DirectoryModel) Get() (err error) {
 
+	if i.Ib == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := DirectoryType{}
 

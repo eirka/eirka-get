@@ -40,6 +40,10 @@ type Post struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *PostModel) Get() (err error) {
 
+	if i.Ib == 0 || i.Thread == 0 || i.Id == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := PostType{}
 

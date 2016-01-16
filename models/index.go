@@ -47,6 +47,10 @@ type IndexThreadHeader struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *IndexModel) Get() (err error) {
 
+	if i.Ib == 0 || i.Page == 0 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := IndexType{}
 
@@ -75,21 +79,11 @@ func (i *IndexModel) Get() (err error) {
 		return
 	}
 
-	// check ib id
-	switch {
-	case i.Ib == 0:
-		return e.ErrNotFound
-	case i.Ib > ibs:
-		return e.ErrNotFound
-	case i.Page == 0:
-		return e.ErrNotFound
-	}
-
 	// Calculate Limit and total Pages
 	paged.Get()
 
 	// Return 404 if page requested is larger than actual pages
-	if i.Page > paged.Pages {
+	if i.Page > paged.Pages || i.Ib > ibs {
 		return e.ErrNotFound
 	}
 

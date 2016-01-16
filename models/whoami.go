@@ -28,6 +28,10 @@ type UserInfo struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *UserModel) Get() (err error) {
 
+	if i.Ib == 0 || i.User == 0 || i.User == 1 {
+		return e.ErrNotFound
+	}
+
 	// Initialize response header
 	response := UserType{}
 
