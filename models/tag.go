@@ -68,9 +68,7 @@ func (i *TagModel) Get() (err error) {
 	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(image_id) FROM tags 
     INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
     WHERE tags.tag_id = ? AND ib_id = ?`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
-	if err == sql.ErrNoRows {
-		return e.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return
 	}
 
@@ -78,7 +76,7 @@ func (i *TagModel) Get() (err error) {
 	paged.Get()
 
 	// Return 404 if page requested is larger than actual pages
-	if i.Page > paged.Pages {
+	if i.Page > paged.Pages || paged.Total == 0 {
 		return e.ErrNotFound
 	}
 
