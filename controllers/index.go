@@ -7,6 +7,7 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/validate"
 
 	"github.com/eirka/eirka-get/models"
@@ -88,8 +89,9 @@ func IndexController(c *gin.Context) {
 		return
 	}
 
-	// Hand off data to cache middleware
-	c.Set("data", output)
+	key := redis.RedisKeyIndex["index"]
+
+	key.SetKey(m.Ib).SetHashId(m.Page)
 
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.Write(output)
