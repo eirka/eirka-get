@@ -20,7 +20,7 @@ func TagTypesController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("TagTypesController.Get")
 		return
 	}
 
@@ -29,7 +29,7 @@ func TagTypesController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("TagTypesController.Marshal")
 		return
 	}
 

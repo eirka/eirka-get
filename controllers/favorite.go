@@ -10,7 +10,7 @@ import (
 	"github.com/eirka/eirka-get/models"
 )
 
-// FavoriteController handles favorited images
+// FavoriteController handles the top favorite images on trending
 func FavoriteController(c *gin.Context) {
 
 	// Get parameters from validate middleware
@@ -30,12 +30,12 @@ func FavoriteController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoriteController.Get")
 		return
 	} else if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoriteController.Get")
 		return
 	}
 
@@ -44,7 +44,7 @@ func FavoriteController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoriteController.Marshal")
 		return
 	}
 

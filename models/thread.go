@@ -16,6 +16,7 @@ type ThreadModel struct {
 	Ib     uint
 	Thread uint
 	Page   uint
+	Posts  uint
 	Result ThreadType
 }
 
@@ -64,7 +65,7 @@ func (i *ThreadModel) Get() (err error) {
 	// Set current page to parameter
 	paged.CurrentPage = i.Page
 	// Set threads per index page to config setting
-	paged.PerPage = config.Settings.Limits.PostsPerPage
+	paged.PerPage = i.Posts
 
 	// Initialize struct for thread info
 	thread := ThreadInfo{}

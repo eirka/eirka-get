@@ -9,7 +9,7 @@ import (
 	"github.com/eirka/eirka-get/models"
 )
 
-// ImageboardsController handles pram index
+// ImageboardsController handles eirka index pages
 func ImageboardsController(c *gin.Context) {
 
 	// Initialize model struct
@@ -20,12 +20,12 @@ func ImageboardsController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("ImageboardsController.Get")
 		return
 	} else if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ImageboardsController.Get")
 		return
 	}
 
@@ -34,7 +34,7 @@ func ImageboardsController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ImageboardsController.Marshal")
 		return
 	}
 

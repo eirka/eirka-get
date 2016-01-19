@@ -9,7 +9,7 @@ import (
 	"github.com/eirka/eirka-get/models"
 )
 
-// TagSearchController handles TagSearch pages
+// TagSearchController handles search requests for tags
 func TagSearchController(c *gin.Context) {
 
 	// Get parameters from validate middleware
@@ -22,7 +22,7 @@ func TagSearchController(c *gin.Context) {
 	if search == "" {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(e.ErrInvalidParam)
+		c.Error(e.ErrInvalidParam).SetMeta("TagSearchController.SearchTermInvalid")
 		return
 	}
 
@@ -37,7 +37,7 @@ func TagSearchController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("TagSearchController.Get")
 		return
 	}
 
@@ -46,7 +46,7 @@ func TagSearchController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("TagSearchController.Marshal")
 		return
 	}
 

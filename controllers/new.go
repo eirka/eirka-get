@@ -9,7 +9,7 @@ import (
 	"github.com/eirka/eirka-get/models"
 )
 
-// NewController handles New pages
+// NewController handles new trending items
 func NewController(c *gin.Context) {
 
 	// Get parameters from validate middleware
@@ -25,12 +25,12 @@ func NewController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("NewController.Get")
 		return
 	} else if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("NewController.Get")
 		return
 	}
 
@@ -39,7 +39,7 @@ func NewController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("NewController.Marshal")
 		return
 	}
 

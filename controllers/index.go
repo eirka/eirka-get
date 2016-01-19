@@ -23,37 +23,20 @@ func IndexController(c *gin.Context) {
 	// how many posts per thread
 	posts := c.DefaultQuery("posts", strconv.Itoa(int(config.Settings.Limits.PostsPerThread)))
 
-	// validate query parameter
+	// query param must be uint
 	ut, err := validate.ValidateParam(threads)
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("IndexController.ValidateQueryParams")
 		return
 	}
 
-	// max for query params
-	if ut > 20 || ut < 5 {
-		c.Set("controllerError", true)
-		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(e.ErrInvalidParam)
-		return
-	}
-
-	// validate query parameter
 	up, err := validate.ValidateParam(posts)
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
-		return
-	}
-
-	// max for query params
-	if up > 20 {
-		c.Set("controllerError", true)
-		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(e.ErrInvalidParam)
+		c.Error(err).SetMeta("IndexController.ValidateQueryParams")
 		return
 	}
 
@@ -61,8 +44,8 @@ func IndexController(c *gin.Context) {
 	m := &models.IndexModel{
 		Ib:      params[0],
 		Page:    params[1],
-		Threads: ut,
-		Posts:   up,
+		Threads: validate.Clamp(ut, 20, 5),
+		Posts:   validate.Clamp(up, 10, 0),
 	}
 
 	// Get the model which outputs JSON
@@ -70,12 +53,12 @@ func IndexController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("IndexController.Get")
 		return
 	} else if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("IndexController.Get")
 		return
 	}
 
@@ -84,7 +67,7 @@ func IndexController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("IndexController.Marshal")
 		return
 	}
 
