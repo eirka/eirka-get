@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"strconv"
 
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
@@ -37,7 +38,7 @@ func ThreadController(c *gin.Context) {
 	}
 
 	// Get the model which outputs JSON
-	err := m.Get()
+	err = m.Get()
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
