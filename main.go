@@ -5,7 +5,6 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
@@ -17,10 +16,6 @@ import (
 	local "github.com/eirka/eirka-get/config"
 	c "github.com/eirka/eirka-get/controllers"
 	m "github.com/eirka/eirka-get/middleware"
-)
-
-var (
-	version = "1.0.5"
 )
 
 func init() {
@@ -56,15 +51,6 @@ func init() {
 
 	// set auth middleware secret
 	user.Secret = local.Settings.Session.Secret
-
-	// print the starting info
-	StartInfo()
-
-	// Print out config
-	config.Print()
-
-	// Print out config
-	local.Print()
 
 	// set cors domains
 	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
@@ -116,14 +102,5 @@ func main() {
 	}
 
 	gracehttp.Serve(s)
-
-}
-
-func StartInfo() {
-
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "PRAM-GET")
-	fmt.Printf("%-20v%40v\n", "Version", version)
-	fmt.Println(strings.Repeat("*", 60))
 
 }
