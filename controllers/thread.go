@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 
+	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
 
