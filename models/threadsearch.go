@@ -73,7 +73,7 @@ func (i *ThreadSearchModel) Get() (err error) {
     WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     AND MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)
     GROUP BY threads.thread_id
-    ORDER BY thread_last_post`, searchterm, i.Ib, wildterm)
+    ORDER BY thread_last_post`, i.Ib, wildterm)
 	if err != nil {
 		return
 	}
