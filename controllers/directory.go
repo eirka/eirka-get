@@ -17,7 +17,8 @@ func DirectoryController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.DirectoryModel{
-		Ib: params[0],
+		Ib:   params[0],
+		Page: params[1],
 	}
 
 	// Get the model which outputs JSON
