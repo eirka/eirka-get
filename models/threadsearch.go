@@ -8,6 +8,8 @@ import (
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
+
+	u "github.com/eirka/eirka-get/utils"
 )
 
 // ThreadSearchModel holds the parameters from the request and also the key for the cache
