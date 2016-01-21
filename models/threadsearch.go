@@ -19,7 +19,7 @@ type ThreadSearchModel struct {
 
 // ThreadSearchType is the top level of the JSON response
 type ThreadSearchType struct {
-	Body []Tags `json:"ThreadSearch"`
+	Body []Directory `json:"threadsearch"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -33,8 +33,6 @@ func (i *ThreadSearchModel) Get() (err error) {
 	if err != nil {
 		return
 	}
-
-	tags := []Tags{}
 
 	// Validate tag input
 	if i.Term != "" {
@@ -78,17 +76,25 @@ func (i *ThreadSearchModel) Get() (err error) {
 		return
 	}
 
+	threads := []Directory{}
 	for rows.Next() {
-		// Initialize posts struct
-		tag := Tags{}
-		// Scan rows and place column into struct
-		err := rows.Scan(&tag.Total, &tag.Id, &tag.Tag, &tag.Type)
+		thread := Directory{}
+		err := rows.Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
 		if err != nil {
 			return err
 		}
 
-		// Append rows to info struct
-		tags = append(tags, tag)
+		// Get the number of pages in the thread
+		postpages := u.PagedResponse{}
+		postpages.Total = thread.Posts
+		postpages.CurrentPage = 1
+		postpages.PerPage = config.Settings.Limits.PostsPerPage
+		postpages.Get()
+
+		// set pages
+		thread.Pages = postpages.Pages
+
+		threads = append(threads, thread)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -96,7 +102,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 	}
 
 	// Add pagedresponse to the response struct
-	response.Body = tags
+	response.Body = threads
 
 	// This is the data we will serialize
 	i.Result = response
