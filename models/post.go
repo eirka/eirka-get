@@ -27,7 +27,7 @@ type Post struct {
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
 	Group       uint       `json:"group"`
-	Avatar      uint       `json:"avatar"`
+	Avatar      string     `json:"avatar"`
 	Time        *time.Time `json:"time"`
 	Text        *string    `json:"comment"`
 	ImgId       *uint      `json:"img_id,omitempty"`
