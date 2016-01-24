@@ -38,6 +38,7 @@ type ThreadPosts struct {
 	Id          uint       `json:"id"`
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
+	Avatar      string     `json:"avatar"`
 	Uid         uint       `json:"uid"`
 	Group       uint       `json:"group"`
 	Time        *time.Time `json:"time"`
@@ -100,7 +101,7 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,users.user_id,
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,users.user_id,user_avatar,
     COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
     post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
@@ -118,7 +119,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Avatar, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}

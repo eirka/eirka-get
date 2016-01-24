@@ -26,6 +26,7 @@ type Post struct {
 	PostId      uint       `json:"post_id"`
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
+	Avatar      string     `json:"avatar"`
 	Uid         uint       `json:"uid"`
 	Group       uint       `json:"group"`
 	Time        *time.Time `json:"time"`
@@ -55,7 +56,7 @@ func (i *PostModel) Get() (err error) {
 
 	post := Post{}
 
-	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,users.user_id,
+	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,users.user_id,user_avatar,
     COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
     post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
@@ -63,7 +64,7 @@ func (i *PostModel) Get() (err error) {
     INNER JOIN threads on posts.thread_id = threads.thread_id
     INNER JOIN users on posts.user_id = users.user_id
     INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-    WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Ib, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+    WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Ib, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Uid, &post.Avatar, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
