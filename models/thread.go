@@ -100,7 +100,7 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,user_id,
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,users.user_id,
     COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
     post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
