@@ -167,7 +167,7 @@ func (i *IndexModel) Get() (err error) {
 			// Initialize posts struct
 			post := ThreadPosts{}
 			// Scan rows and place column into struct
-			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Avatar, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 			if err != nil {
 				return err
 			}
