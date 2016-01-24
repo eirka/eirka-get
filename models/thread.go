@@ -38,8 +38,8 @@ type ThreadPosts struct {
 	Id          uint       `json:"id"`
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
+	Uid         uint       `json:"uid"`
 	Group       uint       `json:"group"`
-	Avatar      string     `json:"avatar"`
 	Time        *time.Time `json:"time"`
 	Text        *string    `json:"comment"`
 	ImgId       *uint      `json:"img_id,omitempty"`
@@ -77,10 +77,10 @@ func (i *ThreadModel) Get() (err error) {
 
 	// Get total thread count and put it in pagination struct
 	err = dbase.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) 
-	FROM threads 
-	INNER JOIN posts on threads.thread_id = posts.thread_id
-	WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-	GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
+    FROM threads 
+    INNER JOIN posts on threads.thread_id = posts.thread_id
+    WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+    GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -100,9 +100,9 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,
+	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,user_id,
     COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
-    user_avatar,post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
+    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
     LEFT JOIN images on posts.post_id = images.post_id
     INNER JOIN users on posts.user_id = users.user_id
@@ -118,7 +118,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Group, &post.Avatar, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}
