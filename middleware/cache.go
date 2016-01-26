@@ -10,16 +10,17 @@ import (
 var (
 	RedisKeyIndex = make(map[string]RedisKey)
 	RedisKeys     = []RedisKey{
-		{base: "tag", fieldcount: 2, hash: true, expire: true},
-		{base: "thread", fieldcount: 2, hash: true, expire: false},
-		{base: "post", fieldcount: 2, hash: true, expire: false},
-		{base: "directory", fieldcount: 1, hash: true, expire: false},
 		{base: "index", fieldcount: 1, hash: true, expire: false},
+		{base: "thread", fieldcount: 2, hash: true, expire: false},
+		{base: "tag", fieldcount: 2, hash: true, expire: true},
 		{base: "image", fieldcount: 1, hash: true, expire: false},
+		{base: "post", fieldcount: 2, hash: true, expire: false},
 		{base: "tags", fieldcount: 1, hash: true, expire: false},
-		{base: "favorited", fieldcount: 1, hash: false, expire: true},
+		{base: "directory", fieldcount: 1, hash: true, expire: false},
 		{base: "new", fieldcount: 1, hash: false, expire: true},
 		{base: "popular", fieldcount: 1, hash: false, expire: true},
+		{base: "favorited", fieldcount: 1, hash: false, expire: true},
+		{base: "tagtypes", fieldcount: 0, hash: false, expire: false},
 		{base: "imageboards", fieldcount: 0, hash: false, expire: true},
 	}
 )
