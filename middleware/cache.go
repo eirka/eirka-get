@@ -8,9 +8,8 @@ import (
 )
 
 var (
-	expire        uint = 600
-	RedisKeyIndex      = make(map[string]RedisKey)
-	RedisKeys          = []RedisKey{
+	RedisKeyIndex = make(map[string]RedisKey)
+	RedisKeys     = []RedisKey{
 		{base: "index", fieldcount: 1, hash: true, expire: false},
 		{base: "image", fieldcount: 1, hash: true, expire: false},
 		{base: "tags", fieldcount: 1, hash: true, expire: false},
@@ -136,7 +135,7 @@ func (r *RedisKey) Set(data []byte) (err error) {
 		return redis.RedisCache.HMSet(r.key, r.hashid, data)
 	} else {
 		if r.expire {
-			return redis.RedisCache.SetEx(r.key, expire, data)
+			return redis.RedisCache.SetEx(r.key, 600, data)
 		} else {
 			return redis.RedisCache.Set(r.key, data)
 		}
