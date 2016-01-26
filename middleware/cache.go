@@ -132,13 +132,13 @@ func (r *RedisKey) Get() (result []byte, err error) {
 func (r *RedisKey) Set(data []byte) (err error) {
 
 	if r.hash {
-		return redis.RedisCache.HMSet(r.key, r.hashid, data)
+		err = redis.RedisCache.HMSet(r.key, r.hashid, data)
 	} else {
-		if r.expire {
-			return redis.RedisCache.SetEx(r.key, 600, data)
-		} else {
-			return redis.RedisCache.Set(r.key, data)
-		}
+		err = redis.RedisCache.Set(r.key, data)
+	}
+
+	if r.expire {
+		return redis.RedisCache.Expire(r.key, 600)
 	}
 
 	return
