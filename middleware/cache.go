@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 
@@ -9,9 +8,9 @@ import (
 )
 
 var (
-	expire        = 600
-	RedisKeyIndex = make(map[string]RedisKey)
-	RedisKeys     = []RedisKey{
+	expire        uint = 600
+	RedisKeyIndex      = make(map[string]RedisKey)
+	RedisKeys          = []RedisKey{
 		{base: "index", fieldcount: 1, hash: true, expire: false},
 		{base: "image", fieldcount: 1, hash: true, expire: false},
 		{base: "tags", fieldcount: 1, hash: true, expire: false},
@@ -61,7 +60,7 @@ func Cache() gin.HandlerFunc {
 		}
 
 		// set the key minus the base
-		key.SetKey(params[1:])
+		key.SetKey(params[1:]...)
 
 		result, err = key.Get()
 		if err == redis.ErrCacheMiss {
@@ -105,7 +104,7 @@ type RedisKey struct {
 	hash       bool
 	expire     bool
 	key        string
-	hashid     uint
+	hashid     string
 }
 
 func (r *RedisKey) SetKey(ids ...string) {
