@@ -114,7 +114,7 @@ func (r *RedisKey) SetKey(ids ...string) {
 
 	// get our hash id
 	if r.hash {
-		r.hashid = ids[r.fieldcount:]
+		r.hashid = string(ids[r.fieldcount:])
 	}
 
 	return
