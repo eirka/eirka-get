@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 
@@ -114,7 +115,7 @@ func (r *RedisKey) SetKey(ids ...string) {
 
 	// get our hash id
 	if r.hash {
-		r.hashid = string(ids[r.fieldcount:])
+		r.hashid = strings.Join(ids[r.fieldcount:], "")
 	}
 
 	return
