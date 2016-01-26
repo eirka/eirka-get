@@ -9,7 +9,6 @@ import (
 
 var (
 	expire        uint = 600
-	cache              = redis.RedisCache
 	RedisKeyIndex      = make(map[string]RedisKey)
 	RedisKeys          = []RedisKey{
 		{base: "index", fieldcount: 1, hash: true, expire: false},
@@ -123,9 +122,9 @@ func (r *RedisKey) SetKey(ids ...string) {
 func (r *RedisKey) Get() (result []byte, err error) {
 
 	if r.hash {
-		return cache.HGet(r.key, r.hashid)
+		return redis.RedisCache.HGet(r.key, r.hashid)
 	} else {
-		return cache.Get(r.key)
+		return redis.RedisCache.Get(r.key)
 	}
 
 	return
@@ -134,12 +133,12 @@ func (r *RedisKey) Get() (result []byte, err error) {
 func (r *RedisKey) Set(data []byte) (err error) {
 
 	if r.hash {
-		return cache.HMSet(r.key, r.hashid, data)
+		return redis.RedisCache.HMSet(r.key, r.hashid, data)
 	} else {
 		if r.expire {
-			return cache.SetEx(r.key, expire, data)
+			return redis.RedisCache.SetEx(r.key, expire, data)
 		} else {
-			return cache.Set(r.key, data)
+			return redis.RedisCache.Set(r.key, data)
 		}
 	}
 
