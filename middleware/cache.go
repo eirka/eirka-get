@@ -108,6 +108,7 @@ type RedisKey struct {
 func (r *RedisKey) SetKey(ids ...string) {
 
 	if r.fieldcount == 0 {
+		r.key = r.base
 		return
 	}
 
