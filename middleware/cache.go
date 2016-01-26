@@ -107,6 +107,10 @@ type RedisKey struct {
 
 func (r *RedisKey) SetKey(ids ...string) {
 
+	if r.fieldcount == 0 {
+		return
+	}
+
 	// create our key
 	r.key = strings.Join([]string{r.base, strings.Join(ids[:r.fieldcount], ":")}, ":")
 
