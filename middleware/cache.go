@@ -9,6 +9,7 @@ import (
 
 var (
 	expire        uint = 600
+	cache              = redis.RedisCache
 	RedisKeyIndex      = make(map[string]RedisKey)
 	RedisKeys          = []RedisKey{
 		{base: "index", fieldcount: 1, hash: true, expire: false},
@@ -23,7 +24,6 @@ var (
 		{base: "popular", fieldcount: 1, hash: false, expire: true},
 		{base: "imageboards", fieldcount: 1, hash: false, expire: true},
 	}
-	cache = redis.RedisCache
 )
 
 func init() {
@@ -53,8 +53,8 @@ func Cache() gin.HandlerFunc {
 		params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
 
 		// get the keyname
-		key := RedisKeyIndex[params[0]]
-		if key == nil {
+		key, ok := RedisKeyIndex[params[0]]
+		if !ok {
 			c.Next()
 			return
 		}
