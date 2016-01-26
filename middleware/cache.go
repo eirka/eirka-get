@@ -1,39 +1,37 @@
 package middleware
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 
 	"github.com/eirka/eirka-libs/redis"
 )
 
-// REDIS KEY STRUCTURE
-//
-// HASH:
-// "thread:1:45"
-// "post:1:45"
-// "tag:1:4"
-// "index:1"
-// "image:1"
-//
-// REGULAR:
-// "directory:1"
-// "tags:1"
-// "tagtypes"
-// "pram"
-
-const (
-	// key expire seconds
-	ExpireSeconds = 600
+var (
+	expire        = 600
+	RedisKeyIndex = make(map[string]RedisKey)
+	RedisKeys     = []RedisKey{
+		{base: "index", fieldcount: 1, hash: true, expire: false},
+		{base: "image", fieldcount: 1, hash: true, expire: false},
+		{base: "tags", fieldcount: 1, hash: true, expire: false},
+		{base: "tag", fieldcount: 2, hash: true, expire: true},
+		{base: "thread", fieldcount: 2, hash: true, expire: false},
+		{base: "post", fieldcount: 2, hash: true, expire: false},
+		{base: "directory", fieldcount: 1, hash: false, expire: false},
+		{base: "favorited", fieldcount: 1, hash: false, expire: true},
+		{base: "new", fieldcount: 1, hash: false, expire: true},
+		{base: "popular", fieldcount: 1, hash: false, expire: true},
+		{base: "imageboards", fieldcount: 1, hash: false, expire: true},
+	}
+	cache = redis.RedisCache
 )
 
-// list of keys to expire
-var cacheKeyList = map[string]bool{
-	"imageboards": true,
-	"popular":     true,
-	"new":         true,
-	"favorited":   true,
-	"tag":         true,
+func init() {
+	// key index map
+	for _, key := range RedisKeys {
+		RedisKeyIndex[key.base] = key
+	}
 }
 
 // Cache will check for the key in Redis and serve it. If not found, it will
@@ -52,102 +50,42 @@ func Cache() gin.HandlerFunc {
 			return
 		}
 
-		// Get request path
-		path := c.Request.URL.Path
-
 		// Trim leading / from path and split
-		params := strings.Split(strings.Trim(path, "/"), "/")
+		params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
 
-		// Make key from path
-		key := redisKey{}
-		key.expireKey(params[0])
-		key.generateKey(params...)
-
-		// Initialize cache handle
-		cache := redis.RedisCache
-
-		if key.Hash {
-			// Check to see if there is already a key we can serve
-			result, err = cache.HGet(key.Key, key.Field)
-			if err == redis.ErrCacheMiss {
-
-				c.Next()
-
-				// Check if there was an error from the controller
-				_, controllerError := c.Get("controllerError")
-				if controllerError {
-					c.Abort()
-					return
-				}
-
-				// Get data from controller
-				data := c.MustGet("data").([]byte)
-
-				// Set output to cache
-				err = cache.HMSet(key.Key, key.Field, data)
-				if err != nil {
-					c.Error(err)
-					c.Abort()
-					return
-				}
-
-				return
-
-			} else if err != nil {
-				c.Error(err)
-				c.Abort()
-				return
-			}
-
+		// get the keyname
+		key := RedisKeyIndex[params[0]]
+		if key == nil {
+			c.Next()
+			return
 		}
 
-		if !key.Hash {
-			// Check to see if there is already a key we can serve
-			result, err = cache.Get(key.Key)
-			if err == redis.ErrCacheMiss {
+		// set the key minus the base
+		key.SetKey(params[1:])
 
-				c.Next()
+		result, err = key.Get()
+		if err == redis.ErrCacheMiss {
+			// go to the controller
+			c.Next()
 
-				// Check if there was an error from the controller
-				_, controllerError := c.Get("controllerError")
-				if controllerError {
-					c.Abort()
-					return
-				}
-
-				// Get data from controller
-				data := c.MustGet("data").([]byte)
-
-				if key.Expire {
-
-					// Set output to cache
-					err = cache.SetEx(key.Key, ExpireSeconds, data)
-					if err != nil {
-						c.Error(err)
-						c.Abort()
-						return
-					}
-
-				} else {
-
-					// Set output to cache
-					err = cache.Set(key.Key, data)
-					if err != nil {
-						c.Error(err)
-						c.Abort()
-						return
-					}
-
-				}
-
+			// Check if there was an error from the controller
+			_, controllerError := c.Get("controllerError")
+			if controllerError {
+				c.Abort()
 				return
+			}
 
-			} else if err != nil {
+			err = key.Set(c.MustGet("data").([]byte))
+			if err != nil {
 				c.Error(err)
 				c.Abort()
 				return
 			}
 
+		} else if err != nil {
+			c.Error(err)
+			c.Abort()
+			return
 		}
 
 		// if we made it this far then the page was cached
@@ -156,52 +94,55 @@ func Cache() gin.HandlerFunc {
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.Write(result)
 		c.Abort()
-
+		return
 	}
 
 }
 
-type redisKey struct {
-	Key    string
-	Field  string
-	Hash   bool
-	Expire bool
+type RedisKey struct {
+	base       string
+	fieldcount int
+	hash       bool
+	expire     bool
+	key        string
+	hashid     uint
 }
 
-// Will take the params from the request and turn them into a key
-func (r *redisKey) generateKey(params ...string) {
+func (r *RedisKey) SetKey(ids ...string) {
 
-	var keys []string
+	// create our key
+	r.key = strings.Join([]string{r.base, strings.Join(ids[:r.fieldcount], ":")}, ":")
 
-	switch {
-	// keys like pram, directory, and tags
-	case len(params) <= 2:
-		r.Key = strings.Join(params, ":")
-	// index and image
-	case len(params) == 3:
-		keys = append(keys, params[0], params[1])
-		r.Field = params[2]
-		r.Hash = true
-		r.Key = strings.Join(keys, ":")
-	// thread, post, and tag
-	case len(params) == 4:
-		keys = append(keys, params[0], params[1], params[2])
-		r.Field = params[3]
-		r.Hash = true
-		r.Key = strings.Join(keys, ":")
+	// get our hash id
+	if r.hash {
+		r.hashid = ids[r.fieldcount:]
 	}
 
 	return
-
 }
 
-// Check if key should be expired
-func (r *redisKey) expireKey(key string) {
+func (r *RedisKey) Get() (result []byte, err error) {
 
-	if cacheKeyList[strings.ToLower(key)] {
-		r.Expire = true
+	if r.hash {
+		return cache.HGet(r.key, r.hashid)
+	} else {
+		return cache.Get(r.key)
 	}
 
 	return
+}
 
+func (r *RedisKey) Set(data []byte) (err error) {
+
+	if r.hash {
+		return cache.HMSet(r.key, r.hashid, data)
+	} else {
+		if r.expire {
+			return cache.SetEx(r.key, expire, data)
+		} else {
+			return cache.Set(r.key, data)
+		}
+	}
+
+	return
 }
