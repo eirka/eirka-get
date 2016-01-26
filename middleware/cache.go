@@ -20,7 +20,7 @@ var (
 		{base: "favorited", fieldcount: 1, hash: false, expire: true},
 		{base: "new", fieldcount: 1, hash: false, expire: true},
 		{base: "popular", fieldcount: 1, hash: false, expire: true},
-		{base: "imageboards", fieldcount: 1, hash: false, expire: true},
+		{base: "imageboards", fieldcount: 0, hash: false, expire: true},
 	}
 )
 
