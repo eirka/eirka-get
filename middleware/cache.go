@@ -36,8 +36,6 @@ func init() {
 // take the marshalled JSON from the controller and set it in Redis
 func Cache() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var result []byte
-		var err error
 
 		// bool for analytics middleware
 		c.Set("cached", false)
@@ -61,9 +59,10 @@ func Cache() gin.HandlerFunc {
 		// set the key minus the base
 		key.SetKey(params[1:]...)
 
-		result, err = key.Get()
+		// check the cache
+		result, err := key.Get()
 		if result == nil {
-			// go to the controller
+			// go to the controller if it wasnt found
 			c.Next()
 
 			// Check if there was an error from the controller
@@ -73,6 +72,7 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
+			// set the data returned from the controller
 			err = key.Set(c.MustGet("data").([]byte))
 			if err != nil {
 				c.Error(err)
