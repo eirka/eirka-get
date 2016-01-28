@@ -92,9 +92,9 @@ func Cache() gin.HandlerFunc {
 
 			return
 
-		}, func(e error) (err error) {
+		}, func(err error) error {
 			c.Next()
-			return
+			return nil
 		})
 
 		// if we made it this far then the page was cached
