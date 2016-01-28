@@ -38,7 +38,6 @@ func init() {
 func Cache() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var result []byte
-		var err error
 
 		// bool for analytics middleware
 		c.Set("cached", false)
