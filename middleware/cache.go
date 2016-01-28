@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"github.com/afex/hystrix-go/hystrix"
 	"github.com/gin-gonic/gin"
 	"strings"
 
@@ -38,6 +37,7 @@ func init() {
 func Cache() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var result []byte
+		var err error
 
 		// bool for analytics middleware
 		c.Set("cached", false)
@@ -48,55 +48,42 @@ func Cache() gin.HandlerFunc {
 			return
 		}
 
-		// redis circuitbreaker
-		err := hystrix.Do("cache", func() (err error) {
+		// Trim leading / from path and split
+		params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
 
-			// Trim leading / from path and split
-			params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
+		// get the keyname
+		key, ok := RedisKeyIndex[params[0]]
+		if !ok {
+			c.Next()
+			return
+		}
 
-			// get the keyname
-			key, ok := RedisKeyIndex[params[0]]
-			if !ok {
-				c.Next()
+		// set the key minus the base
+		key.SetKey(params[1:]...)
+
+		result, err = key.Get()
+		if err == redis.ErrCacheMiss {
+			// go to the controller
+			c.Next()
+
+			// Check if there was an error from the controller
+			_, controllerError := c.Get("controllerError")
+			if controllerError {
+				c.Abort()
 				return
 			}
 
-			// set the key minus the base
-			key.SetKey(params[1:]...)
-
-			result, err = key.Get()
-			if err == redis.ErrCacheMiss {
-				// go to the controller
-				c.Next()
-
-				// Check if there was an error from the controller
-				_, controllerError := c.Get("controllerError")
-				if controllerError {
-					c.Abort()
-					return
-				}
-
-				err = key.Set(c.MustGet("data").([]byte))
-				if err != nil {
-					c.Error(err)
-					c.Abort()
-					return
-				}
-
-			} else if err != nil {
+			err = key.Set(c.MustGet("data").([]byte))
+			if err != nil {
 				c.Error(err)
 				c.Abort()
 				return
 			}
 
-			return
-
-		}, func(err error) error {
-			c.Next()
-			return nil
-		})
-		if err != nil {
+		} else if err != nil {
 			c.Error(err)
+			c.Abort()
+			return
 		}
 
 		// if we made it this far then the page was cached
