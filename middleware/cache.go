@@ -62,7 +62,7 @@ func Cache() gin.HandlerFunc {
 		key.SetKey(params[1:]...)
 
 		result, err = key.Get()
-		if err == redis.ErrCacheMiss {
+		if result == nil {
 			// go to the controller
 			c.Next()
 
@@ -80,7 +80,8 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
-		} else if err != nil {
+		}
+		if err != nil {
 			c.Error(err)
 			c.Abort()
 			return
@@ -141,6 +142,9 @@ func (r *RedisKey) Set(data []byte) (err error) {
 		err = redis.RedisCache.HMSet(r.key, r.hashid, data)
 	} else {
 		err = redis.RedisCache.Set(r.key, data)
+	}
+	if err != nil {
+		return
 	}
 
 	if r.expire {
