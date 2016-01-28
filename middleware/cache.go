@@ -92,7 +92,7 @@ func Cache() gin.HandlerFunc {
 
 			return
 
-		}, func(err error) error {
+		}, func(e error) (err error) {
 			c.Next()
 			return
 		})
