@@ -50,7 +50,7 @@ func Cache() gin.HandlerFunc {
 		}
 
 		// redis circuitbreaker
-		err := hystrix.Do("cache", func() (err error) {
+		err = hystrix.Do("cache", func() (err error) {
 
 			// Trim leading / from path and split
 			params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
@@ -90,7 +90,9 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
-		}, func(err error) (err error) {
+			return
+
+		}, func(err error) error {
 			c.Next()
 			return
 		})
