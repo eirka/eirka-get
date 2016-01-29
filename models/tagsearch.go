@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
@@ -9,6 +10,8 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
 )
+
+var regexAllowed = regexp.MustCompile(`^[^+-@%<>$*]+$`)
 
 // TagSearchModel holds the parameters from the request and also the key for the cache
 type TagSearchModel struct {
@@ -36,43 +39,42 @@ func (i *TagSearchModel) Get() (err error) {
 
 	tags := []Tags{}
 
-	// Validate tag input
-	if i.Term != "" {
-		tag := validate.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
-		if tag.MinLength() {
-			return e.ErrInvalidParam
-		} else if tag.MaxLength() {
-			return e.ErrInvalidParam
-		}
+	tag := validate.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+	if tag.IsEmpty() {
+		return e.ErrNoTagName
+	} else if tag.MinLength() {
+		return e.ErrTagShort
+	} else if tag.MaxLength() {
+		return e.ErrTagLong
 	}
 
-	// split search term
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	var searchterm string
+	var exact, searchquery []string
 
-	// add plusses to the terms
-	for i, term := range terms {
-		// if not the first index then add a space before
-		if i > 0 {
-			searchterm += " "
+	for _, term := range terms {
+		if !regexAllowed.MatchString(term) {
+			continue
 		}
-		// add a plus to the front of the term
-		if len(term) > 0 && term != "" {
-			searchterm += fmt.Sprintf("+%s", term)
-		}
+
+		exact = append(exact, term)
+		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
 	// add a wildcard to the end of the term
 	wildterm := fmt.Sprintf("%s*", searchterm)
 
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
-	FROM (SELECT count(image_id) as count,ib_id,tags.tag_id,tag_name,tagtype_id,
-	MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) as relevance
-	FROM tags 
-	LEFT JOIN tagmap on tags.tag_id = tagmap.tag_id 
-	WHERE ib_id = ? AND MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)
-	group by tag_id ORDER BY relevance DESC) as a`, searchterm, i.Ib, wildterm)
+    FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
+    INNER JOIN images on tagmap.image_id = images.image_id
+    INNER JOIN posts on images.post_id = posts.post_id 
+    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
+    tag_id,tag_name,tagtype_id,
+    CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score, 
+    MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
+    FROM tags WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AND ib_id = ?
+    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), fmt.Sprintf("%s*", strings.Join(searchquery, " ")), i.Ib)
 	if err != nil {
 		return
 	}
