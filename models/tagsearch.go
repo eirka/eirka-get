@@ -61,9 +61,6 @@ func (i *TagSearchModel) Get() (err error) {
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
-	// add a wildcard to the end of the term
-	wildterm := fmt.Sprintf("%s*", searchterm)
-
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
     FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
     INNER JOIN images on tagmap.image_id = images.image_id
