@@ -36,35 +36,26 @@ func (i *ThreadSearchModel) Get() (err error) {
 		return
 	}
 
-	// Validate tag input
-	if i.Term != "" {
-		tag := validate.Validate{Input: i.Term, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
-		if tag.MinLength() {
-			return e.ErrInvalidParam
-		} else if tag.MaxLength() {
-			return e.ErrInvalidParam
-		}
+	title := validate.Validate{Input: i.Term, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
+	if title.IsEmpty() {
+		return e.ErrNoTitle
+	} else if title.MinLength() {
+		return e.ErrTitleShort
+	} else if title.MaxLength() {
+		return e.ErrTitleLong
 	}
 
-	// split search term
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	var searchterm string
+	var searchquery []string
 
-	// add plusses to the terms
-	for i, term := range terms {
-		// if not the first index then add a space before
-		if i > 0 {
-			searchterm += " "
+	for _, term := range terms {
+		if !regexAllowed.MatchString(term) {
+			continue
 		}
-		// add a plus to the front of the term
-		if len(term) > 0 && term != "" {
-			searchterm += fmt.Sprintf("+%s", term)
-		}
+
+		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
-
-	// add a wildcard to the end of the term
-	wildterm := fmt.Sprintf("%s*", searchterm)
 
 	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),thread_last_post 
     FROM threads
@@ -73,7 +64,7 @@ func (i *ThreadSearchModel) Get() (err error) {
     WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     AND MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)
     GROUP BY threads.thread_id
-    ORDER BY thread_last_post`, i.Ib, wildterm)
+    ORDER BY thread_last_post`, i.Ib, fmt.Sprintf("%s*", strings.Join(searchquery, " ")))
 	if err != nil {
 		return
 	}
