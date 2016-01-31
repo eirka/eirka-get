@@ -9,17 +9,15 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
-// list of keys to skip
+// list of keys record
 var analyticsKeyList = map[string]bool{
-	"taginfo":      true,
-	"tags":         true,
-	"post":         true,
-	"tagtypes":     true,
-	"imageboards":  true,
-	"new":          true,
-	"favorited":    true,
-	"tagsearch":    true,
-	"threadsearch": true,
+	"index":     true,
+	"thread":    true,
+	"tag":       true,
+	"image":     true,
+	"tags":      true,
+	"directory": true,
+	"popular":   true,
 }
 
 // requesttype holds the data we want to capture
@@ -41,6 +39,20 @@ func Analytics() gin.HandlerFunc {
 		req := c.Request
 		// get request path
 		path := req.URL.Path
+
+		// Trim leading / from path and split
+		params := strings.Split(strings.Trim(path, "/"), "/")
+
+		// Make key from path
+		key := itemKey{}
+		key.generateKey(params...)
+
+		// skip if we're not recording this key
+		if !analyticsKey(params[0]) {
+			c.Next()
+			return
+		}
+
 		// Start timer
 		start := time.Now()
 
@@ -52,72 +64,61 @@ func Analytics() gin.HandlerFunc {
 		// get request latency
 		latency := end.Sub(start)
 
-		// Check if there was an error from the controller
-		_, controllerError := c.Get("controllerError")
-		if controllerError {
-			c.Abort()
-			return
-		}
-
-		// get userdata from session middleware
-		userdata := c.MustGet("userdata").(user.User)
-
-		// get cached state from cache middleware
-		cached := c.MustGet("cached").(bool)
-
-		// get the ib
-		ib := c.Param("ib")
-
 		// fire and forget
 		go func() {
 
-			// Trim leading / from path and split
-			params := strings.Split(strings.Trim(path, "/"), "/")
+			// Check if there was an error from the controller
+			_, controllerError := c.Get("controllerError")
+			if controllerError {
+				c.Abort()
+				return
+			}
 
-			// Make key from path
-			key := itemKey{}
-			key.generateKey(params...)
+			// get userdata from session middleware
+			userdata := c.MustGet("userdata").(user.User)
 
-			if !skipKey(params[0]) {
+			// get cached state from cache middleware
+			cached := c.MustGet("cached").(bool)
 
-				// set our data
-				request := RequestType{
-					Ib:        ib,
-					Ip:        c.ClientIP(),
-					User:      userdata.Id,
-					Path:      path,
-					Status:    c.Writer.Status(),
-					Latency:   latency,
-					ItemKey:   key.Key,
-					ItemValue: key.Value,
-					Cached:    cached,
-				}
+			// get the ib
+			ib := c.Param("ib")
 
-				// Get Database handle
-				dbase, err := db.GetDb()
-				if err != nil {
-					c.Error(err)
-					c.Abort()
-					return
-				}
+			// set our data
+			request := RequestType{
+				Ib:        ib,
+				Ip:        c.ClientIP(),
+				User:      userdata.Id,
+				Path:      path,
+				Status:    c.Writer.Status(),
+				Latency:   latency,
+				ItemKey:   key.Key,
+				ItemValue: key.Value,
+				Cached:    cached,
+			}
 
-				// prepare query for analytics table
-				ps1, err := dbase.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
-				if err != nil {
-					c.Error(err)
-					c.Abort()
-					return
-				}
-				defer ps1.Close()
+			// Get Database handle
+			dbase, err := db.GetDb()
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
 
-				// input data
-				_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
-				if err != nil {
-					c.Error(err)
-					c.Abort()
-					return
-				}
+			// prepare query for analytics table
+			ps1, err := dbase.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
+			}
+			defer ps1.Close()
 
+			// input data
+			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
+			if err != nil {
+				c.Error(err)
+				c.Abort()
+				return
 			}
 
 		}()

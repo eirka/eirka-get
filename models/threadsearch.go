@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
@@ -51,7 +50,11 @@ func (i *ThreadSearchModel) Get() (err error) {
 	var searchquery []string
 
 	for _, term := range terms {
-		searchquery = append(searchquery, strconv.Quote(fmt.Sprintf("%s*", term)))
+		if !regexAllowed.MatchString(term) {
+			continue
+		}
+
+		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
 	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),thread_last_post 
