@@ -48,7 +48,7 @@ func Analytics() gin.HandlerFunc {
 		key.generateKey(params...)
 
 		// skip if we're not recording this key
-		if !analyticsKey(params[0]) {
+		if !analyticsKey[strings.ToLower(params[0])] {
 			c.Next()
 			return
 		}
@@ -144,16 +144,5 @@ func (r *itemKey) generateKey(params ...string) {
 	}
 
 	return
-
-}
-
-// Check if key should be skipped
-func skipKey(key string) bool {
-
-	if analyticsKeyList[strings.ToLower(key)] {
-		return true
-	}
-
-	return false
 
 }
