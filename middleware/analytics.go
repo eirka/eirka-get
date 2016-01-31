@@ -10,7 +10,7 @@ import (
 )
 
 // list of keys record
-var analyticsKeyList = map[string]bool{
+var analyticsKey = map[string]bool{
 	"index":     true,
 	"thread":    true,
 	"tag":       true,
