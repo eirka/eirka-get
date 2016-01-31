@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
@@ -10,8 +10,6 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
 )
-
-var regexAllowed = regexp.MustCompile(`^[^+-@%<>$*]+$`)
 
 // TagSearchModel holds the parameters from the request and also the key for the cache
 type TagSearchModel struct {
@@ -53,9 +51,9 @@ func (i *TagSearchModel) Get() (err error) {
 	var exact, searchquery []string
 
 	for _, term := range terms {
-		if !regexAllowed.MatchString(term) {
-			continue
-		}
+
+		// wrap in quotes
+		term = strconv.Quote(term)
 
 		exact = append(exact, term)
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
