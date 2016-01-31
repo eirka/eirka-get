@@ -55,7 +55,6 @@ func (i *ThreadSearchModel) Get() (err error) {
 		// wrap in quotes
 		term = strconv.Quote(term)
 
-		exact = append(exact, term)
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
