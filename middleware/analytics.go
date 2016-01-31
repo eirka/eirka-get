@@ -11,13 +11,15 @@ import (
 
 // list of keys to skip
 var analyticsKeyList = map[string]bool{
-	"taginfo":     true,
-	"tags":        true,
-	"post":        true,
-	"tagtypes":    true,
-	"imageboards": true,
-	"new":         true,
-	"favorited":   true,
+	"taginfo":      true,
+	"tags":         true,
+	"post":         true,
+	"tagtypes":     true,
+	"imageboards":  true,
+	"new":          true,
+	"favorited":    true,
+	"tagsearch":    true,
+	"threadsearch": true,
 }
 
 // requesttype holds the data we want to capture

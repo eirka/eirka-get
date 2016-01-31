@@ -55,7 +55,7 @@ func (i *TagSearchModel) Get() (err error) {
 		searchquery = append(searchquery, strconv.Quote(fmt.Sprintf("%s*", term)))
 	}
 
-	search := fmt.Sprintf("'%s'", strings.Join(searchquery, " "))
+	search := strings.Join(searchquery, " ")
 
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
     FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
