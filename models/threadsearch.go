@@ -51,11 +51,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 	var searchquery []string
 
 	for _, term := range terms {
-
-		// wrap in quotes
-		term = strconv.Quote(term)
-
-		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
+		searchquery = append(searchquery, strconv.Quote(fmt.Sprintf("%s*", term)))
 	}
 
 	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),thread_last_post 

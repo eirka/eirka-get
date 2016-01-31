@@ -51,12 +51,8 @@ func (i *TagSearchModel) Get() (err error) {
 	var exact, searchquery []string
 
 	for _, term := range terms {
-
-		// wrap in quotes
-		term = strconv.Quote(term)
-
 		exact = append(exact, term)
-		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
+		searchquery = append(searchquery, strconv.Quote(fmt.Sprintf("%s*", term)))
 	}
 
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
@@ -69,7 +65,7 @@ func (i *TagSearchModel) Get() (err error) {
     CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score, 
     MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
     FROM tags WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AND ib_id = ?
-    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), fmt.Sprintf("%s*", strings.Join(searchquery, " ")), i.Ib)
+    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), strings.Join(searchquery, " "), i.Ib)
 	if err != nil {
 		return
 	}
