@@ -55,6 +55,8 @@ func (i *TagSearchModel) Get() (err error) {
 		searchquery = append(searchquery, strconv.Quote(fmt.Sprintf("%s*", term)))
 	}
 
+	search := fmt.Sprintf("'%s'", strings.Join(searchquery, " "))
+
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
     FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
     INNER JOIN images on tagmap.image_id = images.image_id
@@ -65,7 +67,7 @@ func (i *TagSearchModel) Get() (err error) {
     CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score, 
     MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
     FROM tags WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AND ib_id = ?
-    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), strings.Join(searchquery, " "), i.Ib)
+    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), search, search, i.Ib)
 	if err != nil {
 		return
 	}
