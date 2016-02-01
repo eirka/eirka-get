@@ -58,16 +58,17 @@ func (i *ImageboardsModel) Get() (err error) {
 	defer rows.Close()
 
 	boards := []Imageboard{}
+
 	for rows.Next() {
 		board := Imageboard{}
 		err := rows.Scan(&board.Id, &board.Title, &board.Description, &board.Domain, &board.Threads, &board.Posts, &board.Images)
 		if err != nil {
 			return err
 		}
+
 		boards = append(boards, board)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

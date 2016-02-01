@@ -111,8 +111,7 @@ func (i *IndexModel) Get() (err error) {
 		// Append rows to info struct
 		thread_ids = append(thread_ids, thread_id_row)
 	}
-	err = thread_id_rows.Err()
-	if err != nil {
+	if thread_id_rows.Err() != nil {
 		return
 	}
 
@@ -174,10 +173,10 @@ func (i *IndexModel) Get() (err error) {
 			// Append rows to info struct
 			thread.Posts = append(thread.Posts, post)
 		}
-		err = e1.Err()
-		if err != nil {
-			return err
+		if e1.Err() != nil {
+			return
 		}
+
 		threads = append(threads, thread)
 	}
 

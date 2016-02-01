@@ -105,8 +105,7 @@ func (i *ImageModel) Get() (err error) {
 		// Append rows to info struct
 		imageheader.Tags = append(imageheader.Tags, tag)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

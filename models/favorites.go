@@ -94,8 +94,7 @@ func (i *FavoritesModel) Get() (err error) {
 		// Append rows to info struct
 		tagheader.Images = append(tagheader.Images, image)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

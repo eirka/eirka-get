@@ -125,8 +125,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Append rows to info struct
 		thread.Posts = append(thread.Posts, post)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

@@ -92,8 +92,7 @@ func (i *TagsModel) Get() (err error) {
 		// Append rows to info struct
 		tags = append(tags, tag)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

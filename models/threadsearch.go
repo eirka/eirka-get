@@ -89,8 +89,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 		threads = append(threads, thread)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 

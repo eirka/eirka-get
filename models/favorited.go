@@ -58,8 +58,7 @@ func (i *FavoritedModel) Get() (err error) {
 		// Append rows to info struct
 		response.Body = append(response.Body, image)
 	}
-	err = rows.Err()
-	if err != nil {
+	if rows.Err() != nil {
 		return
 	}
 
