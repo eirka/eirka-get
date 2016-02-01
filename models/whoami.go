@@ -1,6 +1,10 @@
 package models
 
 import (
+	"database/sql"
+	"github.com/go-sql-driver/mysql"
+	"time"
+
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 )
@@ -19,10 +23,11 @@ type UserType struct {
 
 // UserInfo holds all the user metadata
 type UserInfo struct {
-	Id    uint   `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Group uint   `json:"group"`
+	Id         uint      `json:"id"`
+	Name       string    `json:"name"`
+	Email      string    `json:"email"`
+	Group      uint      `json:"group"`
+	LastActive time.Time `json:"last_active"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -53,6 +58,22 @@ func (i *UserModel) Get() (err error) {
     WHERE users.user_id = ?`, i.Ib, i.User).Scan(&r.Group, &r.Name, &r.Email)
 	if err != nil {
 		return
+	}
+
+	var lastactive mysql.NullTime
+
+	// get the time the user was last active
+	err = dbase.QueryRow(`SELECT request_time FROM analytics 
+    WHERE user_id = ? AND ib_id = ? ORDER BY analytics_id DESC LIMIT 1`, i.User, i.Ib).Scan(&lastactive)
+	if err != nil && err != sql.ErrNoRows {
+		return
+	}
+
+	// set the last active time
+	if lastactive.Valid {
+		r.LastActive = lastactive.Time
+	} else {
+		r.LastActive = time.Now()
 	}
 
 	response.Body = r
