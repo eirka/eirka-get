@@ -174,7 +174,7 @@ func (i *IndexModel) Get() (err error) {
 			thread.Posts = append(thread.Posts, post)
 		}
 		if e1.Err() != nil {
-			return
+			return e1.Err()
 		}
 
 		threads = append(threads, thread)
