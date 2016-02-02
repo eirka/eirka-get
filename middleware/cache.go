@@ -31,11 +31,8 @@ func Cache() gin.HandlerFunc {
 			return
 		}
 
-		// set the key minus the base
-		key.SetKey(request[1:]...)
-
 		// check the cache
-		result, err := key.Get()
+		result, err := key.SetKey(request[1:]...).Get()
 		if result == nil {
 			// go to the controller if it wasnt found
 			c.Next()
