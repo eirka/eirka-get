@@ -49,8 +49,7 @@ func FavoritesController(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Header().Set("Content-Type", "application/json")
-	c.Writer.Write(output)
+	c.Data(200, "application/json", output)
 
 	return
 

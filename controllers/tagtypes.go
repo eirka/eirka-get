@@ -36,8 +36,7 @@ func TagTypesController(c *gin.Context) {
 	// Hand off data to cache middleware
 	c.Set("data", output)
 
-	c.Writer.Header().Set("Content-Type", "application/json")
-	c.Writer.Write(output)
+	c.Data(200, "application/json", output)
 
 	return
 

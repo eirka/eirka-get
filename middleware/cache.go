@@ -64,8 +64,7 @@ func Cache() gin.HandlerFunc {
 		// if we made it this far then the page was cached
 		c.Set("cached", true)
 
-		c.Header("Content-Type", "application/json")
-		c.Data(result)
+		c.Data(200, "application/json", result)
 		c.Abort()
 
 		return
