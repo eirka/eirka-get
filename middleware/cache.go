@@ -12,6 +12,9 @@ import (
 func Cache() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		// Get parameters from validate middleware
+		params := c.MustGet("params").([]uint)
+
 		// bool for analytics middleware
 		c.Set("cached", false)
 
@@ -22,17 +25,17 @@ func Cache() gin.HandlerFunc {
 		}
 
 		// Trim leading / from path and split
-		params := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
+		request := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
 
 		// get the keyname
-		key, ok := redis.RedisKeyIndex[params[0]]
+		key, ok := redis.RedisKeyIndex[request[0]]
 		if !ok {
 			c.Next()
 			return
 		}
 
 		// set the key minus the base
-		key.SetKey(params[1:]...)
+		key.SetKey(request[1:]...)
 
 		// check the cache
 		result, err := key.Get()
