@@ -55,8 +55,8 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
-			// unlock shared mutex
-			redis.RedisCache.Unlock()
+			// unlock the shared mutex
+			redis.RedisCache.Unlock(params[0])
 
 			return
 
