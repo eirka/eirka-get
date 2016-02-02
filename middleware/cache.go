@@ -25,8 +25,8 @@ func Cache() gin.HandlerFunc {
 		request := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
 
 		// get the keyname
-		key, ok := redis.RedisKeyIndex[request[0]]
-		if !ok {
+		key := redis.NewKey(request[0])
+		if key == nil {
 			c.Next()
 			return
 		}
