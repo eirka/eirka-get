@@ -64,10 +64,11 @@ func Cache() gin.HandlerFunc {
 		// if we made it this far then the page was cached
 		c.Set("cached", true)
 
-		c.Writer.Header().Set("Content-Type", "application/json")
-		c.Writer.Write(result)
+		c.Header("Content-Type", "application/json")
+		c.Data(result)
 		c.Abort()
-		return
-	}
 
+		return
+
+	}
 }
