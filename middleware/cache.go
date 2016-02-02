@@ -12,9 +12,6 @@ import (
 func Cache() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// Get parameters from validate middleware
-		params := c.MustGet("params").([]uint)
-
 		// bool for analytics middleware
 		c.Set("cached", false)
 
@@ -57,9 +54,6 @@ func Cache() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-
-			// unlock the shared mutex
-			redis.RedisCache.Unlock(params[0])
 
 			return
 
