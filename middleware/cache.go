@@ -55,6 +55,8 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
+			return
+
 		}
 		if err != nil {
 			c.Error(err)
