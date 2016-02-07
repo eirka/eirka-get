@@ -47,13 +47,11 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
+	terms = formatQuery(terms)
+
 	var searchquery []string
 
 	for _, term := range terms {
-		if !regexAllowed.MatchString(term) {
-			continue
-		}
-
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 

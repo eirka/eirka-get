@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"regexp"
+
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
@@ -10,8 +10,6 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
 )
-
-var regexAllowed = regexp.MustCompile(`^[^+()-@%<>$*]+$`)
 
 // TagSearchModel holds the parameters from the request and also the key for the cache
 type TagSearchModel struct {
@@ -23,6 +21,16 @@ type TagSearchModel struct {
 // TagSearchType is the top level of the JSON response
 type TagSearchType struct {
 	Body []Tags `json:"tagsearch"`
+}
+
+// remove bad characters
+func formatQuery(str string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(`"'+-@><()~*`, r) < 0 {
+			return r
+		}
+		return -1
+	}, str)
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -50,13 +58,11 @@ func (i *TagSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
+	terms = formatQuery(terms)
+
 	var exact, searchquery []string
 
 	for _, term := range terms {
-		if !regexAllowed.MatchString(term) {
-			continue
-		}
-
 		exact = append(exact, term)
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
