@@ -47,11 +47,12 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	terms = formatQuery(terms)
-
 	var searchquery []string
 
 	for _, term := range terms {
+		// get rid of bad cahracters for mysql in boolean mode
+		term = formatQuery(term)
+
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
