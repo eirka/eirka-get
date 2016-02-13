@@ -75,7 +75,7 @@ func (i *TagsModel) Get() (err error) {
     INNER JOIN threads on posts.thread_id = threads.thread_id 
     WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
     tag_id,tag_name,tagtype_id FROM tags WHERE ib_id = ?
-    GROUP by tag_id ORDER BY count DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
+    GROUP by tag_id ORDER BY count DESC, tag_id ASC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
