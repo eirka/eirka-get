@@ -104,17 +104,9 @@ func Analytics() gin.HandlerFunc {
 				return
 			}
 
-			// prepare query for analytics table
-			ps1, err := dbase.Prepare("INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())")
-			if err != nil {
-				c.Error(err)
-				c.Abort()
-				return
-			}
-			defer ps1.Close()
-
 			// input data
-			_, err = ps1.Exec(request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
+			_, err = dbase.Exec(`INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())`,
+				request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
 			if err != nil {
 				c.Error(err)
 				c.Abort()
