@@ -90,7 +90,7 @@ func (i *IndexModel) Get() (err error) {
 	// Get all thread ids with limit
 	thread_id_rows, err := dbase.Query(`SELECT thread_id,thread_title,thread_closed,thread_sticky,posts,images FROM
     (SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) as posts,count(image_id) as images,
-    (select max(post_time) from posts where thread_id=threads.thread_id) as thread_last_post
+    (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post
     FROM threads
     INNER JOIN posts on threads.thread_id = posts.thread_id
     LEFT JOIN images on posts.post_id = images.post_id

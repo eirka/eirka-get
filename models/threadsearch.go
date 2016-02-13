@@ -57,7 +57,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 	}
 
 	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),
-    (select max(post_time) from posts where thread_id=threads.thread_id) as thread_last_post 
+    (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post 
     FROM threads
     LEFT JOIN posts on threads.thread_id = posts.thread_id
     LEFT JOIN images on images.post_id = posts.post_id
