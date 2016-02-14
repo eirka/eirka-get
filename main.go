@@ -11,7 +11,7 @@ import (
 	"github.com/eirka/eirka-libs/cors"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
-	"github.com/eirka/eirka-libs/stats"
+	"github.com/eirka/eirka-libs/status"
 	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
 
@@ -67,7 +67,7 @@ func main() {
 	// validate all route parameters
 	r.Use(validate.ValidateParams())
 
-	r.GET("/status", stats.StatusController)
+	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
 
 	// public cached pages
