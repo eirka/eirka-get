@@ -73,8 +73,8 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(user.Auth(false))
-	public.Use(m.Cache())
 	public.Use(m.Analytics())
+	public.Use(m.Cache())
 
 	public.GET("/index/:ib/:page", c.IndexController)
 	public.GET("/thread/:ib/:thread/:page", c.ThreadController)
