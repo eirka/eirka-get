@@ -64,43 +64,38 @@ func Analytics() gin.HandlerFunc {
 		// get request latency
 		latency := end.Sub(start)
 
+		// Check if there was an error from the controller
+		_, controllerError := c.Get("controllerError")
+		if controllerError {
+			c.Abort()
+			return
+		}
+
+		// get a copy of the context
+		context := c.Copy()
+
 		// fire and forget
 		go func() {
 
-			// Check if there was an error from the controller
-			_, controllerError := c.Get("controllerError")
-			if controllerError {
-				c.Abort()
-				return
-			}
-
 			// get userdata from session middleware
-			userdata := c.MustGet("userdata").(user.User)
-
-			// get cached state from cache middleware
-			cached := c.MustGet("cached").(bool)
-
-			// get the ib
-			ib := c.Param("ib")
+			userdata := context.MustGet("userdata").(user.User)
 
 			// set our data
 			request := RequestType{
-				Ib:        ib,
-				Ip:        c.ClientIP(),
+				Ib:        context.Param("ib"),
+				Ip:        context.ClientIP(),
 				User:      userdata.Id,
 				Path:      path,
-				Status:    c.Writer.Status(),
+				Status:    context.Writer.Status(),
 				Latency:   latency,
 				ItemKey:   key.Key,
 				ItemValue: key.Value,
-				Cached:    cached,
+				Cached:    context.MustGet("cached").(bool),
 			}
 
 			// Get Database handle
 			dbase, err := db.GetDb()
 			if err != nil {
-				c.Error(err)
-				c.Abort()
 				return
 			}
 
@@ -108,8 +103,6 @@ func Analytics() gin.HandlerFunc {
 			_, err = dbase.Exec(`INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())`,
 				request.Ib, request.User, request.Ip, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
 			if err != nil {
-				c.Error(err)
-				c.Abort()
 				return
 			}
 
