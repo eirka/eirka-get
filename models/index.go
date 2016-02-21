@@ -121,14 +121,14 @@ func (i *IndexModel) Get() (err error) {
 	ps1, err := dbase.Prepare(`SELECT * FROM
     (SELECT posts.post_id,post_num,user_name,users.user_id,
     COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
-    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
+    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM posts
     LEFT JOIN images ON (posts.post_id = images.post_id)
     INNER JOIN users ON (posts.user_id = users.user_id)
     INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
     WHERE posts.thread_id = ? AND post_deleted != 1
-    ORDER BY post_num DESC LIMIT ?) AS p
-    ORDER BY post_num ASC`)
+    ORDER BY post_id DESC LIMIT ?) AS p
+    ORDER BY post_id ASC`)
 	if err != nil {
 		return
 	}
