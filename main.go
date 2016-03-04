@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
+	"github.com/techjanitor/gin-trace"
 	"net/http"
 	"strings"
 
@@ -62,6 +63,8 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// trace the requests
+	r.Use(trace.Trace())
 	// add CORS headers
 	r.Use(cors.CORS())
 	// validate all route parameters
