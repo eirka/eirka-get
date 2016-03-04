@@ -74,7 +74,7 @@ func main() {
 	r.NoRoute(c.ErrorController)
 
 	// trace middleware handlers
-	r.GET("/debug/requests", trace.RequestsController)
+	r.GET("/debug/requests", trace.TraceController)
 
 	// public cached pages
 	public := r.Group("/")
