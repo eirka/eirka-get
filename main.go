@@ -73,6 +73,10 @@ func main() {
 	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
 
+	// trace middleware handlers
+	r.GET("/debug/requests", trace.RequestsController)
+	r.GET("/debug/events", trace.EventsController)
+
 	// public cached pages
 	public := r.Group("/")
 	public.Use(user.Auth(false))
