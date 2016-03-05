@@ -63,8 +63,6 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	// trace the requests
-	r.Use(trace.Trace())
 	// add CORS headers
 	r.Use(cors.CORS())
 	// validate all route parameters
@@ -72,9 +70,6 @@ func main() {
 
 	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
-
-	// trace middleware handlers
-	r.GET("/debug/requests", trace.TraceController)
 
 	// public cached pages
 	public := r.Group("/")
