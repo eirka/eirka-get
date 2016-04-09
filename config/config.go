@@ -6,8 +6,10 @@ import (
 	"os"
 )
 
+// Settings holds the current config options
 var Settings *Config
 
+// Config represents the possible configurable parameters
 type Config struct {
 	Get struct {
 		// Settings for daemon

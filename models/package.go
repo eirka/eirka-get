@@ -1,2 +1,2 @@
-// Provides models for controllers
+// Package models provides models for controllers
 package models

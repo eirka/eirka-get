@@ -1,2 +1,2 @@
-// Provides middleware for Gin
+// Package middleware provides middleware for Gin
 package middleware

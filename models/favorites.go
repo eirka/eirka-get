@@ -16,12 +16,12 @@ type FavoritesModel struct {
 	Result FavoritesType
 }
 
-// IndexType is the top level of the JSON response
+// FavoritesType is the top level of the JSON response
 type FavoritesType struct {
 	Body u.PagedResponse `json:"favorites"`
 }
 
-// Header for tag page
+// FavoritesHeader is the header for favorites page
 type FavoritesHeader struct {
 	Images []OnlyImage `json:"images,omitempty"`
 }
@@ -53,10 +53,10 @@ func (i *FavoritesModel) Get() (err error) {
 	}
 
 	// Get total favorites count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT count(*) FROM favorites 
+	err = dbase.QueryRow(`SELECT count(*) FROM favorites
 	INNER JOIN images on favorites.image_id = images.image_id
-	INNER JOIN posts on images.post_id = posts.post_id 
-	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	INNER JOIN posts on images.post_id = posts.post_id
+	INNER JOIN threads on posts.thread_id = threads.thread_id
 	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.User, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
@@ -71,11 +71,11 @@ func (i *FavoritesModel) Get() (err error) {
 	}
 
 	// get images in users favorites with limits
-	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
 	FROM favorites
 	INNER JOIN images on favorites.image_id = images.image_id
-	INNER JOIN posts on images.post_id = posts.post_id 
-	INNER JOIN threads on posts.thread_id = threads.thread_id 
+	INNER JOIN posts on images.post_id = posts.post_id
+	INNER JOIN threads on posts.thread_id = threads.thread_id
 	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
 	ORDER BY favorite_id DESC LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
@@ -87,7 +87,7 @@ func (i *FavoritesModel) Get() (err error) {
 		// Initialize posts struct
 		image := OnlyImage{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}

@@ -6,7 +6,7 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
-// Handles error messages for wrong routes
+// ErrorController handles error messages for wrong routes
 func ErrorController(c *gin.Context) {
 
 	c.JSON(e.ErrorMessage(e.ErrNotFound))

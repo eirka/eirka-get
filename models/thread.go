@@ -19,30 +19,30 @@ type ThreadModel struct {
 	Result ThreadType
 }
 
-// IndexType is the top level of the JSON response
+// ThreadType is the top level of the JSON response
 type ThreadType struct {
 	Body u.PagedResponse `json:"thread"`
 }
 
-// Info header for thread view
+// ThreadInfo header for thread view
 type ThreadInfo struct {
-	Id     uint          `json:"id"`
+	ID     uint          `json:"id"`
 	Title  string        `json:"title"`
 	Closed bool          `json:"closed"`
 	Sticky bool          `json:"sticky"`
 	Posts  []ThreadPosts `json:"posts"`
 }
 
-// Thread Posts
+// ThreadPosts holds the posts for a thread
 type ThreadPosts struct {
-	Id          uint       `json:"id"`
+	ID          uint       `json:"id"`
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
-	Uid         uint       `json:"uid"`
+	UID         uint       `json:"uid"`
 	Group       uint       `json:"group"`
 	Time        *time.Time `json:"time"`
 	Text        *string    `json:"comment"`
-	ImgId       *uint      `json:"img_id,omitempty"`
+	ImageID     *uint      `json:"img_id,omitempty"`
 	File        *string    `json:"filename,omitempty"`
 	Thumb       *string    `json:"thumbnail,omitempty"`
 	ThumbHeight *uint      `json:"tn_height,omitempty"`
@@ -76,11 +76,11 @@ func (i *ThreadModel) Get() (err error) {
 	}
 
 	// Get total thread count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) 
-    FROM threads 
+	err = dbase.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id)
+    FROM threads
     INNER JOIN posts on threads.thread_id = posts.thread_id
     WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
+    GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -118,7 +118,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Initialize posts struct
 		post := ThreadPosts{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+		err := rows.Scan(&post.ID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
 			return err
 		}

@@ -18,22 +18,22 @@ type TagModel struct {
 	Result TagType
 }
 
-// IndexType is the top level of the JSON response
+// TagType is the top level of the JSON response
 type TagType struct {
 	Body u.PagedResponse `json:"tag"`
 }
 
-// Header for tag page
+// TagHeader is the header for the tag page
 type TagHeader struct {
-	Id     uint        `json:"id"`
+	ID     uint        `json:"id"`
 	Tag    *string     `json:"tag"`
 	Type   *uint       `json:"type"`
 	Images []OnlyImage `json:"images,omitempty"`
 }
 
-// Image struct for tag page
+// OnlyImage struct for tag page
 type OnlyImage struct {
-	Id          uint    `json:"id"`
+	ID          uint    `json:"id"`
 	File        *string `json:"filename"`
 	Thumb       *string `json:"thumbnail"`
 	ThumbHeight *uint   `json:"tn_height"`
@@ -60,7 +60,7 @@ func (i *TagModel) Get() (err error) {
 	// Initialize struct for tag info
 	tagheader := TagHeader{}
 
-	tagheader.Id = i.Tag
+	tagheader.ID = i.Tag
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -69,11 +69,11 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(tagmap.image_id) FROM tags 
-    INNER JOIN tagmap on tags.tag_id = tagmap.tag_id 
+	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(tagmap.image_id) FROM tags
+    INNER JOIN tagmap on tags.tag_id = tagmap.tag_id
     INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE tags.tag_id = ? AND tags.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     HAVING tag_name IS NOT NULL`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
 	if err == sql.ErrNoRows {
@@ -96,11 +96,11 @@ func (i *TagModel) Get() (err error) {
 		paged.Limit = 0
 	}
 
-	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width 
+	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
     FROM tagmap
     INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
     ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
 	if err != nil {
@@ -112,7 +112,7 @@ func (i *TagModel) Get() (err error) {
 		// Initialize posts struct
 		image := OnlyImage{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}

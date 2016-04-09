@@ -2,8 +2,9 @@ package models
 
 import (
 	"database/sql"
-	"github.com/go-sql-driver/mysql"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -23,7 +24,7 @@ type UserType struct {
 
 // UserInfo holds all the user metadata
 type UserInfo struct {
-	Id         uint      `json:"id"`
+	ID         uint      `json:"id"`
 	Name       string    `json:"name"`
 	Email      string    `json:"email"`
 	Group      uint      `json:"group"`
@@ -43,7 +44,7 @@ func (i *UserModel) Get() (err error) {
 	r := UserInfo{}
 
 	// set our user id
-	r.Id = i.User
+	r.ID = i.User
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -63,7 +64,7 @@ func (i *UserModel) Get() (err error) {
 	var lastactive mysql.NullTime
 
 	// get the time the user was last active
-	err = dbase.QueryRow(`SELECT request_time FROM analytics 
+	err = dbase.QueryRow(`SELECT request_time FROM analytics
     WHERE user_id = ? AND ib_id = ? ORDER BY analytics_id DESC LIMIT 1`, i.User, i.Ib).Scan(&lastactive)
 	// we dont care if there were no rows
 	if err == sql.ErrNoRows {

@@ -19,7 +19,7 @@ type IndexModel struct {
 
 // ThreadIds holds all the thread ids for the loop that gets the posts
 type ThreadIds struct {
-	Id     uint
+	ID     uint
 	Title  string
 	Closed bool
 	Sticky bool
@@ -34,7 +34,7 @@ type IndexType struct {
 
 // IndexThreadHeader holds the information for the threads
 type IndexThreadHeader struct {
-	Id     uint          `json:"id"`
+	ID     uint          `json:"id"`
 	Title  string        `json:"title"`
 	Closed bool          `json:"closed"`
 	Sticky bool          `json:"sticky"`
@@ -62,7 +62,7 @@ func (i *IndexModel) Get() (err error) {
 	paged.PerPage = i.Threads
 
 	// Initialize struct for all thread ids
-	thread_ids := []ThreadIds{}
+	threadIDs := []ThreadIds{}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -88,7 +88,7 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// Get all thread ids with limit
-	thread_id_rows, err := dbase.Query(`SELECT thread_id,thread_title,thread_closed,thread_sticky,posts,images FROM
+	threadIDRows, err := dbase.Query(`SELECT thread_id,thread_title,thread_closed,thread_sticky,posts,images FROM
     (SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) as posts,count(image_id) as images,
     (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post
     FROM threads
@@ -100,20 +100,20 @@ func (i *IndexModel) Get() (err error) {
 	if err != nil {
 		return
 	}
-	defer thread_id_rows.Close()
+	defer threadIDRows.Close()
 
-	for thread_id_rows.Next() {
+	for threadIDRows.Next() {
 		// Initialize posts struct
-		thread_id_row := ThreadIds{}
+		threadIDRow := ThreadIds{}
 		// Scan rows and place column into struct
-		err := thread_id_rows.Scan(&thread_id_row.Id, &thread_id_row.Title, &thread_id_row.Closed, &thread_id_row.Sticky, &thread_id_row.Total, &thread_id_row.Images)
+		err = threadIDRows.Scan(&threadIDRow.ID, &threadIDRow.Title, &threadIDRow.Closed, &threadIDRow.Sticky, &threadIDRow.Total, &threadIDRow.Images)
 		if err != nil {
 			return err
 		}
 		// Append rows to info struct
-		thread_ids = append(thread_ids, thread_id_row)
+		threadIDs = append(threadIDs, threadIDRow)
 	}
-	if thread_id_rows.Err() != nil {
+	if threadIDRows.Err() != nil {
 		return
 	}
 
@@ -137,8 +137,8 @@ func (i *IndexModel) Get() (err error) {
 	// Initialize slice for threads
 	threads := []IndexThreadHeader{}
 
-	// Loop over the values of thread_ids
-	for _, id := range thread_ids {
+	// Loop over the values of threadIDs
+	for _, id := range threadIDs {
 
 		// Get last page from thread
 		postpages := u.PagedResponse{}
@@ -149,7 +149,7 @@ func (i *IndexModel) Get() (err error) {
 
 		// Set thread fields
 		thread := IndexThreadHeader{
-			Id:     id.Id,
+			ID:     id.ID,
 			Title:  id.Title,
 			Closed: id.Closed,
 			Sticky: id.Sticky,
@@ -158,7 +158,7 @@ func (i *IndexModel) Get() (err error) {
 			Pages:  postpages.Pages,
 		}
 
-		e1, err := ps1.Query(i.Ib, id.Id, i.Posts)
+		e1, err := ps1.Query(i.Ib, id.ID, i.Posts)
 		if err != nil {
 			return err
 		}
@@ -168,7 +168,7 @@ func (i *IndexModel) Get() (err error) {
 			// Initialize posts struct
 			post := ThreadPosts{}
 			// Scan rows and place column into struct
-			err := e1.Scan(&post.Id, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+			err := e1.Scan(&post.ID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 			if err != nil {
 				return err
 			}

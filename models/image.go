@@ -10,21 +10,21 @@ import (
 // ImageModel holds the parameters from the request and also the key for the cache
 type ImageModel struct {
 	Ib     uint
-	Id     uint
+	ID     uint
 	Result ImageType
 }
 
-// IndexType is the top level of the JSON response
+// ImageType is the top level of the JSON response
 type ImageType struct {
 	Body ImageHeader `json:"image"`
 }
 
-// Header for image page
+// ImageHeader is the header for image page
 type ImageHeader struct {
-	Id      uint        `json:"id"`
+	ID      uint        `json:"id"`
 	Thread  uint        `json:"thread"`
 	PostNum uint        `json:"post_num"`
-	PostId  uint        `json:"post_id"`
+	PostID  uint        `json:"post_id"`
 	Prev    *uint       `json:"prev,omitempty"`
 	Next    *uint       `json:"next,omitempty"`
 	Width   uint        `json:"width"`
@@ -33,9 +33,9 @@ type ImageHeader struct {
 	Tags    []ImageTags `json:"tags,omitempty"`
 }
 
-// Tags for image page
+// ImageTags holds the tags for an image
 type ImageTags struct {
-	Id   uint   `json:"id"`
+	ID   uint   `json:"id"`
 	Tag  string `json:"tag"`
 	Type string `json:"type"`
 }
@@ -43,7 +43,7 @@ type ImageTags struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *ImageModel) Get() (err error) {
 
-	if i.Ib == 0 || i.Id == 0 {
+	if i.Ib == 0 || i.ID == 0 {
 		return e.ErrNotFound
 	}
 
@@ -59,11 +59,11 @@ func (i *ImageModel) Get() (err error) {
 	imageheader := ImageHeader{}
 
 	// get image information
-	err = dbase.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width 
+	err = dbase.QueryRow(`SELECT image_id,posts.thread_id,posts.post_num,posts.post_id,image_file,image_orig_height,image_orig_width
 	FROM images
     INNER JOIN posts on images.post_id = posts.post_id
     INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE image_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Id, i.Ib).Scan(&imageheader.Id, &imageheader.Thread, &imageheader.PostNum, &imageheader.PostId, &imageheader.File, &imageheader.Height, &imageheader.Width)
+    WHERE image_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.ID, i.Ib).Scan(&imageheader.ID, &imageheader.Thread, &imageheader.PostNum, &imageheader.PostID, &imageheader.File, &imageheader.Height, &imageheader.Width)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -71,24 +71,24 @@ func (i *ImageModel) Get() (err error) {
 	}
 
 	// Get the next and previous image id
-	err = dbase.QueryRow(`SELECT (SELECT image_id 
-    FROM images 
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+	err = dbase.QueryRow(`SELECT (SELECT image_id
+    FROM images
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id < ?
     ORDER BY images.post_id DESC LIMIT 1) as previous,
-    (SELECT image_id 
-    FROM images 
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    (SELECT image_id
+    FROM images
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE threads.thread_id = ? AND post_deleted != 1 AND image_id > ?
-    ORDER BY images.post_id ASC LIMIT 1) as next`, imageheader.Thread, i.Id, imageheader.Thread, i.Id).Scan(&imageheader.Prev, &imageheader.Next)
+    ORDER BY images.post_id ASC LIMIT 1) as next`, imageheader.Thread, i.ID, imageheader.Thread, i.ID).Scan(&imageheader.Prev, &imageheader.Next)
 	if err != nil {
 		return
 	}
 
 	// Get tags for image
-	rows, err := dbase.Query("SELECT tags.tag_id,tagtype_id,tag_name from tagmap LEFT JOIN tags on tagmap.tag_id = tags.tag_id WHERE image_id = ?", i.Id)
+	rows, err := dbase.Query("SELECT tags.tag_id,tagtype_id,tag_name from tagmap LEFT JOIN tags on tagmap.tag_id = tags.tag_id WHERE image_id = ?", i.ID)
 	if err != nil {
 		return
 	}
@@ -98,7 +98,7 @@ func (i *ImageModel) Get() (err error) {
 		// Initialize posts struct
 		tag := ImageTags{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&tag.Id, &tag.Type, &tag.Tag)
+		err := rows.Scan(&tag.ID, &tag.Type, &tag.Tag)
 		if err != nil {
 			return err
 		}

@@ -36,8 +36,8 @@ func (i *FavoritedModel) Get() (err error) {
     (SELECT favorites.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
     FROM favorites
     INNER JOIN images ON favorites.image_id = images.image_id
- 	INNER JOIN posts on images.post_id = posts.post_id 
-	INNER JOIN threads on posts.thread_id = threads.thread_id 
+ 	INNER JOIN posts on images.post_id = posts.post_id
+	INNER JOIN threads on posts.thread_id = threads.thread_id
 	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
     GROUP BY image_id
     ORDER BY favorites DESC
@@ -51,7 +51,7 @@ func (i *FavoritedModel) Get() (err error) {
 		// Initialize posts struct
 		image := OnlyImage{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&image.Id, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
+		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
 			return err
 		}

@@ -1,10 +1,11 @@
 package models
 
 import (
+	"time"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
-	"time"
 
 	u "github.com/eirka/eirka-get/utils"
 )
@@ -16,14 +17,14 @@ type DirectoryModel struct {
 	Result DirectoryType
 }
 
-// IndexType is the top level of the JSON response
+// DirectoryType is the top level of the JSON response
 type DirectoryType struct {
 	Body u.PagedResponse `json:"directory"`
 }
 
-// Thread directory
+// Directory holds the thread entries for the directory page
 type Directory struct {
-	Id     uint       `json:"id"`
+	ID     uint       `json:"id"`
 	Title  string     `json:"title"`
 	Closed bool       `json:"closed"`
 	Sticky bool       `json:"sticky"`
@@ -87,7 +88,7 @@ func (i *DirectoryModel) Get() (err error) {
 	threads := []Directory{}
 	for rows.Next() {
 		thread := Directory{}
-		err := rows.Scan(&thread.Id, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
+		err = rows.Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
 		if err != nil {
 			return err
 		}

@@ -1,2 +1,2 @@
-// Provides configuration for functions
+// Package config provides configuration for functions
 package config

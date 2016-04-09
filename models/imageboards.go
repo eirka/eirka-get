@@ -17,7 +17,7 @@ type ImageboardsType struct {
 
 // Imageboard has information and statistics about the boards on a pram
 type Imageboard struct {
-	Id          uint   `json:"id"`
+	ID          uint   `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Domain      string `json:"url"`
@@ -38,7 +38,7 @@ func (i *ImageboardsModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT ib_id, ib_title, ib_description, ib_domain, 
+	rows, err := dbase.Query(`SELECT ib_id, ib_title, ib_description, ib_domain,
 	(SELECT COUNT(thread_id)
 	FROM threads
 	WHERE threads.ib_id=imageboards.ib_id) AS thread_count,
@@ -61,7 +61,7 @@ func (i *ImageboardsModel) Get() (err error) {
 
 	for rows.Next() {
 		board := Imageboard{}
-		err := rows.Scan(&board.Id, &board.Title, &board.Description, &board.Domain, &board.Threads, &board.Posts, &board.Images)
+		err := rows.Scan(&board.ID, &board.Title, &board.Description, &board.Domain, &board.Threads, &board.Posts, &board.Images)
 		if err != nil {
 			return err
 		}

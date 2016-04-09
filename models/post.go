@@ -12,25 +12,26 @@ import (
 type PostModel struct {
 	Ib     uint
 	Thread uint
-	Id     uint
+	ID     uint
 	Result PostType
 }
 
-// IndexType is the top level of the JSON response
+// PostType is the top level of the JSON response
 type PostType struct {
 	Body Post `json:"post"`
 }
 
+// Post holds the post information
 type Post struct {
-	ThreadId    uint       `json:"thread_id"`
-	PostId      uint       `json:"post_id"`
+	ThreadID    uint       `json:"thread_id"`
+	PostID      uint       `json:"post_id"`
 	Num         uint       `json:"num"`
 	Name        string     `json:"name"`
-	Uid         uint       `json:"uid"`
+	UID         uint       `json:"uid"`
 	Group       uint       `json:"group"`
 	Time        *time.Time `json:"time"`
 	Text        *string    `json:"comment"`
-	ImgId       *uint      `json:"img_id,omitempty"`
+	ImageID     *uint      `json:"img_id,omitempty"`
 	File        *string    `json:"filename,omitempty"`
 	Thumb       *string    `json:"thumbnail,omitempty"`
 	ThumbHeight *uint      `json:"tn_height,omitempty"`
@@ -40,7 +41,7 @@ type Post struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *PostModel) Get() (err error) {
 
-	if i.Ib == 0 || i.Thread == 0 || i.Id == 0 {
+	if i.Ib == 0 || i.Thread == 0 || i.ID == 0 {
 		return e.ErrNotFound
 	}
 
@@ -63,7 +64,7 @@ func (i *PostModel) Get() (err error) {
     INNER JOIN threads on posts.thread_id = threads.thread_id
     INNER JOIN users on posts.user_id = users.user_id
     INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-    WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Ib, i.Id, i.Thread, i.Ib).Scan(&post.ThreadId, &post.PostId, &post.Num, &post.Name, &post.Uid, &post.Group, &post.Time, &post.Text, &post.ImgId, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+    WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Ib, i.ID, i.Thread, i.Ib).Scan(&post.ThreadID, &post.PostID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

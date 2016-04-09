@@ -8,11 +8,11 @@ import (
 // FavoriteModel holds the parameters from the request and also the key for the cache
 type FavoriteModel struct {
 	User   uint
-	Id     uint
+	ID     uint
 	Result FavoriteType
 }
 
-// IndexType is the top level of the JSON response
+// FavoriteType is the top level of the JSON response
 type FavoriteType struct {
 	Starred bool `json:"starred"`
 }
@@ -20,7 +20,7 @@ type FavoriteType struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *FavoriteModel) Get() (err error) {
 
-	if i.User == 0 || i.Id == 0 {
+	if i.User == 0 || i.ID == 0 {
 		return e.ErrNotFound
 	}
 
@@ -34,7 +34,7 @@ func (i *FavoriteModel) Get() (err error) {
 	}
 
 	// see if a user has starred an image
-	err = dbase.QueryRow("select count(*) from favorites where user_id = ? AND image_id = ? LIMIT 1", i.User, i.Id).Scan(&response.Starred)
+	err = dbase.QueryRow("select count(*) from favorites where user_id = ? AND image_id = ? LIMIT 1", i.User, i.ID).Scan(&response.Starred)
 	if err != nil {
 		return
 	}

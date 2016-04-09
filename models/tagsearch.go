@@ -70,11 +70,11 @@ func (i *TagSearchModel) Get() (err error) {
 	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
     FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
     INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
     tag_id,tag_name,tagtype_id,
-    CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score, 
+    CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score,
     MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
     FROM tags WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AND ib_id = ?
     GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), fmt.Sprintf("%s*", strings.Join(searchquery, " ")), i.Ib)
@@ -86,7 +86,7 @@ func (i *TagSearchModel) Get() (err error) {
 		// Initialize posts struct
 		tag := Tags{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&tag.Total, &tag.Id, &tag.Tag, &tag.Type)
+		err := rows.Scan(&tag.Total, &tag.ID, &tag.Tag, &tag.Type)
 		if err != nil {
 			return err
 		}

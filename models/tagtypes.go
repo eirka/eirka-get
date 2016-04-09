@@ -14,9 +14,9 @@ type TagTypesType struct {
 	Body []TagTypes `json:"tagtypes"`
 }
 
-// get tagtypes struct
+// TagTypes truct
 type TagTypes struct {
-	Id   uint   `json:"id"`
+	ID   uint   `json:"id"`
 	Type string `json:"type"`
 }
 
@@ -44,7 +44,7 @@ func (i *TagTypesModel) Get() (err error) {
 		// Initialize posts struct
 		tag := TagTypes{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&tag.Id, &tag.Type)
+		err := rows.Scan(&tag.ID, &tag.Type)
 		if err != nil {
 			return err
 		}

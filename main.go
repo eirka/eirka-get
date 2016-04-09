@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/facebookgo/grace/gracehttp"
-	"github.com/gin-gonic/gin"
-	"github.com/techjanitor/gin-trace"
 	"net/http"
 	"strings"
+
+	"github.com/facebookgo/grace/gracehttp"
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"

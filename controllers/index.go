@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"

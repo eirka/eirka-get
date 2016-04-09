@@ -20,9 +20,9 @@ type TagsType struct {
 	Body u.PagedResponse `json:"tags"`
 }
 
-// Taglist struct
+// Tags struct
 type Tags struct {
-	Id    uint   `json:"id"`
+	ID    uint   `json:"id"`
 	Tag   string `json:"tag"`
 	Total uint   `json:"total"`
 	Type  uint   `json:"type"`
@@ -71,8 +71,8 @@ func (i *TagsModel) Get() (err error) {
 	// get image counts from tagmap
 	rows, err := dbase.Query(`SELECT (SELECT count(tagmap.image_id) FROM tagmap
     INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id 
-    INNER JOIN threads on posts.thread_id = threads.thread_id 
+    INNER JOIN posts on images.post_id = posts.post_id
+    INNER JOIN threads on posts.thread_id = threads.thread_id
     WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
     tag_id,tag_name,tagtype_id FROM tags WHERE ib_id = ?
     GROUP by tag_id ORDER BY count DESC, tag_id ASC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
@@ -84,7 +84,7 @@ func (i *TagsModel) Get() (err error) {
 		// Initialize posts struct
 		tag := Tags{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&tag.Total, &tag.Id, &tag.Tag, &tag.Type)
+		err := rows.Scan(&tag.Total, &tag.ID, &tag.Tag, &tag.Type)
 		if err != nil {
 			return err
 		}
