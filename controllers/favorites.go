@@ -22,7 +22,7 @@ func FavoritesController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.FavoritesModel{
-		User: userdata.Id,
+		User: userdata.ID,
 		Ib:   params[0],
 		Page: params[1],
 	}

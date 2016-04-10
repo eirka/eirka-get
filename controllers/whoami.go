@@ -22,7 +22,7 @@ func UserController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.UserModel{
-		User: userdata.Id,
+		User: userdata.ID,
 		Ib:   params[0],
 	}
 

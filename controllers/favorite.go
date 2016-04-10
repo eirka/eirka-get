@@ -22,8 +22,8 @@ func FavoriteController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.FavoriteModel{
-		User: userdata.Id,
-		Id:   params[0],
+		User: userdata.ID,
+		ID:   params[0],
 	}
 
 	// Get the model which outputs JSON

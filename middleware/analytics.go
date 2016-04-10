@@ -85,7 +85,7 @@ func Analytics() gin.HandlerFunc {
 			request := RequestType{
 				Ib:        context.Param("ib"),
 				IP:        context.ClientIP(),
-				User:      userdata.Id,
+				User:      userdata.ID,
 				Path:      path,
 				Status:    context.Writer.Status(),
 				Latency:   latency,

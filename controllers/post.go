@@ -20,7 +20,7 @@ func PostController(c *gin.Context) {
 	m := &models.PostModel{
 		Ib:     params[0],
 		Thread: params[1],
-		Id:     params[2],
+		ID:     params[2],
 	}
 
 	// Get the model which outputs JSON
