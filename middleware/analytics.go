@@ -21,8 +21,7 @@ var analyticsKey = map[string]bool{
 	"popular":   true,
 }
 
-// RequestType holds the data we want to capture
-type RequestType struct {
+type requestType struct {
 	Ib        string
 	IP        string
 	User      uint
@@ -38,18 +37,14 @@ type RequestType struct {
 func Analytics() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
-		// get request path
-		path := req.URL.Path
-
-		// Trim leading / from path and split
-		params := strings.Split(strings.Trim(path, "/"), "/")
+		// get userdata from session middleware
+		userdata := c.MustGet("userdata").(user.User)
 
 		// Make key from path
-		key := itemKey{}
-		key.generateKey(params...)
+		key := generateKey(req.URL.Path)
 
 		// skip if we're not recording this key
-		if !analyticsKey[strings.ToLower(params[0])] {
+		if !analyticsKey[strings.ToLower(key.Key)] {
 			c.Next()
 			return
 		}
@@ -72,44 +67,42 @@ func Analytics() gin.HandlerFunc {
 			return
 		}
 
-		// get a copy of the context
-		context := c.Copy()
+		// set our data
+		request := requestType{
+			Ib:        c.Param("ib"),
+			IP:        c.ClientIP(),
+			User:      userdata.ID,
+			Path:      req.URL.Path,
+			Status:    c.Writer.Status(),
+			Latency:   latency,
+			ItemKey:   key.Key,
+			ItemValue: key.Value,
+			Cached:    c.MustGet("cached").(bool),
+		}
 
 		// fire and forget
-		go func() {
-
-			// get userdata from session middleware
-			userdata := context.MustGet("userdata").(user.User)
-
-			// set our data
-			request := RequestType{
-				Ib:        context.Param("ib"),
-				IP:        context.ClientIP(),
-				User:      userdata.ID,
-				Path:      path,
-				Status:    context.Writer.Status(),
-				Latency:   latency,
-				ItemKey:   key.Key,
-				ItemValue: key.Value,
-				Cached:    context.MustGet("cached").(bool),
-			}
-
-			// Get Database handle
-			dbase, err := db.GetDb()
-			if err != nil {
-				return
-			}
-
-			// input data
-			_, err = dbase.Exec(`INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())`,
-				request.Ib, request.User, request.IP, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
-			if err != nil {
-				return
-			}
-
-		}()
+		go insertRecord(request)
 
 	}
+}
+
+func insertRecord(request requestType) (err error) {
+
+	// Get Database handle
+	dbase, err := db.GetDb()
+	if err != nil {
+		return
+	}
+
+	// input data
+	_, err = dbase.Exec(`INSERT INTO analytics (ib_id, user_id, request_ip, request_path, request_status, request_latency, request_itemkey, request_itemvalue, request_cached, request_time) VALUES (?,?,?,?,?,?,?,?,?,NOW())`,
+		request.Ib, request.User, request.IP, request.Path, request.Status, request.Latency, request.ItemKey, request.ItemValue, request.Cached)
+	if err != nil {
+		return
+	}
+
+	return
+
 }
 
 type itemKey struct {
@@ -118,7 +111,12 @@ type itemKey struct {
 }
 
 // Will take the params from the request and turn them into a key
-func (r *itemKey) generateKey(params ...string) {
+func generateKey(path string) itemKey {
+
+	// Trim leading / from path and split
+	params := strings.Split(strings.Trim(path, "/"), "/")
+	// new item key
+	r := itemKey{}
 
 	switch {
 	case len(params) <= 2:
@@ -129,6 +127,6 @@ func (r *itemKey) generateKey(params ...string) {
 		r.Value = params[2]
 	}
 
-	return
+	return r
 
 }

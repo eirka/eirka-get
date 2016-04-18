@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
 )
 
@@ -34,8 +35,15 @@ func Cache() gin.HandlerFunc {
 
 		// check the cache
 		result, err := key.SetKey(request[1:]...).Get()
-		if result == nil {
-			// go to the controller if it wasnt found
+		// abort if the key was not set correctly somehow
+		if err == redis.ErrKeyNotSet {
+			c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+			c.Error(err).SetMeta("Cache.KeyNotSet")
+			c.Abort()
+			return
+		}
+		// go to the controller if it wasnt found in redis
+		if err == redis.ErrCacheMiss {
 			c.Next()
 
 			// Check if there was an error from the controller
@@ -48,7 +56,7 @@ func Cache() gin.HandlerFunc {
 			// set the data returned from the controller
 			err = key.Set(c.MustGet("data").([]byte))
 			if err != nil {
-				c.Error(err)
+				c.Error(err).SetMeta("Cache.Redis.Set")
 				c.Abort()
 				return
 			}
@@ -56,15 +64,17 @@ func Cache() gin.HandlerFunc {
 			return
 
 		}
+		// if redis is returning errors then just pass through
 		if err != nil {
-			c.Error(err)
-			c.Abort()
+			c.Error(err).SetMeta("Cache.Redis.Get")
+			c.Next()
 			return
 		}
 
 		// if we made it this far then the page was cached
 		c.Set("cached", true)
 
+		// return cached result and abort
 		c.Data(200, "application/json", result)
 		c.Abort()
 
