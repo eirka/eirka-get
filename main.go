@@ -27,11 +27,11 @@ func init() {
 
 		User:           local.Settings.Database.User,
 		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Proto,
+		Proto:          local.Settings.Database.Protocol,
 		Host:           local.Settings.Database.Host,
 		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Database.MaxIdle,
-		MaxConnections: local.Settings.Database.MaxConnections,
+		MaxIdle:        local.Settings.Get.DatabaseMaxIdle,
+		MaxConnections: local.Settings.Get.DatabaseMaxConnections,
 	}
 
 	// Set up DB connection
@@ -44,9 +44,9 @@ func init() {
 	r := redis.Redis{
 		// Redis address and max pool connections
 		Protocol:       local.Settings.Redis.Protocol,
-		Address:        local.Settings.Redis.Address,
-		MaxIdle:        local.Settings.Redis.MaxIdle,
-		MaxConnections: local.Settings.Redis.MaxConnections,
+		Address:        local.Settings.Redis.Host,
+		MaxIdle:        local.Settings.Get.RedisMaxIdle,
+		MaxConnections: local.Settings.Get.RedisMaxConnections,
 	}
 
 	// Set up Redis connection
@@ -101,7 +101,7 @@ func main() {
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Address, local.Settings.Get.Port),
+		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Host, local.Settings.Get.Port),
 		Handler: r,
 	}
 
