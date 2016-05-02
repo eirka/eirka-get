@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/facebookgo/grace/gracehttp"
+	"github.com/facebookgo/pidfile"
 	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
@@ -22,6 +23,15 @@ import (
 )
 
 func init() {
+
+	// create pid file
+	pidfile.SetPidfilePath("/run/eirka/eirka-get.pid")
+
+	err := pidfile.Write()
+	if err != nil {
+		panic("Could not write pid file")
+	}
+
 	// Database connection settings
 	dbase := db.Database{
 
