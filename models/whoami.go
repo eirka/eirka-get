@@ -35,7 +35,7 @@ type UserInfo struct {
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *WhoAmIModel) Get() (err error) {
 
-	if i.Ib == 0 || i.User.ID == 0 || i.User.ID == 1 {
+	if i.Ib == 0 || i.User.ID == 0 {
 		return e.ErrNotFound
 	}
 

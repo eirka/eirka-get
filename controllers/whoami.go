@@ -31,12 +31,12 @@ func WhoAmIController(c *gin.Context) {
 	if err == e.ErrNotFound {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err).SetMeta("UserController.Get")
+		c.Error(err).SetMeta("WhoAmIController.Get")
 		return
 	} else if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("UserController.Get")
+		c.Error(err).SetMeta("WhoAmIController.Get")
 		return
 	}
 
@@ -45,7 +45,7 @@ func WhoAmIController(c *gin.Context) {
 	if err != nil {
 		c.Set("controllerError", true)
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("UserController.Marshal")
+		c.Error(err).SetMeta("WhoAmIController.Marshal")
 		return
 	}
 
