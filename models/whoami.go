@@ -42,10 +42,9 @@ func (i *WhoAmIModel) Get() (err error) {
 	// Initialize response header
 	response := UserType{}
 
-	r := UserInfo{}
-
-	// set our user id
-	r.ID = i.User.ID
+	r := UserInfo{
+		ID: i.User.ID,
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -59,14 +58,15 @@ func (i *WhoAmIModel) Get() (err error) {
   user_name,user_email
   FROM users
   INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-  WHERE users.user_id = ?`, i.Ib, i.User.ID).Scan(&r.Group, &r.Name, &r.Email)
+  WHERE users.user_id = ?`, i.Ib, r.ID).Scan(&r.Group, &r.Name, &r.Email)
 	if err != nil {
 		return
 	}
 
 	// get the last time the user was active if authed
-	if i.User.IsAuthenticated {
-
+	if !i.User.IsAuthenticated {
+		r.LastActive = time.Now()
+	} else {
 		var lastactive mysql.NullTime
 
 		// get the time the user was last active
@@ -85,7 +85,6 @@ func (i *WhoAmIModel) Get() (err error) {
 		} else {
 			r.LastActive = time.Now()
 		}
-
 	}
 
 	response.Body = r
