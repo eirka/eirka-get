@@ -42,9 +42,10 @@ func (i *WhoAmIModel) Get() (err error) {
 	// Initialize response header
 	response := UserType{}
 
-	r := UserInfo{
-		ID: i.User.ID,
-	}
+	r := UserInfo{}
+
+	// set our user id
+	r.ID = i.User.ID
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -58,7 +59,7 @@ func (i *WhoAmIModel) Get() (err error) {
   user_name,user_email
   FROM users
   INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-  WHERE users.user_id = ?`, i.Ib, r.ID).Scan(&r.Group, &r.Name, &r.Email)
+  WHERE users.user_id = ?`, i.Ib, i.User.ID).Scan(&r.Group, &r.Name, &r.Email)
 	if err != nil {
 		return
 	}
