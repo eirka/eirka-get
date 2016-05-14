@@ -101,12 +101,12 @@ func main() {
 	public.GET("/favorited/:ib", c.FavoritedController)
 	public.GET("/tagtypes", c.TagTypesController)
 	public.GET("/imageboards", c.ImageboardsController)
+	public.GET("/whoami/:ib", c.WhoAmIController)
 
 	// user pages
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
-	users.GET("/whoami/:ib", c.UserController)
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 

@@ -11,8 +11,8 @@ import (
 	"github.com/eirka/eirka-get/models"
 )
 
-// UserController gets account info
-func UserController(c *gin.Context) {
+// WhoAmIController gets account info
+func WhoAmIController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
@@ -21,8 +21,8 @@ func UserController(c *gin.Context) {
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
-	m := &models.UserModel{
-		User: userdata.ID,
+	m := &models.WhoAmIModel{
+		User: userdata,
 		Ib:   params[0],
 	}
 
