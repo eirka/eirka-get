@@ -28,7 +28,7 @@ type UserInfo struct {
 	ID         uint      `json:"id"`
 	Name       string    `json:"name"`
 	Group      uint      `json:"group"`
-	Email      string    `json:"email,omitempty"`
+	Email      *string   `json:"email,omitempty"`
 	LastActive time.Time `json:"last_active,omitempty"`
 }
 
