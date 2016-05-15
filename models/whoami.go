@@ -72,7 +72,7 @@ func (i *WhoAmIModel) Get() (err error) {
 
 		// get the time the user was last active
 		err = dbase.QueryRow(`SELECT request_time FROM analytics
-    WHERE user_id = ? AND ib_id = ? ORDER BY analytics_id DESC LIMIT 1`, i.User, i.Ib).Scan(&lastactive)
+    WHERE user_id = ? AND ib_id = ? ORDER BY analytics_id DESC LIMIT 1`, r.ID, i.Ib).Scan(&lastactive)
 		// we dont care if there were no rows
 		if err == sql.ErrNoRows {
 			err = nil
