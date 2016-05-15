@@ -25,11 +25,12 @@ type UserType struct {
 
 // UserInfo holds all the user metadata
 type UserInfo struct {
-	ID         uint      `json:"id"`
-	Name       string    `json:"name"`
-	Group      uint      `json:"group"`
-	Email      *string   `json:"email,omitempty"`
-	LastActive time.Time `json:"last_active,omitempty"`
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	Group         uint      `json:"group"`
+	Authenticated bool      `json:"authenticated"`
+	Email         *string   `json:"email,omitempty"`
+	LastActive    time.Time `json:"last_active,omitempty"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -42,10 +43,10 @@ func (i *WhoAmIModel) Get() (err error) {
 	// Initialize response header
 	response := UserType{}
 
-	r := UserInfo{}
-
-	// set our user id
-	r.ID = i.User.ID
+	r := UserInfo{
+		ID:            i.User.ID,
+		Authenticated: i.User.IsAuthenticated,
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -65,7 +66,7 @@ func (i *WhoAmIModel) Get() (err error) {
 	}
 
 	// get the last time the user was active if authed
-	if !i.User.IsAuthenticated {
+	if !r.Authenticated {
 		r.LastActive = time.Now()
 	} else {
 		var lastactive mysql.NullTime
