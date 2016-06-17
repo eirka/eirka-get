@@ -11,6 +11,7 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
+	"github.com/eirka/eirka-libs/datadog"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/status"
@@ -24,10 +25,12 @@ import (
 
 func init() {
 
+	var err error
+
 	// create pid file
 	pidfile.SetPidfilePath("/run/eirka/eirka-get.pid")
 
-	err := pidfile.Write()
+	err = pidfile.Write()
 	if err != nil {
 		panic("Could not write pid file")
 	}
@@ -67,6 +70,15 @@ func init() {
 
 	// set cors domains
 	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
+
+	// initialize datadog client
+	err = datadog.New()
+	if err != nil {
+		panic("Could not initialize the dog")
+	}
+
+	// client namespace base
+	datadog.Client.Namespace = "eirka.get."
 
 }
 
