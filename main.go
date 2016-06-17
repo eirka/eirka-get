@@ -85,6 +85,8 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// send statistics to statsd
+	r.Use(m.DataDog())
 	// add CORS headers
 	r.Use(cors.CORS())
 	// validate all route parameters
