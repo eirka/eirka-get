@@ -85,8 +85,6 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	// send statistics to statsd
-	r.Use(m.DataDog())
 	// add CORS headers
 	r.Use(cors.CORS())
 	// validate all route parameters
@@ -98,6 +96,8 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(user.Auth(false))
+	// send statistics to statsd
+	public.Use(m.DataDog())
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
