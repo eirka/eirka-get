@@ -8,11 +8,19 @@ import (
 
 	"github.com/eirka/eirka-libs/datadog"
 	"github.com/eirka/eirka-libs/user"
+
+	local "github.com/eirka/eirka-get/config"
 )
 
 // DataDog sends various statistics to statsd
 func DataDog() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		// noop if datadog is not turned on
+		if !local.Settings.Get.DataDog {
+			c.Next()
+			return
+		}
 
 		// get userdata from session middleware
 		userdata := c.MustGet("userdata").(user.User)

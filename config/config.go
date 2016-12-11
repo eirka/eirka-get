@@ -53,6 +53,7 @@ type Get struct {
 	DatabaseMaxConnections int
 	RedisMaxIdle           int
 	RedisMaxConnections    int
+	DataDog                bool
 }
 
 // Database holds the connection settings for MySQL
