@@ -105,7 +105,7 @@ func main() {
 	public.GET("/thread/:ib/:thread/:page", c.ThreadController)
 	public.GET("/tag/:ib/:tag/:page", c.TagController)
 	public.GET("/image/:ib/:id", c.ImageController)
-	public.GET("/image/random/:ib", c.RandomController)
+	public.GET("/random/image/:ib", c.RandomController)
 	public.GET("/post/:ib/:thread/:id", c.PostController)
 	public.GET("/tags/:ib/:page", c.TagsController)
 	public.GET("/tagsearch/:ib", c.TagSearchController)
