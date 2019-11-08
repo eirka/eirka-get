@@ -49,6 +49,4 @@ func FavoritedController(c *gin.Context) {
 
 	c.Data(200, "application/json", output)
 
-	return
-
 }

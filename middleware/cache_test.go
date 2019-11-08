@@ -22,18 +22,15 @@ func TestCache(t *testing.T) {
 		c.Set("data", []byte("cache data"))
 
 		c.String(200, "not cached")
-		return
 	})
 
 	router.GET("/thread/:ib/:thread/:page", func(c *gin.Context) {
 		c.Set("controllerError", true)
 		c.String(500, "BAD!!")
-		return
 	})
 
 	router.GET("/nocache/:id", func(c *gin.Context) {
 		c.String(200, "OK")
-		return
 	})
 
 	redis.NewRedisMock()

@@ -25,7 +25,7 @@ type TagSearchType struct {
 // remove bad characters
 func formatQuery(str string) string {
 	return strings.Map(func(r rune) rune {
-		if strings.IndexRune(`"'+-@><()~*`, r) < 0 {
+		if !strings.ContainsRune(`"'+-@><()~*`, r) {
 			return r
 		}
 		return -1

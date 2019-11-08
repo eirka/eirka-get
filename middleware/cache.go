@@ -78,7 +78,5 @@ func Cache() gin.HandlerFunc {
 		c.Data(200, "application/json", result)
 		c.Abort()
 
-		return
-
 	}
 }

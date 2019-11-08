@@ -17,6 +17,4 @@ func UptimeController(c *gin.Context) {
 		"uptime": fmt.Sprintf("%.0fm", time.Since(startTime).Minutes()),
 	})
 
-	return
-
 }

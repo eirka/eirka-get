@@ -23,6 +23,4 @@ func (p *PagedResponse) Get() {
 		p.Pages = 1
 	}
 
-	return
-
 }

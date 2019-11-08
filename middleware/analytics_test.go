@@ -47,18 +47,15 @@ func TestAnalytics(t *testing.T) {
 
 	router.GET("/index/:ib/:page", func(c *gin.Context) {
 		c.String(200, "OK")
-		return
 	})
 
 	router.GET("/nocache/:id", func(c *gin.Context) {
 		c.String(200, "OK")
-		return
 	})
 
 	router.GET("/thread/:id", func(c *gin.Context) {
 		c.Set("controllerError", true)
 		c.String(500, "YA BLEW IT")
-		return
 	})
 
 	// requires db connection

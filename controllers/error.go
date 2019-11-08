@@ -11,6 +11,4 @@ func ErrorController(c *gin.Context) {
 
 	c.JSON(e.ErrorMessage(e.ErrNotFound))
 
-	return
-
 }

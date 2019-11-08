@@ -44,7 +44,5 @@ func DataDog() gin.HandlerFunc {
 		// count request duration
 		datadog.Client.Histogram("request.latency", latency.Seconds(), nil, 1)
 
-		return
-
 	}
 }
