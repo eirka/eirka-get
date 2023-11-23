@@ -12,7 +12,6 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
-	"github.com/eirka/eirka-libs/datadog"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/status"
@@ -76,18 +75,6 @@ func init() {
 		panic("Could not initialize settings")
 	}
 
-	// initialize datadog client
-	err = datadog.New()
-	if err != nil {
-		panic("Could not initialize the dog")
-	}
-
-	if datadog.Client != nil {
-		// client namespace base
-		datadog.Client.Namespace = "eirka.get."
-	} else {
-		panic("Could not initialize the dog")
-	}
 }
 
 func main() {
@@ -107,8 +94,6 @@ func main() {
 	// public cached pages
 	public := r.Group("/")
 	public.Use(user.Auth(false))
-	// send statistics to statsd
-	public.Use(m.DataDog())
 	public.Use(m.Analytics())
 	public.Use(m.Cache())
 
