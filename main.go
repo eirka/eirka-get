@@ -7,7 +7,6 @@ import (
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/facebookgo/pidfile"
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
@@ -79,9 +78,6 @@ func init() {
 
 func main() {
 	r := gin.Default()
-
-	// add pprof routes
-	pprof.Register(r, "dev/pprof")
 
 	// add CORS headers
 	r.Use(cors.CORS())
