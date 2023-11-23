@@ -1,11 +1,12 @@
 module github.com/eirka/eirka-get
 
-go 1.20
+go 1.21
 
 require (
 	github.com/eirka/eirka-libs v1.8.2
 	github.com/facebookgo/grace v0.0.0-20180706040059-75cf19382434
 	github.com/facebookgo/pidfile v0.0.0-20150612191647-f242e2999868
+	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/stretchr/testify v1.8.4

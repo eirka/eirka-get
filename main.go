@@ -7,6 +7,7 @@ import (
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/facebookgo/pidfile"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
@@ -35,41 +36,45 @@ func init() {
 		panic("Could not write pid file")
 	}
 
-	// Database connection settings
-	dbase := db.Database{
+	if local.Settings != nil {
+		// Database connection settings
+		dbase := db.Database{
 
-		User:           local.Settings.Database.User,
-		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Protocol,
-		Host:           local.Settings.Database.Host,
-		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Get.DatabaseMaxIdle,
-		MaxConnections: local.Settings.Get.DatabaseMaxConnections,
+			User:           local.Settings.Database.User,
+			Password:       local.Settings.Database.Password,
+			Proto:          local.Settings.Database.Protocol,
+			Host:           local.Settings.Database.Host,
+			Database:       local.Settings.Database.Database,
+			MaxIdle:        local.Settings.Get.DatabaseMaxIdle,
+			MaxConnections: local.Settings.Get.DatabaseMaxConnections,
+		}
+
+		// Set up DB connection
+		dbase.NewDb()
+
+		// Get limits and stuff from database
+		config.GetDatabaseSettings()
+
+		// redis settings
+		r := redis.Redis{
+			// Redis address and max pool connections
+			Protocol:       local.Settings.Redis.Protocol,
+			Address:        local.Settings.Redis.Host,
+			MaxIdle:        local.Settings.Get.RedisMaxIdle,
+			MaxConnections: local.Settings.Get.RedisMaxConnections,
+		}
+
+		// Set up Redis connection
+		r.NewRedisCache()
+
+		// set auth middleware secret
+		user.Secret = local.Settings.Session.Secret
+
+		// set cors domains
+		cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
+	} else {
+		panic("Could not initialize settings")
 	}
-
-	// Set up DB connection
-	dbase.NewDb()
-
-	// Get limits and stuff from database
-	config.GetDatabaseSettings()
-
-	// redis settings
-	r := redis.Redis{
-		// Redis address and max pool connections
-		Protocol:       local.Settings.Redis.Protocol,
-		Address:        local.Settings.Redis.Host,
-		MaxIdle:        local.Settings.Get.RedisMaxIdle,
-		MaxConnections: local.Settings.Get.RedisMaxConnections,
-	}
-
-	// Set up Redis connection
-	r.NewRedisCache()
-
-	// set auth middleware secret
-	user.Secret = local.Settings.Session.Secret
-
-	// set cors domains
-	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET", ","))
 
 	// initialize datadog client
 	err = datadog.New()
@@ -77,13 +82,19 @@ func init() {
 		panic("Could not initialize the dog")
 	}
 
-	// client namespace base
-	datadog.Client.Namespace = "eirka.get."
-
+	if datadog.Client != nil {
+		// client namespace base
+		datadog.Client.Namespace = "eirka.get."
+	} else {
+		panic("Could not initialize the dog")
+	}
 }
 
 func main() {
 	r := gin.Default()
+
+	// add pprof routes
+	pprof.Register(r, "dev/pprof")
 
 	// add CORS headers
 	r.Use(cors.CORS())
@@ -125,11 +136,14 @@ func main() {
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
 
-	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Host, local.Settings.Get.Port),
-		Handler: r,
+	if local.Settings != nil {
+		s := &http.Server{
+			Addr:    fmt.Sprintf("%s:%d", local.Settings.Get.Host, local.Settings.Get.Port),
+			Handler: r,
+		}
+
+		gracehttp.Serve(s)
+	} else {
+		panic("Could not initialize settings")
 	}
-
-	gracehttp.Serve(s)
-
 }

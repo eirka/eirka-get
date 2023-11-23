@@ -22,7 +22,11 @@ func testCache() gin.HandlerFunc {
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
+	if req != nil {
+		req.Header.Set("X-Real-Ip", "123.0.0.1")
+	} else {
+		panic("Could not set header")
+	}
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w

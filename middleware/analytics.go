@@ -118,13 +118,15 @@ func generateKey(path string) itemKey {
 	// new item key
 	r := itemKey{}
 
-	switch {
-	case len(params) <= 2:
-		r.Key = params[0]
-		r.Value = "1"
-	case len(params) >= 3:
-		r.Key = params[0]
-		r.Value = params[2]
+	if params != nil {
+		switch {
+		case len(params) <= 2:
+			r.Key = params[0]
+			r.Value = "1"
+		case len(params) >= 3:
+			r.Key = params[0]
+			r.Value = params[2]
+		}
 	}
 
 	return r
