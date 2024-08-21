@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/eirka/eirka-libs/config"
@@ -24,14 +25,14 @@ type DirectoryType struct {
 
 // Directory holds the thread entries for the directory page
 type Directory struct {
-	ID     uint       `json:"id"`
-	Title  string     `json:"title"`
-	Closed bool       `json:"closed"`
-	Sticky bool       `json:"sticky"`
-	Posts  uint       `json:"postcount"`
-	Pages  uint       `json:"pages"`
-	Last   *time.Time `json:"last_post"`
-	Images uint       `json:"images"`
+	ID     uint      `json:"id"`
+	Title  string    `json:"title"`
+	Closed bool      `json:"closed"`
+	Sticky bool      `json:"sticky"`
+	Posts  uint      `json:"postcount"`
+	Pages  uint      `json:"pages"`
+	Last   time.Time `json:"last_post"`
+	Images uint      `json:"images"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data
@@ -81,17 +82,21 @@ func (i *DirectoryModel) Get() (err error) {
     GROUP BY threads.thread_id
     ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
-		return
+		return err
 	}
 	defer rows.Close()
 
 	threads := []Directory{}
 	for rows.Next() {
 		thread := Directory{}
-		err = rows.Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
+		var lastPost sql.NullTime
+		err = rows.Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &lastPost)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
+
+		thread.Last = lastPost.Time
 
 		// Get the number of pages in the thread
 		postpages := u.PagedResponse{}
@@ -105,9 +110,13 @@ func (i *DirectoryModel) Get() (err error) {
 
 		threads = append(threads, thread)
 	}
-	err = rows.Err()
-	if err != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	// Check if no threads were found
+	if len(threads) == 0 {
+		return e.ErrNotFound
 	}
 
 	// Add threads slice to items interface

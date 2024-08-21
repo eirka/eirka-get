@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,12 @@ func Cache() gin.HandlerFunc {
 
 		// Trim leading / from path and split
 		request := strings.Split(strings.Trim(c.Request.URL.Path, "/"), "/")
+
+		// Check for empty path
+		if len(request) == 0 {
+			c.Next()
+			return
+		}
 
 		// get the keyname
 		key := redis.NewKey(request[0])
@@ -53,8 +61,18 @@ func Cache() gin.HandlerFunc {
 				return
 			}
 
+			// Get the data returned from the controller
+			data := c.MustGet("data").([]byte)
+
+			// Validate JSON before caching
+			if !json.Valid(data) {
+				c.Error(errors.New("invalid JSON from controller")).SetMeta("Cache.InvalidJSON")
+				c.Abort()
+				return
+			}
+
 			// set the data returned from the controller
-			err = key.Set(c.MustGet("data").([]byte))
+			err = key.Set(data)
 			if err != nil {
 				c.Error(err).SetMeta("Cache.Redis.Set")
 				c.Abort()
