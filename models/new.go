@@ -54,8 +54,8 @@ func (i *NewModel) Get() (err error) {
 		// Append rows to info struct
 		response.Body = append(response.Body, image)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// This is the data we will serialize

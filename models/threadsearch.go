@@ -89,8 +89,8 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 		threads = append(threads, thread)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// Add pagedresponse to the response struct

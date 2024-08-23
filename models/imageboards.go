@@ -68,8 +68,8 @@ func (i *ImageboardsModel) Get() (err error) {
 
 		boards = append(boards, board)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// Return 404 if there are no threads in ib

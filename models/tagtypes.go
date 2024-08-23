@@ -51,8 +51,8 @@ func (i *TagTypesModel) Get() (err error) {
 		// Append rows to info struct
 		tags = append(tags, tag)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// Add pagedresponse to the response struct

@@ -181,6 +181,9 @@ func (i *IndexModel) Get() (err error) {
 
 		threads = append(threads, thread)
 	}
+	if err != nil {
+		return
+	}
 
 	// Add threads slice to items interface
 	paged.Items = threads

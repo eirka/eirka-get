@@ -125,8 +125,8 @@ func (i *ThreadModel) Get() (err error) {
 		// Append rows to info struct
 		thread.Posts = append(thread.Posts, post)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// Add threads slice to items interface

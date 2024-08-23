@@ -94,8 +94,8 @@ func (i *FavoritesModel) Get() (err error) {
 		// Append rows to info struct
 		tagheader.Images = append(tagheader.Images, image)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// Add tags slice to items interface
