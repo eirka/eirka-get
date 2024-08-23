@@ -53,11 +53,16 @@ func (i *FavoritesModel) Get() (err error) {
 	}
 
 	// Get total favorites count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT count(*) FROM favorites
-	INNER JOIN images on favorites.image_id = images.image_id
-	INNER JOIN posts on images.post_id = posts.post_id
-	INNER JOIN threads on posts.thread_id = threads.thread_id
-	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.User, i.Ib).Scan(&paged.Total)
+	// This query counts the total number of favorite images for a user in a specific image board (ib_id)
+	// while ensuring that the associated threads and posts are not deleted.
+	err = dbase.QueryRow(`
+		SELECT COUNT(*)
+		FROM favorites
+		INNER JOIN images ON favorites.image_id = images.image_id
+		INNER JOIN posts ON images.post_id = posts.post_id
+		INNER JOIN threads ON posts.thread_id = threads.thread_id
+		WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+	`, i.User, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -70,14 +75,20 @@ func (i *FavoritesModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// get images in users favorites with limits
-	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-	FROM favorites
-	INNER JOIN images on favorites.image_id = images.image_id
-	INNER JOIN posts on images.post_id = posts.post_id
-	INNER JOIN threads on posts.thread_id = threads.thread_id
-	WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-	ORDER BY favorite_id DESC LIMIT ?,?`, i.User, i.Ib, paged.Limit, paged.PerPage)
+	// Get images in user's favorites with limits
+	// This query retrieves the favorite images for a user in a specific image board (ib_id),
+	// ensuring that the associated threads and posts are not deleted, and orders the results
+	// by the favorite_id in descending order. It also applies pagination limits.
+	rows, err := dbase.Query(`
+		SELECT images.image_id, image_file, image_thumbnail, image_tn_height, image_tn_width
+		FROM favorites
+		INNER JOIN images ON favorites.image_id = images.image_id
+		INNER JOIN posts ON images.post_id = posts.post_id
+		INNER JOIN threads ON posts.thread_id = threads.thread_id
+		WHERE favorites.user_id = ? AND ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+		ORDER BY favorite_id DESC
+		LIMIT ?, ?
+	`, i.User, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
@@ -89,6 +100,7 @@ func (i *FavoritesModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

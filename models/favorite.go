@@ -35,8 +35,17 @@ func (i *FavoriteModel) Get() (err error) {
 		return
 	}
 
-	// see if a user has starred an image
-	err = dbase.QueryRow("select exists(select 1 from favorites where user_id = ? AND image_id = ?)", i.User, i.ID).Scan(&response.Starred)
+	// See if a user has starred an image
+	// The query checks if there is at least one row in the 'favorites' table
+	// where the 'user_id' matches i.User and 'image_id' matches i.ID.
+	// The 'EXISTS' function returns true if such a row exists, otherwise false.
+	err = dbase.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM favorites 
+			WHERE user_id = ? 
+			AND image_id = ?
+		)`, i.User, i.ID).Scan(&response.Starred)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// No rows means the image is not starred

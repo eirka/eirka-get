@@ -32,16 +32,26 @@ func (i *PopularModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT request_itemvalue,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
-    (SELECT request_itemvalue,image_file,image_thumbnail,image_tn_height,image_tn_width,COUNT(request_itemvalue) AS hits
-    FROM analytics
-    INNER JOIN images on request_itemvalue = images.image_id
-	INNER JOIN posts on images.post_id = posts.post_id
-	INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE analytics.ib_id = ? AND request_itemkey = "image" AND request_time >= (now() - interval 3 day)
-    AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY request_itemvalue
-    ORDER BY hits DESC LIMIT 50) AS popular`, i.Ib)
+	// SQL query to select the most popular images based on the number of hits in the last 3 days.
+	// It joins the analytics, images, posts, and threads tables to gather the necessary data.
+	// The results are filtered to exclude deleted threads and posts, and are limited to the top 50 hits.
+	rows, err := dbase.Query(`
+		SELECT request_itemvalue, image_file, image_thumbnail, image_tn_height, image_tn_width 
+		FROM (
+			SELECT request_itemvalue, image_file, image_thumbnail, image_tn_height, image_tn_width, COUNT(request_itemvalue) AS hits
+			FROM analytics
+			INNER JOIN images ON request_itemvalue = images.image_id
+			INNER JOIN posts ON images.post_id = posts.post_id
+			INNER JOIN threads ON posts.thread_id = threads.thread_id
+			WHERE analytics.ib_id = ? 
+			AND request_itemkey = "image" 
+			AND request_time >= (NOW() - INTERVAL 3 DAY)
+			AND thread_deleted != 1 
+			AND post_deleted != 1
+			GROUP BY request_itemvalue
+			ORDER BY hits DESC 
+			LIMIT 50
+		) AS popular`, i.Ib)
 	if err != nil {
 		return
 	}
@@ -53,6 +63,7 @@ func (i *PopularModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

@@ -67,17 +67,42 @@ func (i *TagSearchModel) Get() (err error) {
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
-	rows, err := dbase.Query(`SELECT count,tag_id,tag_name,tagtype_id
-    FROM (SELECT (SELECT count(tagmap.image_id) FROM tagmap
-    INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id
-    INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
-    tag_id,tag_name,tagtype_id,
-    CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score,
-    MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
-    FROM tags WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AND ib_id = ?
-    GROUP BY tag_id ORDER BY score DESC, score2 DESC) as search`, strings.Join(exact, " "), strings.Join(searchquery, " "), fmt.Sprintf("%s*", strings.Join(searchquery, " ")), i.Ib)
+	// This SQL query performs a complex search for tags based on the given terms.
+	// It does the following:
+	// 1. Counts the number of images associated with each tag, considering only non-deleted posts and threads.
+	// 2. Retrieves tag information (id, name, type).
+	// 3. Calculates two scores:
+	//    - An exact match score (1 if the tag name exactly matches the search terms, 0 otherwise)
+	//    - A relevance score using MySQL's full-text search capabilities
+	// 4. Filters tags based on the search terms using MySQL's boolean mode full-text search
+	// 5. Orders the results by exact match score (descending) and then by relevance score (descending)
+	rows, err := dbase.Query(`
+		SELECT count, tag_id, tag_name, tagtype_id
+		FROM (
+			SELECT 
+				(SELECT COUNT(tagmap.image_id) 
+				 FROM tagmap
+				 INNER JOIN images ON tagmap.image_id = images.image_id
+				 INNER JOIN posts ON images.post_id = posts.post_id
+				 INNER JOIN threads ON posts.thread_id = threads.thread_id
+				 WHERE tagmap.tag_id = tags.tag_id 
+				   AND post_deleted != 1 
+				   AND thread_deleted != 1
+				) AS count,
+				tag_id, tag_name, tagtype_id,
+				CASE WHEN tag_name = ? THEN 1 ELSE 0 END AS score,
+				MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) AS score2
+			FROM tags 
+			WHERE MATCH(tag_name) AGAINST (? IN BOOLEAN MODE) 
+			  AND ib_id = ?
+			GROUP BY tag_id 
+			ORDER BY score DESC, score2 DESC
+		) AS search`,
+		strings.Join(exact, " "),
+		strings.Join(searchquery, " "),
+		fmt.Sprintf("%s*", strings.Join(searchquery, " ")),
+		i.Ib,
+	)
 	if err != nil {
 		return
 	}
@@ -88,6 +113,7 @@ func (i *TagSearchModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&tag.Total, &tag.ID, &tag.Tag, &tag.Type)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 

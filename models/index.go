@@ -73,8 +73,12 @@ func (i *IndexModel) Get() (err error) {
 	var ibs uint
 
 	// Get total thread count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT (SELECT count(*) FROM imageboards) as imageboards,
-    (select count(*) from threads where ib_id = ? AND thread_deleted != 1) as threads`, i.Ib).Scan(&ibs, &paged.Total)
+	// This query retrieves the total number of imageboards and the total number of threads for a specific imageboard (i.Ib) that are not deleted.
+	err = dbase.QueryRow(`
+		SELECT 
+			(SELECT COUNT(*) FROM imageboards) AS imageboards,
+			(SELECT COUNT(*) FROM threads WHERE ib_id = ? AND thread_deleted != 1) AS threads
+	`, i.Ib).Scan(&ibs, &paged.Total)
 	if err != nil {
 		return
 	}
@@ -88,15 +92,24 @@ func (i *IndexModel) Get() (err error) {
 	}
 
 	// Get all thread ids with limit
-	threadIDRows, err := dbase.Query(`SELECT thread_id,thread_title,thread_closed,thread_sticky,posts,images FROM
-    (SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id) as posts,count(image_id) as images,
-    (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post
-    FROM threads
-    INNER JOIN posts on threads.thread_id = posts.thread_id
-    LEFT JOIN images on posts.post_id = images.post_id
-    WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY threads.thread_id
-    ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?) as threads`, i.Ib, paged.Limit, i.Threads)
+	// This query retrieves thread details (id, title, closed status, sticky status, post count, image count) for a specific imageboard (i.Ib) with pagination.
+	threadIDRows, err := dbase.Query(`
+		SELECT 
+			thread_id, thread_title, thread_closed, thread_sticky, posts, images 
+		FROM (
+			SELECT 
+				threads.thread_id, thread_title, thread_closed, thread_sticky, 
+				COUNT(posts.post_id) AS posts, COUNT(image_id) AS images,
+				(SELECT MAX(post_time) FROM posts WHERE thread_id = threads.thread_id AND post_deleted != 1) AS thread_last_post
+			FROM threads
+			INNER JOIN posts ON threads.thread_id = posts.thread_id
+			LEFT JOIN images ON posts.post_id = images.post_id
+			WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+			GROUP BY threads.thread_id
+			ORDER BY thread_sticky = 1 DESC, thread_last_post DESC 
+			LIMIT ?, ?
+		) AS threads
+	`, i.Ib, paged.Limit, i.Threads)
 	if err != nil {
 		return
 	}
@@ -117,18 +130,24 @@ func (i *IndexModel) Get() (err error) {
 		return
 	}
 
-	//Get last thread posts
-	ps1, err := dbase.Prepare(`SELECT * FROM
-    (SELECT posts.post_id,post_num,user_name,users.user_id,
-    COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
-    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-    FROM posts
-    LEFT JOIN images ON (posts.post_id = images.post_id)
-    INNER JOIN users ON (posts.user_id = users.user_id)
-    INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-    WHERE posts.thread_id = ? AND post_deleted != 1
-    ORDER BY post_id DESC LIMIT ?) AS p
-    ORDER BY post_id ASC`)
+	// Get last thread posts
+	// This query retrieves the latest posts for a specific thread (id.ID) in a specific imageboard (i.Ib) with a limit on the number of posts.
+	ps1, err := dbase.Prepare(`
+		SELECT * FROM (
+			SELECT 
+				posts.post_id, post_num, user_name, users.user_id,
+				COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?), user_role_map.role_id) AS role,
+				post_time, post_text, image_id, image_file, image_thumbnail, image_tn_height, image_tn_width
+			FROM posts
+			LEFT JOIN images ON posts.post_id = images.post_id
+			INNER JOIN users ON posts.user_id = users.user_id
+			INNER JOIN user_role_map ON user_role_map.user_id = users.user_id
+			WHERE posts.thread_id = ? AND post_deleted != 1
+			ORDER BY post_id DESC 
+			LIMIT ?
+		) AS p
+		ORDER BY post_id ASC
+	`)
 	if err != nil {
 		return
 	}
@@ -170,6 +189,7 @@ func (i *IndexModel) Get() (err error) {
 			// Scan rows and place column into struct
 			err := e1.Scan(&post.ID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 			if err != nil {
+				e1.Close() // Explicitly close rows before returning
 				return err
 			}
 			// Append rows to info struct

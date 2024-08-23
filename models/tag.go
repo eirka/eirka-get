@@ -69,13 +69,18 @@ func (i *TagModel) Get() (err error) {
 	}
 
 	// Get tag name and type
-	err = dbase.QueryRow(`SELECT tag_name, tagtype_id, count(tagmap.image_id) FROM tags
-    INNER JOIN tagmap on tags.tag_id = tagmap.tag_id
-    INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id
-    INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE tags.tag_id = ? AND tags.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    HAVING tag_name IS NOT NULL`, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
+	// This query retrieves the tag name, tag type, and the count of images associated with the tag.
+	// It joins the tags, tagmap, images, posts, and threads tables to ensure the tag is valid and not deleted.
+	err = dbase.QueryRow(`
+        SELECT tag_name, tagtype_id, COUNT(tagmap.image_id)
+        FROM tags
+        INNER JOIN tagmap ON tags.tag_id = tagmap.tag_id
+        INNER JOIN images ON tagmap.image_id = images.image_id
+        INNER JOIN posts ON images.post_id = posts.post_id
+        INNER JOIN threads ON posts.thread_id = threads.thread_id
+        WHERE tags.tag_id = ? AND tags.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+        HAVING tag_name IS NOT NULL
+    `, i.Tag, i.Ib).Scan(&tagheader.Tag, &tagheader.Type, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -96,13 +101,19 @@ func (i *TagModel) Get() (err error) {
 		paged.Limit = 0
 	}
 
-	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-    FROM tagmap
-    INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id
-    INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    ORDER BY tagmap.image_id LIMIT ?,?`, i.Tag, paged.Limit, paged.PerPage)
+	// Retrieve images associated with the tag
+	// This query selects image details for images associated with the tag.
+	// It joins the tagmap, images, posts, and threads tables to ensure the images are valid and not deleted.
+	rows, err := dbase.Query(`
+        SELECT images.image_id, image_file, image_thumbnail, image_tn_height, image_tn_width
+        FROM tagmap
+        INNER JOIN images ON tagmap.image_id = images.image_id
+        INNER JOIN posts ON images.post_id = posts.post_id
+        INNER JOIN threads ON posts.thread_id = threads.thread_id
+        WHERE tagmap.tag_id = ? AND thread_deleted != 1 AND post_deleted != 1
+        ORDER BY tagmap.image_id
+        LIMIT ?, ?
+    `, i.Tag, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
@@ -114,6 +125,7 @@ func (i *TagModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

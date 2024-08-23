@@ -46,6 +46,7 @@ func (i *TagTypesModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&tag.ID, &tag.Type)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

@@ -56,15 +56,62 @@ func (i *PostModel) Get() (err error) {
 
 	post := Post{}
 
-	err = dbase.QueryRow(`SELECT threads.thread_id,posts.post_id,post_num,user_name,users.user_id,
-    COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
-    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-    FROM posts
-    LEFT JOIN images on posts.post_id = images.post_id
-    INNER JOIN threads on posts.thread_id = threads.thread_id
-    INNER JOIN users on posts.user_id = users.user_id
-    INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-    WHERE posts.post_num = ? AND posts.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1`, i.Ib, i.ID, i.Thread, i.Ib).Scan(&post.ThreadID, &post.PostID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
+	// SQL query to fetch post details along with associated user and image information.
+	// The query joins the posts table with images, threads, and users tables.
+	// It also includes a subquery to get the maximum role_id for the user in the specific ib_id.
+	// The query filters out deleted threads and posts.
+	err = dbase.QueryRow(`
+        SELECT 
+            threads.thread_id,
+            posts.post_id,
+            post_num,
+            user_name,
+            users.user_id,
+            COALESCE(
+                (SELECT MAX(role_id) 
+                 FROM user_ib_role_map 
+                 WHERE user_ib_role_map.user_id = users.user_id 
+                 AND ib_id = ?),
+                user_role_map.role_id
+            ) AS role,
+            post_time,
+            post_text,
+            image_id,
+            image_file,
+            image_thumbnail,
+            image_tn_height,
+            image_tn_width
+        FROM 
+            posts
+        LEFT JOIN 
+            images ON posts.post_id = images.post_id
+        INNER JOIN 
+            threads ON posts.thread_id = threads.thread_id
+        INNER JOIN 
+            users ON posts.user_id = users.user_id
+        INNER JOIN 
+            user_role_map ON user_role_map.user_id = users.user_id
+        WHERE 
+            posts.post_num = ? 
+            AND posts.thread_id = ? 
+            AND threads.ib_id = ? 
+            AND thread_deleted != 1 
+            AND post_deleted != 1`,
+		i.Ib, i.ID, i.Thread, i.Ib).Scan(
+		&post.ThreadID,
+		&post.PostID,
+		&post.Num,
+		&post.Name,
+		&post.UID,
+		&post.Group,
+		&post.Time,
+		&post.Text,
+		&post.ImageID,
+		&post.File,
+		&post.Thumb,
+		&post.ThumbHeight,
+		&post.ThumbWidth,
+	)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {

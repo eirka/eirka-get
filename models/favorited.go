@@ -32,16 +32,22 @@ func (i *FavoritedModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail,image_tn_height,image_tn_width FROM
-    (SELECT favorites.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width,COUNT(*) AS favorites
-    FROM favorites
-    INNER JOIN images ON favorites.image_id = images.image_id
- 	INNER JOIN posts on images.post_id = posts.post_id
-	INNER JOIN threads on posts.thread_id = threads.thread_id
-	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY image_id
-    ORDER BY favorites DESC
-    LIMIT 20) AS favorited`, i.Ib)
+	// SQL query to select the top 20 favorited images for a given image board (ib_id).
+	// The query joins the favorites, images, posts, and threads tables to filter out deleted threads and posts.
+	// It groups the results by image_id and orders them by the count of favorites in descending order.
+	rows, err := dbase.Query(`
+		SELECT image_id, image_file, image_thumbnail, image_tn_height, image_tn_width 
+		FROM (
+			SELECT favorites.image_id, image_file, image_thumbnail, image_tn_height, image_tn_width, COUNT(*) AS favorites
+			FROM favorites
+			INNER JOIN images ON favorites.image_id = images.image_id
+			INNER JOIN posts ON images.post_id = posts.post_id
+			INNER JOIN threads ON posts.thread_id = threads.thread_id
+			WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+			GROUP BY image_id
+			ORDER BY favorites DESC
+			LIMIT 20
+		) AS favorited`, i.Ib)
 	if err != nil {
 		return
 	}

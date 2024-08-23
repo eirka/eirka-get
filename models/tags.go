@@ -54,8 +54,9 @@ func (i *TagsModel) Get() (err error) {
 		return
 	}
 
-	// Get total tag count and put it in pagination struct
-	err = dbase.QueryRow("SELECT count(*) FROM tags WHERE ib_id = ?", i.Ib).Scan(&paged.Total)
+	// This SQL query counts the total number of tags for the given image board (ib_id).
+	// It's used to populate the pagination information.
+	err = dbase.QueryRow("SELECT COUNT(*) FROM tags WHERE ib_id = ?", i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -68,14 +69,28 @@ func (i *TagsModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// get image counts from tagmap
-	rows, err := dbase.Query(`SELECT (SELECT count(tagmap.image_id) FROM tagmap
-    INNER JOIN images on tagmap.image_id = images.image_id
-    INNER JOIN posts on images.post_id = posts.post_id
-    INNER JOIN threads on posts.thread_id = threads.thread_id
-    WHERE tagmap.tag_id = tags.tag_id AND post_deleted != 1 AND thread_deleted != 1) as count,
-    tag_id,tag_name,tagtype_id FROM tags WHERE ib_id = ?
-    GROUP by tag_id ORDER BY count DESC, tag_id ASC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
+	// This complex SQL query retrieves tag information along with image counts.
+	// It joins multiple tables (tagmap, images, posts, threads) to ensure only
+	// non-deleted content is counted. The results are grouped by tag_id,
+	// ordered by count (descending) and tag_id (ascending), and limited for pagination.
+	rows, err := dbase.Query(`
+        SELECT 
+            (SELECT COUNT(tagmap.image_id) 
+             FROM tagmap
+             INNER JOIN images ON tagmap.image_id = images.image_id
+             INNER JOIN posts ON images.post_id = posts.post_id
+             INNER JOIN threads ON posts.thread_id = threads.thread_id
+             WHERE tagmap.tag_id = tags.tag_id 
+               AND post_deleted != 1 
+               AND thread_deleted != 1) AS count,
+            tag_id,
+            tag_name,
+            tagtype_id 
+        FROM tags 
+        WHERE ib_id = ?
+        GROUP BY tag_id 
+        ORDER BY count DESC, tag_id ASC 
+        LIMIT ?, ?`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
@@ -86,6 +101,7 @@ func (i *TagsModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&tag.Total, &tag.ID, &tag.Tag, &tag.Type)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 

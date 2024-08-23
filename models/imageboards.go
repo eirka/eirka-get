@@ -38,20 +38,27 @@ func (i *ImageboardsModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT ib_id, ib_title, ib_description, ib_domain,
-	(SELECT COUNT(thread_id)
-	FROM threads
-	WHERE threads.ib_id=imageboards.ib_id) AS thread_count,
-	(SELECT COUNT(post_id)
-	FROM threads
-	LEFT JOIN posts ON posts.thread_id = threads.thread_id
-	WHERE threads.ib_id=imageboards.ib_id) AS post_count,
-	(SELECT COUNT(image_id)
-	FROM threads
-	LEFT JOIN posts ON posts.thread_id = threads.thread_id
-	LEFT JOIN images ON images.post_id = posts.post_id
-	WHERE threads.ib_id=imageboards.ib_id) AS image_count
-	FROM imageboards`)
+	// SQL query to select imageboard details along with counts of threads, posts, and images.
+	// The subqueries count the number of threads, posts, and images associated with each imageboard.
+	rows, err := dbase.Query(`
+		SELECT 
+			ib_id, 
+			ib_title, 
+			ib_description, 
+			ib_domain,
+			(SELECT COUNT(thread_id)
+			 FROM threads
+			 WHERE threads.ib_id = imageboards.ib_id) AS thread_count,
+			(SELECT COUNT(post_id)
+			 FROM threads
+			 LEFT JOIN posts ON posts.thread_id = threads.thread_id
+			 WHERE threads.ib_id = imageboards.ib_id) AS post_count,
+			(SELECT COUNT(image_id)
+			 FROM threads
+			 LEFT JOIN posts ON posts.thread_id = threads.thread_id
+			 LEFT JOIN images ON images.post_id = posts.post_id
+			 WHERE threads.ib_id = imageboards.ib_id) AS image_count
+		FROM imageboards`)
 	if err != nil {
 		return
 	}
@@ -63,6 +70,7 @@ func (i *ImageboardsModel) Get() (err error) {
 		board := Imageboard{}
 		err := rows.Scan(&board.ID, &board.Title, &board.Description, &board.Domain, &board.Threads, &board.Posts, &board.Images)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 

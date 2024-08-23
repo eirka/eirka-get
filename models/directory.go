@@ -58,9 +58,13 @@ func (i *DirectoryModel) Get() (err error) {
 		return
 	}
 
-	// Get total tag count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT count(thread_id) FROM threads
-    WHERE ib_id = ? AND thread_deleted != 1`, i.Ib).Scan(&paged.Total)
+	// Get total thread count for the specified board (ib_id) and put it in pagination struct
+	// This query counts the number of threads that are not deleted for the given board
+	err = dbase.QueryRow(`
+		SELECT COUNT(thread_id)
+		FROM threads
+		WHERE ib_id = ? AND thread_deleted != 1
+	`, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return
 	}
@@ -73,14 +77,20 @@ func (i *DirectoryModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),
-    (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post
-    FROM threads
-    LEFT JOIN posts on threads.thread_id = posts.thread_id
-    LEFT JOIN images on images.post_id = posts.post_id
-    WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY threads.thread_id
-    ORDER BY thread_sticky = 1 DESC, thread_last_post DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
+	// Get the thread details for the specified board (ib_id) and page
+	// This query retrieves thread information including the number of posts and images,
+	// and the time of the last post, for threads that are not deleted
+	rows, err := dbase.Query(`
+		SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT(posts.post_id), COUNT(image_id),
+			(SELECT MAX(post_time) FROM posts WHERE thread_id = threads.thread_id AND post_deleted != 1) AS thread_last_post
+		FROM threads
+		LEFT JOIN posts ON threads.thread_id = posts.thread_id
+		LEFT JOIN images ON images.post_id = posts.post_id
+		WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
+		GROUP BY threads.thread_id
+		ORDER BY thread_sticky = 1 DESC, thread_last_post DESC
+		LIMIT ?, ?
+	`, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return err
 	}

@@ -75,12 +75,25 @@ func (i *ThreadModel) Get() (err error) {
 		return
 	}
 
-	// Get total thread count and put it in pagination struct
-	err = dbase.QueryRow(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id)
-    FROM threads
-    INNER JOIN posts on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ? AND threads.ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    GROUP BY threads.thread_id`, i.Thread, i.Ib).Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
+	// This SQL query retrieves thread information and post count for a specific thread.
+	// It joins the threads and posts tables, filtering by thread_id and ib_id.
+	// The query ensures that only non-deleted threads and posts are counted.
+	// It returns the thread ID, title, closed status, sticky status, and total post count.
+	err = dbase.QueryRow(`
+        SELECT 
+            threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT(posts.post_id)
+        FROM 
+            threads
+        INNER JOIN 
+            posts ON threads.thread_id = posts.thread_id
+        WHERE 
+            threads.thread_id = ? 
+            AND threads.ib_id = ? 
+            AND thread_deleted != 1 
+            AND post_deleted != 1
+        GROUP BY 
+            threads.thread_id
+    `, i.Thread, i.Ib).Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &paged.Total)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -99,16 +112,35 @@ func (i *ThreadModel) Get() (err error) {
 		return e.ErrNotFound
 	}
 
-	// Query rows
-	rows, err := dbase.Query(`SELECT posts.post_id,post_num,user_name,users.user_id,
-    COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
-    post_time,post_text,image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-    FROM posts
-    LEFT JOIN images on posts.post_id = images.post_id
-    INNER JOIN users on posts.user_id = users.user_id
-    INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
-    WHERE posts.thread_id = ? AND post_deleted != 1
-    ORDER BY post_id LIMIT ?,?`, i.Ib, i.Thread, paged.Limit, paged.PerPage)
+	// This SQL query retrieves detailed information about posts in a specific thread.
+	// It joins multiple tables (posts, images, users, user_role_map) to gather all necessary data.
+	// The query uses a COALESCE function to determine the user's role, considering both global and image board-specific roles.
+	// It filters for non-deleted posts, orders them by post_id, and applies pagination using LIMIT.
+	rows, err := dbase.Query(`
+        SELECT 
+            posts.post_id, post_num, user_name, users.user_id,
+            COALESCE(
+                (SELECT MAX(role_id) 
+                 FROM user_ib_role_map 
+                 WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),
+                user_role_map.role_id
+            ) AS role,
+            post_time, post_text, image_id, image_file, image_thumbnail, image_tn_height, image_tn_width
+        FROM 
+            posts
+        LEFT JOIN 
+            images ON posts.post_id = images.post_id
+        INNER JOIN 
+            users ON posts.user_id = users.user_id
+        INNER JOIN 
+            user_role_map ON (user_role_map.user_id = users.user_id)
+        WHERE 
+            posts.thread_id = ? 
+            AND post_deleted != 1
+        ORDER BY 
+            post_id 
+        LIMIT ?, ?
+    `, i.Ib, i.Thread, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
@@ -120,6 +152,7 @@ func (i *ThreadModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&post.ID, &post.Num, &post.Name, &post.UID, &post.Group, &post.Time, &post.Text, &post.ImageID, &post.File, &post.Thumb, &post.ThumbHeight, &post.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

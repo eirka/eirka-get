@@ -32,12 +32,30 @@ func (i *NewModel) Get() (err error) {
 		return
 	}
 
-	rows, err := dbase.Query(`SELECT images.image_id,image_file,image_thumbnail,image_tn_height,image_tn_width
-	FROM images
-	INNER JOIN posts on images.post_id = posts.post_id
-	INNER JOIN threads on posts.thread_id = threads.thread_id
-	WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-	ORDER BY images.image_id DESC LIMIT 20`, i.Ib)
+	// SQL query to select image details from the database.
+	// The query joins the images, posts, and threads tables to retrieve image information
+	// where the image board ID matches the provided ID, and the thread and post are not deleted.
+	// The results are ordered by image ID in descending order and limited to 20 records.
+	rows, err := dbase.Query(`
+		SELECT 
+			images.image_id, 
+			image_file, 
+			image_thumbnail, 
+			image_tn_height, 
+			image_tn_width
+		FROM 
+			images
+		INNER JOIN 
+			posts ON images.post_id = posts.post_id
+		INNER JOIN 
+			threads ON posts.thread_id = threads.thread_id
+		WHERE 
+			ib_id = ? 
+			AND thread_deleted != 1 
+			AND post_deleted != 1
+		ORDER BY 
+			images.image_id DESC 
+		LIMIT 20`, i.Ib)
 	if err != nil {
 		return
 	}
@@ -49,6 +67,7 @@ func (i *NewModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct

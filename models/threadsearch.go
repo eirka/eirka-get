@@ -56,15 +56,36 @@ func (i *ThreadSearchModel) Get() (err error) {
 		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
 	}
 
-	rows, err := dbase.Query(`SELECT threads.thread_id,thread_title,thread_closed,thread_sticky,count(posts.post_id),count(image_id),
-    (select max(post_time) from posts where thread_id=threads.thread_id AND post_deleted != 1) as thread_last_post
-    FROM threads
-    LEFT JOIN posts on threads.thread_id = posts.thread_id
-    LEFT JOIN images on images.post_id = posts.post_id
-    WHERE ib_id = ? AND thread_deleted != 1 AND post_deleted != 1
-    AND MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)
-    GROUP BY threads.thread_id
-    ORDER BY thread_last_post`, i.Ib, fmt.Sprintf("%s*", strings.Join(searchquery, " ")))
+	// This SQL query performs a full-text search on thread titles and retrieves relevant thread information.
+	// It joins the threads, posts, and images tables to gather comprehensive data about each matching thread.
+	// The query does the following:
+	// 1. Selects thread details, including ID, title, closed/sticky status, post count, and image count
+	// 2. Calculates the last post time for each thread (excluding deleted posts)
+	// 3. Filters results by image board ID and excludes deleted threads/posts
+	// 4. Uses MATCH...AGAINST for full-text search on thread titles with boolean mode and wildcard
+	// 5. Groups results by thread ID to avoid duplicates
+	// 6. Orders results by the last post time (most recent first)
+	rows, err := dbase.Query(`
+        SELECT 
+            threads.thread_id,
+            thread_title,
+            thread_closed,
+            thread_sticky,
+            COUNT(posts.post_id),
+            COUNT(image_id),
+            (SELECT MAX(post_time) 
+             FROM posts 
+             WHERE thread_id = threads.thread_id AND post_deleted != 1) AS thread_last_post
+        FROM threads
+        LEFT JOIN posts ON threads.thread_id = posts.thread_id
+        LEFT JOIN images ON images.post_id = posts.post_id
+        WHERE ib_id = ? 
+          AND thread_deleted != 1 
+          AND post_deleted != 1
+          AND MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)
+        GROUP BY threads.thread_id
+        ORDER BY thread_last_post DESC
+    `, i.Ib, fmt.Sprintf("%s*", strings.Join(searchquery, " ")))
 	if err != nil {
 		return
 	}
@@ -74,6 +95,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 		thread := Directory{}
 		err := rows.Scan(&thread.ID, &thread.Title, &thread.Closed, &thread.Sticky, &thread.Posts, &thread.Images, &thread.Last)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 
