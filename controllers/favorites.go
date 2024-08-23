@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
@@ -50,6 +51,6 @@ func FavoritesController(c *gin.Context) {
 		return
 	}
 
-	c.Data(200, "application/json", output)
+	c.Data(http.StatusOK, "application/json", output)
 
 }
