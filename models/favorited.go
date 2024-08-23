@@ -53,13 +53,14 @@ func (i *FavoritedModel) Get() (err error) {
 		// Scan rows and place column into struct
 		err := rows.Scan(&image.ID, &image.File, &image.Thumb, &image.ThumbHeight, &image.ThumbWidth)
 		if err != nil {
+			rows.Close() // Explicitly close rows before returning
 			return err
 		}
 		// Append rows to info struct
 		response.Body = append(response.Body, image)
 	}
-	if rows.Err() != nil {
-		return
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	// This is the data we will serialize

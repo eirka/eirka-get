@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 )
@@ -34,9 +36,16 @@ func (i *FavoriteModel) Get() (err error) {
 	}
 
 	// see if a user has starred an image
-	err = dbase.QueryRow("select count(*) from favorites where user_id = ? AND image_id = ? LIMIT 1", i.User, i.ID).Scan(&response.Starred)
+	err = dbase.QueryRow("select exists(select 1 from favorites where user_id = ? AND image_id = ?)", i.User, i.ID).Scan(&response.Starred)
 	if err != nil {
-		return
+		if err == sql.ErrNoRows {
+			// No rows means the image is not starred
+			response.Starred = false
+			err = nil
+		} else {
+			// Handle other database errors
+			return err
+		}
 	}
 
 	// This is the data we will serialize
