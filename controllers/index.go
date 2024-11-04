@@ -21,9 +21,9 @@ func IndexController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// how many threads per index page
-	threads := c.DefaultQuery("threads", strconv.Itoa(int(config.Settings.Limits.ThreadsPerPage)))
+	threads := c.DefaultQuery("threads", strconv.FormatUint(uint64(config.Settings.Limits.ThreadsPerPage), 10))
 	// how many posts per thread
-	posts := c.DefaultQuery("posts", strconv.Itoa(int(config.Settings.Limits.PostsPerThread)))
+	posts := c.DefaultQuery("posts", strconv.FormatUint(uint64(config.Settings.Limits.PostsPerThread), 10))
 
 	// query param must be uint
 	ut, err := validate.ValidateParam(threads)

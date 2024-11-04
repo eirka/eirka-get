@@ -21,7 +21,7 @@ func ThreadController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// how many posts per page
-	posts := c.DefaultQuery("posts", strconv.Itoa(int(config.Settings.Limits.PostsPerPage)))
+	posts := c.DefaultQuery("posts", strconv.FormatUint(uint64(config.Settings.Limits.PostsPerPage), 10))
 
 	up, err := validate.ValidateParam(posts)
 	if err != nil {
