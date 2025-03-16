@@ -92,24 +92,24 @@ func Cache() gin.HandlerFunc {
 		// This identifies identical requests that should share the same database query
 		sfKey := strings.Join(append([]string{request[0]}, request[1:]...), ":")
 
-		// Get the current circuit state
+		// Get the current circuit state and whether the breaker allows this request
 		circuitState := CircuitBreaker.State()
+		allowRequest := CircuitBreaker.AllowRequest()
 		
-		// Check if circuit breaker allows using Redis
-		// If circuit is open, bypass Redis and go directly to the controller
-		if !CircuitBreaker.AllowRequest() {
-			// Set flag that circuit breaker is active (for analytics)
+		// Set analytics flag about the circuit state
+		c.Set("circuitBreakerState", circuitState)
+		
+		// If circuit breaker does not allow using Redis, bypass Redis completely
+		// This properly respects both open state and the limited request count in half-open state
+		if !allowRequest {
 			c.Set("circuitBreakerActive", true)
-			
-			// Only bypass completely if we're in fully open state
-			// In half-open state, we want to test Redis to see if it's recovered
-			if circuitState == StateOpen {
-				c.Next()
-				return
-			}
-			
-			// For half-open state, we continue to the Redis operations below
-			// This allows us to test if Redis has recovered
+			c.Next()
+			return
+		}
+		
+		// If we're in half-open state and allowed through, this is a test request
+		// This allows monitoring if the test request succeeds or fails
+		if circuitState == StateHalfOpen {
 			c.Set("circuitTesting", true)
 		}
 
@@ -181,11 +181,9 @@ func Cache() gin.HandlerFunc {
 					return
 				}
 
-				// Get current circuit state to determine if we should attempt caching
-				currentState := CircuitBreaker.State()
-				
-				// Attempt to cache if circuit is closed or half-open (for testing recovery)
-				if CircuitBreaker.AllowRequest() || currentState == StateHalfOpen || c.GetBool("circuitTesting") {
+				// Only attempt to cache if circuit breaker still allows it
+				// This ensures we respect the circuit breaker's decision on using Redis
+				if CircuitBreaker.AllowRequest() {
 					// Store the result in Redis cache for future requests
 					if err := key.Set(data); err != nil {
 						// If caching fails, we can still return the data to the client
