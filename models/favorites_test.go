@@ -61,7 +61,7 @@ func TestFavoritesModelGet(t *testing.T) {
 		header, ok := model.Result.Body.Items.(models.FavoritesHeader)
 		assert.True(t, ok, "Items should be of type models.FavoritesHeader")
 		assert.Equal(t, 3, len(header.Images), "Should have 3 favorite images")
-		
+
 		// Check first image data
 		assert.Equal(t, uint(5), header.Images[0].ID, "First image ID should be 5")
 		assert.Equal(t, "image5.jpg", *header.Images[0].File, "First image filename should match")
@@ -96,11 +96,11 @@ func TestFavoritesModelGet(t *testing.T) {
 
 		err := model.Get()
 		assert.NoError(t, err, "No error should be returned for valid request with no results")
-		
+
 		// Validate response structure
 		assert.Equal(t, uint(0), model.Result.Body.Total, "Total should be 0")
 		assert.Equal(t, uint(1), model.Result.Body.Pages, "Pages should be 1")
-		
+
 		// Check items type and content
 		header, ok := model.Result.Body.Items.(models.FavoritesHeader)
 		assert.True(t, ok, "Items should be of type models.FavoritesHeader")

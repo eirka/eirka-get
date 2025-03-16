@@ -99,7 +99,7 @@ func (cb *CacheCircuitBreaker) RecordFailure() {
 	if state == StateClosed && newFailures >= cb.config.FailureThreshold {
 		cb.changeState(StateOpen)
 	}
-	
+
 	// If we're in half-open state and get a failure, go back to open state
 	// This ensures we wait another full timeout period before trying again
 	if state == StateHalfOpen {

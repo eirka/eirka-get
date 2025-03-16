@@ -44,7 +44,7 @@ func TestIndexModelGet(t *testing.T) {
 		// Mock post queries for Thread 1
 		postTime := time.Now()
 		thread1PostRows := sqlmock.NewRows([]string{
-			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text", 
+			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text",
 			"image_id", "image_file", "image_thumbnail", "image_tn_height", "image_tn_width",
 		}).
 			AddRow(101, 1, "User1", 201, 2, postTime, "Post 1 text", 301, "image1.jpg", "thumb1.jpg", 100, 150).
@@ -56,7 +56,7 @@ func TestIndexModelGet(t *testing.T) {
 
 		// Mock post queries for Thread 2
 		thread2PostRows := sqlmock.NewRows([]string{
-			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text", 
+			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text",
 			"image_id", "image_file", "image_thumbnail", "image_tn_height", "image_tn_width",
 		}).
 			AddRow(201, 1, "User3", 203, 1, postTime, "Post 3 text", 401, "image3.jpg", "thumb3.jpg", 120, 180)

@@ -268,7 +268,7 @@ func TestWhoAmIModelGet(t *testing.T) {
 
 		err = model.Get()
 		assert.NoError(t, err, "No error should be returned when last active time is null")
-		
+
 		// LastActive should be approximately current time
 		assert.WithinDuration(t, time.Now(), model.Result.Body.LastActive, 2*time.Second, "Last active should be current time when null")
 	})

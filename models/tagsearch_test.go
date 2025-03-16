@@ -8,7 +8,7 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	
+
 	u "github.com/eirka/eirka-get/utils"
 )
 

@@ -39,14 +39,14 @@ func TestFavoritedModelGet(t *testing.T) {
 
 		// Validate response structure
 		assert.Equal(t, 2, len(model.Result.Body), "Should have 2 favorited images")
-		
+
 		// Check first image data
 		assert.Equal(t, uint(1), model.Result.Body[0].ID, "First image ID should be 1")
 		assert.Equal(t, "image1.jpg", *model.Result.Body[0].File, "First image filename should match")
 		assert.Equal(t, "thumb1.jpg", *model.Result.Body[0].Thumb, "First thumbnail should match")
 		assert.Equal(t, uint(150), *model.Result.Body[0].ThumbHeight, "First thumbnail height should match")
 		assert.Equal(t, uint(100), *model.Result.Body[0].ThumbWidth, "First thumbnail width should match")
-		
+
 		// Check second image data
 		assert.Equal(t, uint(2), model.Result.Body[1].ID, "Second image ID should be 2")
 		assert.Equal(t, "image2.jpg", *model.Result.Body[1].File, "Second image filename should match")

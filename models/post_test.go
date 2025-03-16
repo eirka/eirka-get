@@ -21,12 +21,12 @@ func TestPostModelGet(t *testing.T) {
 		// Mock post query
 		postTime := time.Now()
 		postRows := sqlmock.NewRows([]string{
-			"thread_id", "post_id", "post_num", "user_name", "user_id", "role", 
-			"post_time", "post_text", "image_id", "image_file", "image_thumbnail", 
+			"thread_id", "post_id", "post_num", "user_name", "user_id", "role",
+			"post_time", "post_text", "image_id", "image_file", "image_thumbnail",
 			"image_tn_height", "image_tn_width",
 		}).AddRow(
-			42, 101, 5, "TestUser", 123, 2, 
-			postTime, "This is a test post", 789, "test.jpg", "test_thumb.jpg", 
+			42, 101, 5, "TestUser", 123, 2,
+			postTime, "This is a test post", 789, "test.jpg", "test_thumb.jpg",
 			100, 150,
 		)
 
@@ -68,12 +68,12 @@ func TestPostModelGet(t *testing.T) {
 		postTime := time.Now()
 		postText := "This is a test post without image"
 		postRows := sqlmock.NewRows([]string{
-			"thread_id", "post_id", "post_num", "user_name", "user_id", "role", 
-			"post_time", "post_text", "image_id", "image_file", "image_thumbnail", 
+			"thread_id", "post_id", "post_num", "user_name", "user_id", "role",
+			"post_time", "post_text", "image_id", "image_file", "image_thumbnail",
 			"image_tn_height", "image_tn_width",
 		}).AddRow(
-			42, 101, 5, "TestUser", 123, 2, 
-			postTime, postText, nil, nil, nil, 
+			42, 101, 5, "TestUser", 123, 2,
+			postTime, postText, nil, nil, nil,
 			nil, nil,
 		)
 
@@ -239,12 +239,12 @@ func TestPostModelGet(t *testing.T) {
 		// Mock post query with null values for text and image fields
 		postTime := time.Now()
 		postRows := sqlmock.NewRows([]string{
-			"thread_id", "post_id", "post_num", "user_name", "user_id", "role", 
-			"post_time", "post_text", "image_id", "image_file", "image_thumbnail", 
+			"thread_id", "post_id", "post_num", "user_name", "user_id", "role",
+			"post_time", "post_text", "image_id", "image_file", "image_thumbnail",
 			"image_tn_height", "image_tn_width",
 		}).AddRow(
-			42, 101, 5, "TestUser", 123, 2, 
-			postTime, nil, nil, nil, nil, 
+			42, 101, 5, "TestUser", 123, 2,
+			postTime, nil, nil, nil, nil,
 			nil, nil,
 		)
 

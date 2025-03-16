@@ -51,10 +51,10 @@ func (i *ThreadSearchModel) Get() (err error) {
 	// Build query and parameters safely with each term as a separate parameter
 	var params []interface{}
 	var booleanPlaceholders []string
-	
+
 	// First parameter is the image board ID
 	params = append(params, i.Ib)
-	
+
 	// Build the boolean mode search string with placeholders
 	for _, term := range terms {
 		// Clean term for MySQL boolean mode
@@ -62,15 +62,15 @@ func (i *ThreadSearchModel) Get() (err error) {
 		if term == "" {
 			continue // Skip empty terms
 		}
-		
+
 		// For boolean search with wildcard
 		booleanPlaceholders = append(booleanPlaceholders, "+?*")
 		params = append(params, term)
 	}
-	
+
 	// Construct the search expression for the WHERE clause
 	booleanWhereExpr := "MATCH(thread_title) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
-	
+
 	// This SQL query performs a full-text search on thread titles and retrieves relevant thread information.
 	// Now using proper parameterization for security:
 	// 1. Selects thread details, including ID, title, closed/sticky status, post count, and image count
@@ -104,8 +104,8 @@ func (i *ThreadSearchModel) Get() (err error) {
 	if err != nil {
 		return
 	}
-    // Ensure rows are closed even if there's an error later in the function
-    defer rows.Close()
+	// Ensure rows are closed even if there's an error later in the function
+	defer rows.Close()
 
 	threads := []Directory{}
 	for rows.Next() {

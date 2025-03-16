@@ -7,7 +7,7 @@ import (
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/validate"
-	
+
 	u "github.com/eirka/eirka-get/utils"
 )
 
@@ -53,17 +53,17 @@ func (i *TagSearchModel) Get() (err error) {
 	// Build query and parameters safely with each term as a separate parameter
 	var params []interface{}
 	var placeholders, booleanPlaceholders []string
-	
+
 	// Prepare basic parts of the query
 	exactMatchCase := "CASE WHEN tag_name = ? THEN 1 ELSE 0 END"
-	
+
 	// Construct dynamic parts based on number of search terms
 	fullSearchTerm := strings.TrimSpace(i.Term)
-	
+
 	// Add parameters for the queries
 	// First parameter: exact match comparison
 	params = append(params, fullSearchTerm)
-	
+
 	// Build the boolean mode search string with placeholders
 	for _, term := range terms {
 		// Clean term for MySQL boolean mode
@@ -71,23 +71,23 @@ func (i *TagSearchModel) Get() (err error) {
 		if term == "" {
 			continue // Skip empty terms
 		}
-		
+
 		// For boolean search relevance scoring
 		placeholders = append(placeholders, "+?")
 		params = append(params, term)
-		
+
 		// For boolean search with wildcard
 		booleanPlaceholders = append(booleanPlaceholders, "+?*")
 		params = append(params, term)
 	}
-	
+
 	// Add the image board parameter
 	params = append(params, i.Ib)
-	
+
 	// Construct the search expressions
 	booleanMatchExpr := "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(placeholders, ", ' ', ") + ") IN BOOLEAN MODE)"
 	booleanWhereExpr := "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
-	
+
 	// This SQL query performs a complex search for tags based on the given terms.
 	// Now using proper parameterization for security:
 	// 1. Counts the number of images associated with each tag, considering only non-deleted posts and threads.

@@ -13,7 +13,7 @@ func FormatQuery(str string) string {
 		if strings.ContainsRune(`"'+-@><()~*`, r) {
 			return -1
 		}
-		
+
 		// Keep alphanumeric, spaces, and valid characters
 		if unicode.IsLetter(r) || unicode.IsNumber(r) || unicode.IsSpace(r) ||
 			// Japanese Hiragana and Katakana
@@ -28,7 +28,7 @@ func FormatQuery(str string) string {
 			(r >= 0xFF00 && r <= 0xFFEF) {
 			return r
 		}
-		
+
 		// Filter out other potentially problematic characters
 		return -1
 	}, str)

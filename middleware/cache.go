@@ -95,10 +95,10 @@ func Cache() gin.HandlerFunc {
 		// Get the current circuit state and whether the breaker allows this request
 		circuitState := CircuitBreaker.State()
 		allowRequest := CircuitBreaker.AllowRequest()
-		
+
 		// Set analytics flag about the circuit state
 		c.Set("circuitBreakerState", circuitState)
-		
+
 		// If circuit breaker does not allow using Redis, bypass Redis completely
 		// This properly respects both open state and the limited request count in half-open state
 		if !allowRequest {
@@ -106,7 +106,7 @@ func Cache() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		
+
 		// If we're in half-open state and allowed through, this is a test request
 		// This allows monitoring if the test request succeeds or fails
 		if circuitState == StateHalfOpen {

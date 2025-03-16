@@ -40,14 +40,14 @@ func TestNewModelGet(t *testing.T) {
 
 		// Validate response structure
 		assert.Equal(t, 3, len(model.Result.Body), "Should have 3 new images")
-		
+
 		// Check first image data (should be highest ID since ordered DESC)
 		assert.Equal(t, uint(5), model.Result.Body[0].ID, "First image ID should be 5")
 		assert.Equal(t, "image5.jpg", *model.Result.Body[0].File, "First image filename should match")
 		assert.Equal(t, "thumb5.jpg", *model.Result.Body[0].Thumb, "First thumbnail should match")
 		assert.Equal(t, uint(150), *model.Result.Body[0].ThumbHeight, "First thumbnail height should match")
 		assert.Equal(t, uint(100), *model.Result.Body[0].ThumbWidth, "First thumbnail width should match")
-		
+
 		// Check last image data (should be lowest ID since ordered DESC)
 		assert.Equal(t, uint(3), model.Result.Body[2].ID, "Last image ID should be 3")
 		assert.Equal(t, "image3.jpg", *model.Result.Body[2].File, "Last image filename should match")

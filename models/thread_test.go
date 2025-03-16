@@ -30,7 +30,7 @@ func TestThreadModelGet(t *testing.T) {
 
 		// Mock posts query
 		postRows := sqlmock.NewRows([]string{
-			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text", 
+			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text",
 			"image_id", "image_file", "image_thumbnail", "image_tn_height", "image_tn_width",
 		}).
 			AddRow(1, 1, "User1", 101, 3, threadTime, "Post 1 text", 1001, "image1.jpg", "thumb1.jpg", 100, 100).
@@ -105,7 +105,7 @@ func TestThreadModelGet(t *testing.T) {
 
 		// Since page 0 returns all posts, the limit should be 0 and per_page should be total
 		postRows := sqlmock.NewRows([]string{
-			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text", 
+			"post_id", "post_num", "user_name", "user_id", "role", "post_time", "post_text",
 			"image_id", "image_file", "image_thumbnail", "image_tn_height", "image_tn_width",
 		}).AddRow(1, 1, "User1", 101, 3, time.Now(), "Post text", nil, nil, nil, nil, nil)
 
