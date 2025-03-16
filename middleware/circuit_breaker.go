@@ -77,8 +77,9 @@ func (cb *CacheCircuitBreaker) RecordSuccess() {
 	// Reset failure counter on success
 	cb.failures = 0
 
-	// If we're half-open and get a success, close the circuit
-	if state == StateHalfOpen {
+	// If we're half-open or open and get a success, close the circuit
+	// This ensures we can recover even if state transition was missed
+	if state == StateHalfOpen || state == StateOpen {
 		cb.changeState(StateClosed)
 	}
 }

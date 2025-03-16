@@ -92,12 +92,25 @@ func Cache() gin.HandlerFunc {
 		// This identifies identical requests that should share the same database query
 		sfKey := strings.Join(append([]string{request[0]}, request[1:]...), ":")
 
+		// Get the current circuit state
+		circuitState := CircuitBreaker.State()
+		
 		// Check if circuit breaker allows using Redis
 		// If circuit is open, bypass Redis and go directly to the controller
 		if !CircuitBreaker.AllowRequest() {
+			// Set flag that circuit breaker is active (for analytics)
 			c.Set("circuitBreakerActive", true)
-			c.Next()
-			return
+			
+			// Only bypass completely if we're in fully open state
+			// In half-open state, we want to test Redis to see if it's recovered
+			if circuitState == StateOpen {
+				c.Next()
+				return
+			}
+			
+			// For half-open state, we continue to the Redis operations below
+			// This allows us to test if Redis has recovered
+			c.Set("circuitTesting", true)
 		}
 
 		// -------------------------------------------------------------------------
@@ -168,8 +181,11 @@ func Cache() gin.HandlerFunc {
 					return
 				}
 
-				// Only attempt to cache if circuit breaker allows it
-				if CircuitBreaker.AllowRequest() {
+				// Get current circuit state to determine if we should attempt caching
+				currentState := CircuitBreaker.State()
+				
+				// Attempt to cache if circuit is closed or half-open (for testing recovery)
+				if CircuitBreaker.AllowRequest() || currentState == StateHalfOpen || c.GetBool("circuitTesting") {
 					// Store the result in Redis cache for future requests
 					if err := key.Set(data); err != nil {
 						// If caching fails, we can still return the data to the client
@@ -177,7 +193,8 @@ func Cache() gin.HandlerFunc {
 						c.Error(err).SetMeta("Cache.Redis.Set")
 						CircuitBreaker.RecordFailure()
 					} else {
-						// Record successful cache operation
+						// Record successful cache operation which will close the circuit
+						// if we're in half-open state
 						CircuitBreaker.RecordSuccess()
 					}
 				}

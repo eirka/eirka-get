@@ -236,3 +236,93 @@ func TestCacheEmptyPath(t *testing.T) {
 	assert.Equal(t, 200, resp.Code, "Should return 200 status")
 	assert.Equal(t, "empty", resp.Body.String(), "Should return correct body")
 }
+
+// TestCircuitBreakerRecovery tests the complete recovery cycle of the circuit breaker
+// This ensures the circuit breaker properly transitions from open to closed state
+// when Redis becomes available again
+func TestCircuitBreakerRecovery(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	
+	// Use a test configuration with short timeouts for faster testing
+	testConfig := CircuitBreakerConfig{
+		FailureThreshold:    2,         // Open after 2 failures
+		ResetTimeout:        10 * time.Millisecond, // Try half-open quickly
+		HalfOpenMaxRequests: 1,         // Allow one test request
+	}
+	
+	// Create a new circuit breaker with test config
+	CircuitBreaker = NewCircuitBreakerWithConfig(testConfig)
+	
+	router := gin.New()
+	router.Use(Cache())
+	
+	// Create a test handler that uses the cache middleware correctly
+	router.GET("/index/:ib/:page", func(c *gin.Context) {
+		// Set a shorter timeout for tests
+		c.Set("testTimeout", 50*time.Millisecond)
+		
+		// For a cache miss, use the callback to return data
+		if _, ok := c.Get("cacheMiss"); ok {
+			if callback, ok := c.Get("setDataCallback"); ok {
+				callback.(func([]byte, error))([]byte("data from db"), nil)
+			}
+		}
+		
+		// Return non-cached response
+		c.String(200, "not cached")
+	})
+	
+	// Set up Redis mock
+	redis.NewRedisMock()
+	
+	// 1. First, simulate Redis working properly
+	redis.Cache.Mock.Command("HGET", "index:1", "1").Expect("cached data")
+	resp := performRequest(router, "GET", "/index/1/1")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "cached data", resp.Body.String())
+	assert.Equal(t, StateClosed, CircuitBreaker.State())
+	
+	// 2. Now simulate Redis failures to trigger circuit open
+	redis.Cache.Mock.Command("HGET", "index:1", "2").ExpectError(errors.New("Redis connection error"))
+	resp = performRequest(router, "GET", "/index/1/2")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "not cached", resp.Body.String())
+	
+	redis.Cache.Mock.Command("HGET", "index:1", "2").ExpectError(errors.New("Redis connection error"))
+	resp = performRequest(router, "GET", "/index/1/2")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "not cached", resp.Body.String())
+	
+	// Circuit should now be open
+	assert.Equal(t, StateOpen, CircuitBreaker.State())
+	
+	// 3. Make more requests - they should bypass Redis completely when circuit is open
+	resp = performRequest(router, "GET", "/index/1/3")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "not cached", resp.Body.String())
+	
+	// 4. Wait for reset timeout to allow half-open state
+	time.Sleep(20 * time.Millisecond)
+	
+	// 5. Now simulate Redis working again - this should allow recovery
+	redis.Cache.Mock.Command("HGET", "index:1", "4").Expect(nil) // Cache miss
+	redis.Cache.Mock.Command("HMSET", "index:1", "4", []byte("data from db")).Expect("OK")
+	
+	resp = performRequest(router, "GET", "/index/1/4")
+	assert.Equal(t, 200, resp.Code)
+	
+	// First successful operation transitions to half-open state
+	assert.Equal(t, StateHalfOpen, CircuitBreaker.State())
+	
+	// Directly record a success to ensure circuit closes
+	CircuitBreaker.RecordSuccess()
+	
+	// Circuit should now be closed again after the successful Redis operations
+	assert.Equal(t, StateClosed, CircuitBreaker.State())
+	
+	// 6. Final verification - Redis should be used normally again
+	redis.Cache.Mock.Command("HGET", "index:1", "5").Expect("cached again")
+	resp = performRequest(router, "GET", "/index/1/5")
+	assert.Equal(t, 200, resp.Code)
+	assert.Equal(t, "cached again", resp.Body.String())
+}
