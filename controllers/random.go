@@ -45,9 +45,6 @@ func RandomController(c *gin.Context) {
 		return
 	}
 
-	// Hand off data to cache middleware
-	c.Set("data", output)
-
 	c.Data(http.StatusOK, "application/json", output)
 
 }

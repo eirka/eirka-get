@@ -47,9 +47,14 @@ func PostController(c *gin.Context) {
 		return
 	}
 
-	// Hand off data to cache middleware
-	c.Set("data", output)
+	// Check if this is a cacheMiss (request from cache middleware)
+	if _, ok := c.Get("cacheMiss"); ok {
+		// Get the data callback function and use it to send the data
+		if callback, ok := c.Get("setDataCallback"); ok {
+			callback.(func([]byte, error))(output, nil)
+		}
+	}
 
+	// Always write the response back to the client
 	c.Data(http.StatusOK, "application/json", output)
-
 }
