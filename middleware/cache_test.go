@@ -304,14 +304,27 @@ func TestCircuitBreakerRecovery(t *testing.T) {
 	// 4. Wait for reset timeout to allow half-open state
 	time.Sleep(20 * time.Millisecond)
 	
-	// 5. Now simulate Redis working again - this should allow recovery
-	redis.Cache.Mock.Command("HGET", "index:1", "4").Expect(nil) // Cache miss
-	redis.Cache.Mock.Command("HMSET", "index:1", "4", []byte("data from db")).Expect("OK")
+	// 5. Test half-open failure and back to open state
+	// Simulate Redis still being down when the circuit first tries half-open
+	redis.Cache.Mock.Command("HGET", "index:1", "4").ExpectError(errors.New("Redis still down"))
 	
 	resp = performRequest(router, "GET", "/index/1/4")
 	assert.Equal(t, 200, resp.Code)
 	
-	// First successful operation transitions to half-open state
+	// Circuit should go back to open after failure in half-open state
+	assert.Equal(t, StateOpen, CircuitBreaker.State())
+	
+	// Wait for another reset timeout period
+	time.Sleep(20 * time.Millisecond)
+	
+	// 6. Now simulate Redis working again - this should allow recovery
+	redis.Cache.Mock.Command("HGET", "index:1", "5").Expect(nil) // Cache miss
+	redis.Cache.Mock.Command("HMSET", "index:1", "5", []byte("data from db")).Expect("OK")
+	
+	resp = performRequest(router, "GET", "/index/1/5")
+	assert.Equal(t, 200, resp.Code)
+	
+	// First successful operation keeps us in half-open state
 	assert.Equal(t, StateHalfOpen, CircuitBreaker.State())
 	
 	// Directly record a success to ensure circuit closes
@@ -320,9 +333,9 @@ func TestCircuitBreakerRecovery(t *testing.T) {
 	// Circuit should now be closed again after the successful Redis operations
 	assert.Equal(t, StateClosed, CircuitBreaker.State())
 	
-	// 6. Final verification - Redis should be used normally again
-	redis.Cache.Mock.Command("HGET", "index:1", "5").Expect("cached again")
-	resp = performRequest(router, "GET", "/index/1/5")
+	// 7. Final verification - Redis should be used normally again
+	redis.Cache.Mock.Command("HGET", "index:1", "6").Expect("cached again")
+	resp = performRequest(router, "GET", "/index/1/6")
 	assert.Equal(t, 200, resp.Code)
 	assert.Equal(t, "cached again", resp.Body.String())
 }
