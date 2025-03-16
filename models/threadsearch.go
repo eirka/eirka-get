@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
@@ -23,6 +22,8 @@ type ThreadSearchModel struct {
 type ThreadSearchType struct {
 	Body []Directory `json:"threadsearch"`
 }
+
+// This function has been moved to utils.FormatQuery
 
 // Get will gather the information from the database and return it as JSON serialized data
 func (i *ThreadSearchModel) Get() (err error) {
@@ -47,22 +48,35 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	var searchquery []string
-
+	// Build query and parameters safely with each term as a separate parameter
+	var params []interface{}
+	var booleanPlaceholders []string
+	
+	// First parameter is the image board ID
+	params = append(params, i.Ib)
+	
+	// Build the boolean mode search string with placeholders
 	for _, term := range terms {
-		// get rid of bad cahracters for mysql in boolean mode
-		term = formatQuery(term)
-
-		searchquery = append(searchquery, fmt.Sprintf("+%s", term))
+		// Clean term for MySQL boolean mode
+		term = u.FormatQuery(term)
+		if term == "" {
+			continue // Skip empty terms
+		}
+		
+		// For boolean search with wildcard
+		booleanPlaceholders = append(booleanPlaceholders, "+?*")
+		params = append(params, term)
 	}
-
+	
+	// Construct the search expression for the WHERE clause
+	booleanWhereExpr := "MATCH(thread_title) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+	
 	// This SQL query performs a full-text search on thread titles and retrieves relevant thread information.
-	// It joins the threads, posts, and images tables to gather comprehensive data about each matching thread.
-	// The query does the following:
+	// Now using proper parameterization for security:
 	// 1. Selects thread details, including ID, title, closed/sticky status, post count, and image count
 	// 2. Calculates the last post time for each thread (excluding deleted posts)
 	// 3. Filters results by image board ID and excludes deleted threads/posts
-	// 4. Uses MATCH...AGAINST for full-text search on thread titles with boolean mode and wildcard
+	// 4. Uses MATCH...AGAINST for full-text search on thread titles with parameterized inputs
 	// 5. Groups results by thread ID to avoid duplicates
 	// 6. Orders results by the last post time (most recent first)
 	rows, err := dbase.Query(`
@@ -82,13 +96,16 @@ func (i *ThreadSearchModel) Get() (err error) {
         WHERE ib_id = ? 
           AND thread_deleted != 1 
           AND post_deleted != 1
-          AND MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)
+          AND `+booleanWhereExpr+`
         GROUP BY threads.thread_id
         ORDER BY thread_last_post DESC
-    `, i.Ib, fmt.Sprintf("%s*", strings.Join(searchquery, " ")))
+        LIMIT 100
+    `, params...)
 	if err != nil {
 		return
 	}
+    // Ensure rows are closed even if there's an error later in the function
+    defer rows.Close()
 
 	threads := []Directory{}
 	for rows.Next() {

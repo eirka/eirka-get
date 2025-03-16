@@ -60,10 +60,18 @@ func (i *DirectoryModel) Get() (err error) {
 
 	// Get total thread count for the specified board (ib_id) and put it in pagination struct
 	// This query counts the number of threads that are not deleted for the given board
+	// and have at least one non-deleted post
 	err = dbase.QueryRow(`
-		SELECT COUNT(thread_id)
+		SELECT COUNT(DISTINCT threads.thread_id)
 		FROM threads
-		WHERE ib_id = ? AND thread_deleted != 1
+		WHERE threads.ib_id = ? 
+		AND threads.thread_deleted != 1
+		AND EXISTS (
+			SELECT 1 
+			FROM posts 
+			WHERE posts.thread_id = threads.thread_id 
+			AND posts.post_deleted != 1
+		)
 	`, i.Ib).Scan(&paged.Total)
 	if err != nil {
 		return

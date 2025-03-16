@@ -73,11 +73,19 @@ func (i *IndexModel) Get() (err error) {
 	var ibs uint
 
 	// Get total thread count and put it in pagination struct
-	// This query retrieves the total number of imageboards and the total number of threads for a specific imageboard (i.Ib) that are not deleted.
+	// This query retrieves the total number of imageboards and the total number of threads for a specific imageboard (i.Ib) that are not deleted
+	// and have at least one non-deleted post.
 	err = dbase.QueryRow(`
 		SELECT 
 			(SELECT COUNT(*) FROM imageboards) AS imageboards,
-			(SELECT COUNT(*) FROM threads WHERE ib_id = ? AND thread_deleted != 1) AS threads
+			(SELECT COUNT(*) FROM threads 
+			 WHERE ib_id = ? AND thread_deleted != 1
+			 AND EXISTS (
+				 SELECT 1 
+				 FROM posts 
+				 WHERE posts.thread_id = threads.thread_id 
+				 AND post_deleted != 1
+			 )) AS threads
 	`, i.Ib).Scan(&ibs, &paged.Total)
 	if err != nil {
 		return
@@ -200,9 +208,6 @@ func (i *IndexModel) Get() (err error) {
 		}
 
 		threads = append(threads, thread)
-	}
-	if err != nil {
-		return
 	}
 
 	// Add threads slice to items interface

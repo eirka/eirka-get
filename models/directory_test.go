@@ -25,7 +25,7 @@ func TestDirectoryModelGet(t *testing.T) {
 	t.Run("Valid request with threads", func(t *testing.T) {
 		// Mock thread count query
 		countRows := sqlmock.NewRows([]string{"count"}).AddRow(15)
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnRows(countRows)
 
@@ -99,7 +99,7 @@ func TestDirectoryModelGet(t *testing.T) {
 	t.Run("Page exceeds total pages", func(t *testing.T) {
 		// Mock thread count query
 		countRows := sqlmock.NewRows([]string{"count"}).AddRow(15)
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnRows(countRows)
 
@@ -117,7 +117,7 @@ func TestDirectoryModelGet(t *testing.T) {
 	t.Run("No threads found", func(t *testing.T) {
 		// Mock thread count query
 		countRows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnRows(countRows)
 
@@ -160,7 +160,7 @@ func TestDirectoryModelGet(t *testing.T) {
 		mock, err = db.NewTestDb()
 		assert.NoError(t, err, "An error was not expected")
 
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnError(sqlmock.ErrCancelled)
 
@@ -178,7 +178,7 @@ func TestDirectoryModelGet(t *testing.T) {
 	t.Run("Error in thread data query", func(t *testing.T) {
 		// Mock thread count query
 		countRows := sqlmock.NewRows([]string{"count"}).AddRow(15)
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnRows(countRows)
 
@@ -200,7 +200,7 @@ func TestDirectoryModelGet(t *testing.T) {
 	t.Run("Error in scan", func(t *testing.T) {
 		// Mock thread count query
 		countRows := sqlmock.NewRows([]string{"count"}).AddRow(15)
-		mock.ExpectQuery(`SELECT COUNT\(thread_id\) FROM threads WHERE ib_id = \? AND thread_deleted != 1`).
+		mock.ExpectQuery(`SELECT COUNT\(DISTINCT threads.thread_id\) FROM threads WHERE threads.ib_id = \? AND threads.thread_deleted != 1 AND EXISTS \(.*\)`).
 			WithArgs(1).
 			WillReturnRows(countRows)
 

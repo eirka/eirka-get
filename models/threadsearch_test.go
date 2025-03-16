@@ -32,7 +32,7 @@ func TestThreadSearchModelGet(t *testing.T) {
 			AddRow(2, "Test Thread Two", true, false, 10, 3, searchTime.Add(-time.Hour))
 
 		mock.ExpectQuery(`SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT\(posts.post_id\), COUNT\(image_id\), .+ AS thread_last_post FROM threads.+`).
-			WithArgs(1, "+test +search*").
+			WithArgs(1, "test", "search").
 			WillReturnRows(threadRows)
 
 		// Create model and call Get
@@ -77,7 +77,7 @@ func TestThreadSearchModelGet(t *testing.T) {
 		})
 
 		mock.ExpectQuery(`SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT\(posts.post_id\), COUNT\(image_id\), .+ AS thread_last_post FROM threads.+`).
-			WithArgs(1, "+unique +term*").
+			WithArgs(1, "unique", "term").
 			WillReturnRows(threadRows)
 
 		// Create model and call Get
@@ -153,7 +153,7 @@ func TestThreadSearchModelGet(t *testing.T) {
 		assert.NoError(t, err, "An error was not expected")
 
 		mock.ExpectQuery(`SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT\(posts.post_id\), COUNT\(image_id\), .+ AS thread_last_post FROM threads.+`).
-			WithArgs(1, "+test +error*").
+			WithArgs(1, "test", "error").
 			WillReturnError(sqlmock.ErrCancelled)
 
 		model := ThreadSearchModel{
@@ -174,7 +174,7 @@ func TestThreadSearchModelGet(t *testing.T) {
 		}).AddRow(1, "Test Thread")
 
 		mock.ExpectQuery(`SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT\(posts.post_id\), COUNT\(image_id\), .+ AS thread_last_post FROM threads.+`).
-			WithArgs(1, "+test +scan*").
+			WithArgs(1, "test", "scan").
 			WillReturnRows(threadRows)
 
 		model := ThreadSearchModel{
@@ -197,7 +197,7 @@ func TestThreadSearchModelGet(t *testing.T) {
 
 		// The special characters should be stripped from the search term
 		mock.ExpectQuery(`SELECT threads.thread_id, thread_title, thread_closed, thread_sticky, COUNT\(posts.post_id\), COUNT\(image_id\), .+ AS thread_last_post FROM threads.+`).
-			WithArgs(1, "+special +characters*").
+			WithArgs(1, "special", "characters").
 			WillReturnRows(threadRows)
 
 		// Create model with special characters that should be filtered out

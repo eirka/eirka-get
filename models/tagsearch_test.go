@@ -8,6 +8,8 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	
+	u "github.com/eirka/eirka-get/utils"
 )
 
 func TestTagSearchModelGet(t *testing.T) {
@@ -30,7 +32,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			AddRow(20, 3, "anime artist", 3)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("anime", "+anime", "+anime*", 1).
+			WithArgs("anime", "anime", "anime", 1).
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -74,7 +76,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			AddRow(25, 4, "popular anime character", 1)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("popular anime", "+popular +anime", "+popular +anime*", 1).
+			WithArgs("popular anime", "popular", "popular", "anime", "anime", 1).
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -100,7 +102,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		})
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("nonexistent", "+nonexistent", "+nonexistent*", 1).
+			WithArgs("nonexistent", "nonexistent", "nonexistent", 1).
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -176,7 +178,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		assert.NoError(t, err, "An error was not expected")
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("error", "+error", "+error*", 1).
+			WithArgs("error", "error", "error", 1).
 			WillReturnError(sqlmock.ErrCancelled)
 
 		model := TagSearchModel{
@@ -197,7 +199,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		}).AddRow(50, 1)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("scan", "+scan", "+scan*", 1).
+			WithArgs("scan", "scan", "scan", 1).
 			WillReturnRows(tagRows)
 
 		model := TagSearchModel{
@@ -219,7 +221,7 @@ func TestTagSearchModelGet(t *testing.T) {
 
 		// The special characters should be stripped from the search term
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("special characters", "+special +characters", "+special +characters*", 1).
+			WithArgs("special@+-> characters'\"()~*", "special", "special", "characters", "characters", 1).
 			WillReturnRows(tagRows)
 
 		// Create model with special characters that should be filtered out
@@ -237,18 +239,18 @@ func TestTagSearchModelGet(t *testing.T) {
 		assert.Equal(t, "special characters", tags[0].Tag, "Tag name should match")
 	})
 
-	// Test case 11: Test formatQuery function directly
-	t.Run("Test formatQuery function", func(t *testing.T) {
+	// Test case 11: Test FormatQuery function directly
+	t.Run("Test FormatQuery function", func(t *testing.T) {
 		// Test with various special characters
 		input := "test@char+act-er\"s'~*()><"
 		expected := "testcharacters"
-		result := formatQuery(input)
+		result := u.FormatQuery(input)
 		assert.Equal(t, expected, result, "Special characters should be removed")
 
 		// Test with a clean string
 		input = "cleanstring"
 		expected = "cleanstring"
-		result = formatQuery(input)
+		result = u.FormatQuery(input)
 		assert.Equal(t, expected, result, "Clean string should remain unchanged")
 	})
 
