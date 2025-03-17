@@ -32,7 +32,7 @@ func TestTagsModelGet(t *testing.T) {
 			AddRow(50, 2, "series", 2).
 			AddRow(25, 3, "artist", 3)
 
-		mock.ExpectQuery(`SELECT \(SELECT COUNT\(tagmap.image_id\) FROM tagmap.+\) AS count, tag_id, tag_name, tagtype_id FROM tags`).
+		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
 			WithArgs(1, 0, 10).
 			WillReturnRows(tagRows)
 
@@ -111,7 +111,7 @@ func TestTagsModelGet(t *testing.T) {
 		// For 0 total, we still need to set up the expectation for the query
 		// because the model will still attempt to query for tags
 		emptyTagRows := sqlmock.NewRows([]string{"count", "tag_id", "tag_name", "tagtype_id"})
-		mock.ExpectQuery(`SELECT \(SELECT COUNT\(tagmap.image_id\) FROM tagmap.+\) AS count, tag_id, tag_name, tagtype_id FROM tags`).
+		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
 			WithArgs(1, 0, 10).
 			WillReturnRows(emptyTagRows)
 
@@ -176,7 +176,7 @@ func TestTagsModelGet(t *testing.T) {
 			WithArgs(1).
 			WillReturnRows(countRows)
 
-		mock.ExpectQuery(`SELECT \(SELECT COUNT\(tagmap.image_id\) FROM tagmap.+\) AS count, tag_id, tag_name, tagtype_id FROM tags`).
+		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
 			WithArgs(1, 0, 10).
 			WillReturnError(sqlmock.ErrCancelled)
 
@@ -203,7 +203,7 @@ func TestTagsModelGet(t *testing.T) {
 			"count", "tag_id", // Missing columns
 		}).AddRow(100, 1)
 
-		mock.ExpectQuery(`SELECT \(SELECT COUNT\(tagmap.image_id\) FROM tagmap.+\) AS count, tag_id, tag_name, tagtype_id FROM tags`).
+		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
 			WithArgs(1, 0, 10).
 			WillReturnRows(tagRows)
 

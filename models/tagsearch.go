@@ -69,59 +69,51 @@ func (i *TagSearchModel) Get() (err error) {
 	params = append(params, fullSearchTerm)
 
 	// Define the CASE statement for exact matches
-	exactMatchCase := "CASE WHEN tag_name = ? THEN 1 ELSE 0 END"
+	exactMatchCase := "CASE WHEN t.tag_name = ? THEN 1 ELSE 0 END"
 
 	// Construct the search expressions
 	var booleanMatchExpr, booleanWhereExpr string
 	
 	if len(validTerms) == 0 {
 		// No valid search terms
-		booleanMatchExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
-		booleanWhereExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
+		booleanMatchExpr = "MATCH(t.tag_name) AGAINST ('' IN BOOLEAN MODE)"
+		booleanWhereExpr = "MATCH(t.tag_name) AGAINST ('' IN BOOLEAN MODE)"
 	} else {
 		// We have valid terms - add them directly to the parameter list
 		// Format for relevance scoring (used in score2)
 		relevanceSearch := "+" + strings.Join(validTerms, " +") 
 		params = append(params, relevanceSearch)
-		booleanMatchExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
+		booleanMatchExpr = "MATCH(t.tag_name) AGAINST (? IN BOOLEAN MODE)"
 		
 		// Format for wildcard searching (used in WHERE clause)
 		wildcardSearch := "+" + strings.Join(validTerms, "* +") + "*"
 		params = append(params, wildcardSearch)
-		booleanWhereExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
+		booleanWhereExpr = "MATCH(t.tag_name) AGAINST (? IN BOOLEAN MODE)"
 	}
 	
 	// Add the image board parameter as the last parameter
 	params = append(params, i.Ib)
 
-	// This SQL query performs a complex search for tags based on the given terms.
+	// This SQL query performs optimized tag search with improved performance
 	// The parameter order matters and must match the sequence in the params slice:
 	// 1. exactMatch parameter for the CASE expression
-	// 2. relevanceSearch parameter for booleanMatchExpr (score2)
+	// 2. relevanceSearch parameter for booleanMatchExpr (relevance scoring)
 	// 3. wildcardSearch parameter for booleanWhereExpr (WHERE clause)
 	// 4. image board ID for the final filter
 	rows, err := dbase.Query(`
-		SELECT count, tag_id, tag_name, tagtype_id
-		FROM (
-			SELECT 
-				(SELECT COUNT(tagmap.image_id) 
-				 FROM tagmap
-				 INNER JOIN images ON tagmap.image_id = images.image_id
-				 INNER JOIN posts ON images.post_id = posts.post_id
-				 INNER JOIN threads ON posts.thread_id = threads.thread_id
-				 WHERE tagmap.tag_id = tags.tag_id 
-				   AND post_deleted != 1 
-				   AND thread_deleted != 1
-				) AS count,
-				tag_id, tag_name, tagtype_id,
-				`+exactMatchCase+` AS score,
-				`+booleanMatchExpr+` AS score2
-			FROM tags 
-			WHERE `+booleanWhereExpr+` 
-			  AND ib_id = ?
-			GROUP BY tag_id 
-			ORDER BY score DESC, score2 DESC
-		) AS search`,
+		SELECT IFNULL(tag_counts.count, 0) AS count, t.tag_id, t.tag_name, t.tagtype_id
+		FROM tags t
+		LEFT JOIN (
+			SELECT tm.tag_id, COUNT(DISTINCT tm.image_id) as count
+			FROM tagmap tm
+			INNER JOIN images i ON tm.image_id = i.image_id
+			INNER JOIN posts p ON i.post_id = p.post_id AND p.post_deleted != 1
+			INNER JOIN threads th ON p.thread_id = th.thread_id AND th.thread_deleted != 1
+			GROUP BY tm.tag_id
+		) tag_counts ON t.tag_id = tag_counts.tag_id
+		WHERE `+booleanWhereExpr+` 
+		  AND t.ib_id = ?
+		ORDER BY `+exactMatchCase+` DESC, `+booleanMatchExpr+` DESC`,
 		params...,
 	)
 	if err != nil {
