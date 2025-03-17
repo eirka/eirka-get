@@ -50,19 +50,6 @@ func (i *TagSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	// Build query and parameters safely with each term as a separate parameter
-	var params []interface{}
-
-	// Prepare basic parts of the query
-	exactMatchCase := "CASE WHEN tag_name = ? THEN 1 ELSE 0 END"
-
-	// Construct dynamic parts based on number of search terms
-	fullSearchTerm := strings.TrimSpace(i.Term)
-
-	// Add parameters for the queries
-	// First parameter: exact match comparison
-	params = append(params, fullSearchTerm)
-
 	// Process valid terms (after cleaning)
 	var validTerms []string
 	for _, term := range terms {
@@ -74,37 +61,45 @@ func (i *TagSearchModel) Get() (err error) {
 		validTerms = append(validTerms, term)
 	}
 
-	// Add the image board parameter (to be used later in the query)
-	params = append(params, i.Ib)
+	// Build query parameters in correct order for the SQL query
+	var params []interface{}
+	
+	// 1. Prepare the CASE expression parameter (exact match comparison)
+	fullSearchTerm := strings.TrimSpace(i.Term)
+	params = append(params, fullSearchTerm)
 
-	// Construct the search expressions based on how many valid terms we have
+	// Define the CASE statement for exact matches
+	exactMatchCase := "CASE WHEN tag_name = ? THEN 1 ELSE 0 END"
+
+	// Construct the search expressions
 	var booleanMatchExpr, booleanWhereExpr string
+	
 	if len(validTerms) == 0 {
 		// No valid search terms
 		booleanMatchExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
 		booleanWhereExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
 	} else {
 		// We have valid terms - add them directly to the parameter list
-		// Format for relevance scoring
-		relevanceSearch := "+" + strings.Join(validTerms, " +")
+		// Format for relevance scoring (used in score2)
+		relevanceSearch := "+" + strings.Join(validTerms, " +") 
 		params = append(params, relevanceSearch)
 		booleanMatchExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
-
-		// Format for wildcard searching
+		
+		// Format for wildcard searching (used in WHERE clause)
 		wildcardSearch := "+" + strings.Join(validTerms, "* +") + "*"
 		params = append(params, wildcardSearch)
 		booleanWhereExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
 	}
+	
+	// Add the image board parameter as the last parameter
+	params = append(params, i.Ib)
 
 	// This SQL query performs a complex search for tags based on the given terms.
-	// Now using proper parameterization for security:
-	// 1. Counts the number of images associated with each tag, considering only non-deleted posts and threads.
-	// 2. Retrieves tag information (id, name, type).
-	// 3. Calculates two scores:
-	//    - An exact match score (1 if the tag name exactly matches the search terms, 0 otherwise)
-	//    - A relevance score using MySQL's full-text search with parameterized inputs
-	// 4. Filters tags based on the search terms using MySQL's boolean mode full-text search with parameterized inputs
-	// 5. Orders the results by exact match score (descending) and then by relevance score (descending)
+	// The parameter order matters and must match the sequence in the params slice:
+	// 1. exactMatch parameter for the CASE expression
+	// 2. relevanceSearch parameter for booleanMatchExpr (score2)
+	// 3. wildcardSearch parameter for booleanWhereExpr (WHERE clause)
+	// 4. image board ID for the final filter
 	rows, err := dbase.Query(`
 		SELECT count, tag_id, tag_name, tagtype_id
 		FROM (
