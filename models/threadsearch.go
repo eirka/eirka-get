@@ -69,7 +69,12 @@ func (i *ThreadSearchModel) Get() (err error) {
 	}
 
 	// Construct the search expression for the WHERE clause
-	booleanWhereExpr := "MATCH(thread_title) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+	var booleanWhereExpr string
+	if len(booleanPlaceholders) == 0 {
+		booleanWhereExpr = "MATCH(thread_title) AGAINST ('' IN BOOLEAN MODE)"
+	} else {
+		booleanWhereExpr = "MATCH(thread_title) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+	}
 
 	// This SQL query performs a full-text search on thread titles and retrieves relevant thread information.
 	// Now using proper parameterization for security:

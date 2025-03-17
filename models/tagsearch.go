@@ -85,8 +85,15 @@ func (i *TagSearchModel) Get() (err error) {
 	params = append(params, i.Ib)
 
 	// Construct the search expressions
-	booleanMatchExpr := "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(placeholders, ", ' ', ") + ") IN BOOLEAN MODE)"
-	booleanWhereExpr := "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+	// If we have no valid terms, use a fallback expression that will work with the query
+	var booleanMatchExpr, booleanWhereExpr string
+	if len(placeholders) == 0 {
+		booleanMatchExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
+		booleanWhereExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
+	} else {
+		booleanMatchExpr = "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(placeholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+		booleanWhereExpr = "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+	}
 
 	// This SQL query performs a complex search for tags based on the given terms.
 	// Now using proper parameterization for security:
