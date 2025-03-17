@@ -138,7 +138,7 @@ func Cache() gin.HandlerFunc {
 		}
 
 		// Log any unexpected Redis errors and record failure with circuit breaker
-		if err != nil && err != redis.ErrCacheMiss {
+		if err != redis.ErrCacheMiss {
 			c.Error(err).SetMeta("Cache.Redis.Get")
 
 			// Record Redis failure with circuit breaker
