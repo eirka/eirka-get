@@ -48,32 +48,33 @@ func (i *ThreadSearchModel) Get() (err error) {
 
 	terms := strings.Split(strings.TrimSpace(i.Term), " ")
 
-	// Build query and parameters safely with each term as a separate parameter
-	var params []interface{}
-	var booleanPlaceholders []string
-
-	// First parameter is the image board ID
-	params = append(params, i.Ib)
-
-	// Build the boolean mode search string with placeholders
+	// Process valid terms (after cleaning)
+	var validTerms []string
 	for _, term := range terms {
 		// Clean term for MySQL boolean mode
 		term = u.FormatQuery(term)
 		if term == "" {
 			continue // Skip empty terms
 		}
-
-		// For boolean search with wildcard
-		booleanPlaceholders = append(booleanPlaceholders, "+?*")
-		params = append(params, term)
+		validTerms = append(validTerms, term)
 	}
+
+	// Build query and parameters safely with each term as a separate parameter
+	var params []interface{}
+
+	// First parameter is the image board ID
+	params = append(params, i.Ib)
 
 	// Construct the search expression for the WHERE clause
 	var booleanWhereExpr string
-	if len(booleanPlaceholders) == 0 {
+	if len(validTerms) == 0 {
+		// No valid search terms
 		booleanWhereExpr = "MATCH(thread_title) AGAINST ('' IN BOOLEAN MODE)"
 	} else {
-		booleanWhereExpr = "MATCH(thread_title) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+		// Format for wildcard searching
+		wildcardSearch := "+" + strings.Join(validTerms, "* +") + "*"
+		params = append(params, wildcardSearch)
+		booleanWhereExpr = "MATCH(thread_title) AGAINST (? IN BOOLEAN MODE)"
 	}
 
 	// This SQL query performs a full-text search on thread titles and retrieves relevant thread information.

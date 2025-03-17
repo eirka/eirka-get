@@ -63,36 +63,38 @@ func (i *TagSearchModel) Get() (err error) {
 	// Add parameters for the queries
 	// First parameter: exact match comparison
 	params = append(params, fullSearchTerm)
-
-	// Build the boolean mode search string with placeholders
+	
+	// Process valid terms (after cleaning)
+	var validTerms []string
 	for _, term := range terms {
 		// Clean term for MySQL boolean mode
 		term = u.FormatQuery(term)
 		if term == "" {
 			continue // Skip empty terms
 		}
-
-		// For boolean search relevance scoring
-		placeholders = append(placeholders, "+?")
-		params = append(params, term)
-
-		// For boolean search with wildcard
-		booleanPlaceholders = append(booleanPlaceholders, "+?*")
-		params = append(params, term)
+		validTerms = append(validTerms, term)
 	}
-
-	// Add the image board parameter
+	
+	// Add the image board parameter (to be used later in the query)
 	params = append(params, i.Ib)
 
-	// Construct the search expressions
-	// If we have no valid terms, use a fallback expression that will work with the query
+	// Construct the search expressions based on how many valid terms we have
 	var booleanMatchExpr, booleanWhereExpr string
-	if len(placeholders) == 0 {
+	if len(validTerms) == 0 {
+		// No valid search terms
 		booleanMatchExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
 		booleanWhereExpr = "MATCH(tag_name) AGAINST ('' IN BOOLEAN MODE)"
 	} else {
-		booleanMatchExpr = "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(placeholders, ", ' ', ") + ") IN BOOLEAN MODE)"
-		booleanWhereExpr = "MATCH(tag_name) AGAINST (CONCAT(" + strings.Join(booleanPlaceholders, ", ' ', ") + ") IN BOOLEAN MODE)"
+		// We have valid terms - add them directly to the parameter list
+		// Format for relevance scoring
+		relevanceSearch := "+" + strings.Join(validTerms, " +")
+		params = append(params, relevanceSearch)
+		booleanMatchExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
+		
+		// Format for wildcard searching
+		wildcardSearch := "+" + strings.Join(validTerms, "* +") + "*"
+		params = append(params, wildcardSearch)
+		booleanWhereExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
 	}
 
 	// This SQL query performs a complex search for tags based on the given terms.
