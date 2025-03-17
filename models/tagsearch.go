@@ -52,7 +52,6 @@ func (i *TagSearchModel) Get() (err error) {
 
 	// Build query and parameters safely with each term as a separate parameter
 	var params []interface{}
-	var placeholders, booleanPlaceholders []string
 
 	// Prepare basic parts of the query
 	exactMatchCase := "CASE WHEN tag_name = ? THEN 1 ELSE 0 END"
@@ -63,7 +62,7 @@ func (i *TagSearchModel) Get() (err error) {
 	// Add parameters for the queries
 	// First parameter: exact match comparison
 	params = append(params, fullSearchTerm)
-	
+
 	// Process valid terms (after cleaning)
 	var validTerms []string
 	for _, term := range terms {
@@ -74,7 +73,7 @@ func (i *TagSearchModel) Get() (err error) {
 		}
 		validTerms = append(validTerms, term)
 	}
-	
+
 	// Add the image board parameter (to be used later in the query)
 	params = append(params, i.Ib)
 
@@ -90,7 +89,7 @@ func (i *TagSearchModel) Get() (err error) {
 		relevanceSearch := "+" + strings.Join(validTerms, " +")
 		params = append(params, relevanceSearch)
 		booleanMatchExpr = "MATCH(tag_name) AGAINST (? IN BOOLEAN MODE)"
-		
+
 		// Format for wildcard searching
 		wildcardSearch := "+" + strings.Join(validTerms, "* +") + "*"
 		params = append(params, wildcardSearch)

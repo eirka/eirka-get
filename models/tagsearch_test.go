@@ -32,7 +32,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			AddRow(20, 3, "anime artist", 3)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("anime", "anime", "anime", 1).
+			WithArgs("anime", 1, "+anime", "+anime*").
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -76,7 +76,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			AddRow(25, 4, "popular anime character", 1)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("popular anime", "popular", "popular", "anime", "anime", 1).
+			WithArgs("popular anime", 1, "+popular +anime", "+popular* +anime*").
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -102,7 +102,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		})
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("nonexistent", "nonexistent", "nonexistent", 1).
+			WithArgs("nonexistent", 1, "+nonexistent", "+nonexistent*").
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -178,7 +178,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		assert.NoError(t, err, "An error was not expected")
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("error", "error", "error", 1).
+			WithArgs("error", 1, "+error", "+error*").
 			WillReturnError(sqlmock.ErrCancelled)
 
 		model := TagSearchModel{
@@ -199,7 +199,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		}).AddRow(50, 1)
 
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("scan", "scan", "scan", 1).
+			WithArgs("scan", 1, "+scan", "+scan*").
 			WillReturnRows(tagRows)
 
 		model := TagSearchModel{
@@ -221,7 +221,7 @@ func TestTagSearchModelGet(t *testing.T) {
 
 		// The special characters should be stripped from the search term
 		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
-			WithArgs("special@+-> characters'\"()~*", "special", "special", "characters", "characters", 1).
+			WithArgs("special@+-> characters'\"()~*", 1, "+special +characters", "+special* +characters*").
 			WillReturnRows(tagRows)
 
 		// Create model with special characters that should be filtered out
