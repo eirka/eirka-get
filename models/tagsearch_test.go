@@ -31,8 +31,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			AddRow(30, 2, "anime series", 2).
 			AddRow(20, 3, "anime artist", 3)
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("anime", "+anime", "+anime*", 1).
 			WillReturnRows(tagRows)
 
@@ -76,8 +75,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		}).
 			AddRow(25, 4, "popular anime character", 1)
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("popular anime", "+popular +anime", "+popular* +anime*", 1).
 			WillReturnRows(tagRows)
 
@@ -103,8 +101,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			"count", "tag_id", "tag_name", "tagtype_id",
 		})
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("nonexistent", "+nonexistent", "+nonexistent*", 1).
 			WillReturnRows(tagRows)
 
@@ -180,8 +177,7 @@ func TestTagSearchModelGet(t *testing.T) {
 		mock, err = db.NewTestDb()
 		assert.NoError(t, err, "An error was not expected")
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("error", "+error", "+error*", 1).
 			WillReturnError(sqlmock.ErrCancelled)
 
@@ -202,8 +198,7 @@ func TestTagSearchModelGet(t *testing.T) {
 			"count", "tag_id", // Missing columns
 		}).AddRow(50, 1)
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("scan", "+scan", "+scan*", 1).
 			WillReturnRows(tagRows)
 
@@ -224,8 +219,8 @@ func TestTagSearchModelGet(t *testing.T) {
 		}).
 			AddRow(10, 5, "special characters", 2)
 
-		// The parameter order needs to match: first exact match, then relevanceSearch, wildcardSearch, and finally ib_id
-		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .*`).
+		// The special characters should be stripped from the search term
+		mock.ExpectQuery(`SELECT count, tag_id, tag_name, tagtype_id FROM \(.+\) AS search`).
 			WithArgs("special@+-> characters'\"()~*", "+special +characters", "+special* +characters*", 1).
 			WillReturnRows(tagRows)
 
