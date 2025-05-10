@@ -7,12 +7,18 @@ import (
 
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	// Enable test mode for secret validation
+	user.SetTestMode(true)
+}
 
 func testCache() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -36,7 +42,7 @@ func TestAnalytics(t *testing.T) {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	router := gin.New()
 
