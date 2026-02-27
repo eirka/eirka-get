@@ -28,7 +28,7 @@ type UserInfo struct {
 	Group         uint      `json:"group"`
 	Authenticated bool      `json:"authenticated"`
 	Email         *string   `json:"email,omitempty"`
-	LastActive    time.Time `json:"last_active,omitempty"`
+	LastActive    time.Time `json:"last_active"`
 }
 
 // Get will gather the information from the database and return it as JSON serialized data

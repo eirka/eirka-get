@@ -62,7 +62,7 @@ func (i *TagSearchModel) Get() (err error) {
 	}
 
 	// Build query parameters in correct order for the SQL query
-	var params []interface{}
+	var params []any
 
 	// 1. Prepare the CASE expression parameter (exact match comparison)
 	fullSearchTerm := strings.TrimSpace(i.Term)

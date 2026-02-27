@@ -162,7 +162,7 @@ func Cache() gin.HandlerFunc {
 
 		// Use singleflight to deduplicate concurrent requests for the same resource
 		// This ensures only ONE database query is made regardless of concurrent request count
-		data, err, shared := Group.Do(sfKey, func() (interface{}, error) {
+		data, err, shared := Group.Do(sfKey, func() (any, error) {
 			// Create channels for the controller to communicate its results back to us
 			resultChan := make(chan []byte, 1)
 			errorChan := make(chan error, 1)

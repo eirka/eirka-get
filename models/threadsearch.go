@@ -60,7 +60,7 @@ func (i *ThreadSearchModel) Get() (err error) {
 	}
 
 	// Build query and parameters safely with each term as a separate parameter
-	var params []interface{}
+	var params []any
 
 	// First parameter is the image board ID
 	params = append(params, i.Ib)
