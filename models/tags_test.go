@@ -33,7 +33,7 @@ func TestTagsModelGet(t *testing.T) {
 			AddRow(25, 3, "artist", 3)
 
 		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
-			WithArgs(1, 0, 10).
+			WithArgs(1, 1, 0, 10).
 			WillReturnRows(tagRows)
 
 		// Create model and call Get
@@ -112,7 +112,7 @@ func TestTagsModelGet(t *testing.T) {
 		// because the model will still attempt to query for tags
 		emptyTagRows := sqlmock.NewRows([]string{"count", "tag_id", "tag_name", "tagtype_id"})
 		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
-			WithArgs(1, 0, 10).
+			WithArgs(1, 1, 0, 10).
 			WillReturnRows(emptyTagRows)
 
 		// For 0 total, we expect page 1 to be valid, but empty
@@ -177,7 +177,7 @@ func TestTagsModelGet(t *testing.T) {
 			WillReturnRows(countRows)
 
 		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
-			WithArgs(1, 0, 10).
+			WithArgs(1, 1, 0, 10).
 			WillReturnError(sqlmock.ErrCancelled)
 
 		model := TagsModel{
@@ -204,7 +204,7 @@ func TestTagsModelGet(t *testing.T) {
 		}).AddRow(100, 1)
 
 		mock.ExpectQuery(`SELECT IFNULL\(tag_counts.count, 0\) AS count, t.tag_id, t.tag_name, t.tagtype_id FROM tags t LEFT JOIN .* tag_counts ON t.tag_id = tag_counts.tag_id WHERE t.ib_id = \? ORDER BY count DESC, t.tag_id ASC LIMIT \?, \?`).
-			WithArgs(1, 0, 10).
+			WithArgs(1, 1, 0, 10).
 			WillReturnRows(tagRows)
 
 		model := TagsModel{

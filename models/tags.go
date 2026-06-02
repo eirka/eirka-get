@@ -73,12 +73,19 @@ func (i *TagsModel) Get() (err error) {
 	// It joins multiple tables (tagmap, images, posts, threads) to ensure only
 	// non-deleted content is counted. The results are grouped by tag_id,
 	// ordered by count (descending) and tag_id (ascending), and limited for pagination.
+	//
+	// Performance: the count subquery joins tags so the ib_id filter is pushed down,
+	// restricting the aggregation to this board's tagmap rows instead of the whole
+	// table. COUNT(*) is used instead of COUNT(DISTINCT tm.image_id) because the
+	// tagmap PK (image_id, tag_id) plus the 1:1 image->post->thread chain guarantee
+	// one joined row per tagmap row, making the distinct dedup redundant.
 	rows, err := dbase.Query(`
 		SELECT IFNULL(tag_counts.count, 0) AS count, t.tag_id, t.tag_name, t.tagtype_id
 		FROM tags t
 		LEFT JOIN (
-		SELECT tm.tag_id, COUNT(DISTINCT tm.image_id) as count
+		SELECT tm.tag_id, COUNT(*) as count
 		FROM tagmap tm
+		INNER JOIN tags t2 ON tm.tag_id = t2.tag_id AND t2.ib_id = ?
 		INNER JOIN images i ON tm.image_id = i.image_id
 		INNER JOIN posts p ON i.post_id = p.post_id AND p.post_deleted != 1
 		INNER JOIN threads th ON p.thread_id = th.thread_id AND th.thread_deleted != 1
@@ -86,7 +93,7 @@ func (i *TagsModel) Get() (err error) {
 		) tag_counts ON t.tag_id = tag_counts.tag_id
 		WHERE t.ib_id = ?
 		ORDER BY count DESC, t.tag_id ASC
-		LIMIT ?, ?`, i.Ib, paged.Limit, paged.PerPage)
+		LIMIT ?, ?`, i.Ib, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
