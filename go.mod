@@ -3,7 +3,7 @@ module github.com/eirka/eirka-get
 go 1.26.0
 
 require (
-	github.com/eirka/eirka-libs v1.10.2
+	github.com/eirka/eirka-libs v1.10.3
 	github.com/facebookgo/grace v0.0.0-20180706040059-75cf19382434
 	github.com/facebookgo/pidfile v0.0.0-20150612191647-f242e2999868
 	github.com/gin-gonic/gin v1.12.0
