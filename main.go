@@ -23,7 +23,11 @@ import (
 	m "github.com/eirka/eirka-get/middleware"
 )
 
-func init() {
+// configure performs production runtime setup: the pid file, database and redis
+// connection pools, runtime settings loaded from the database, and CORS domains.
+// It runs from main (not an init func) so that test binaries — which import this
+// package — do not try to write a pid file or open database/redis sockets.
+func configure() {
 
 	var err error
 
@@ -74,8 +78,21 @@ func init() {
 
 }
 
-func main() {
+// setupRouter builds the gin engine with every route and its middleware.
+func setupRouter() *gin.Engine {
 	r := gin.Default()
+
+	// c.ClientIP() is recorded by the analytics middleware, so it must not be
+	// client controlled. gin's default trusts every peer and returns the leftmost
+	// X-Forwarded-For entry, which Cloudflare passes through from the client.
+	// Instead, trust only nginx on loopback, and only its CF-Connecting-IP
+	// header, which Cloudflare always overwrites. Any other peer resolves to its
+	// own TCP address.
+	r.RemoteIPHeaders = []string{"CF-Connecting-IP"}
+	err := r.SetTrustedProxies([]string{"127.0.0.1", "::1"})
+	if err != nil {
+		panic("Could not set trusted proxies")
+	}
 
 	// add CORS headers
 	r.Use(cors.CORS())
@@ -114,6 +131,14 @@ func main() {
 
 	users.GET("/favorite/:id", c.FavoriteController)
 	users.GET("/favorites/:ib/:page", c.FavoritesController)
+
+	return r
+}
+
+func main() {
+	configure()
+
+	r := setupRouter()
 
 	if local.Settings != nil {
 		s := &http.Server{
